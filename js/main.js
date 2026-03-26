@@ -17,16 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
       navItems.forEach(n => n.classList.remove('header__nav-item--active'));
       item.classList.add('header__nav-item--active');
 
+      const setBtnLabel = (btn, text) => {
+        const span = btn?.querySelector('span:first-child');
+        if (span) span.textContent = text;
+      };
+
       if (mode === 'spot') {
         document.body.classList.remove('mode-futures');
         document.body.classList.add('mode-spot');
-        if (buyBtn)  buyBtn.textContent  = '매수';
-        if (sellBtn) sellBtn.textContent = '매도';
+        setBtnLabel(buyBtn,  '매수');
+        setBtnLabel(sellBtn, '매도');
       } else {
         document.body.classList.remove('mode-spot');
         document.body.classList.add('mode-futures');
-        if (buyBtn)  buyBtn.textContent  = '매수 / 롱';
-        if (sellBtn) sellBtn.textContent = '매도 / 숏';
+        setBtnLabel(buyBtn,  '매수 / 롱');
+        setBtnLabel(sellBtn, '매도 / 숏');
       }
     });
   });

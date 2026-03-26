@@ -48,8 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateInfoRows();
   };
 
+  const FEE_RATE  = 0.001; // 0.1%
   const liqBuyEl  = document.getElementById('liqBuy');
   const liqSellEl = document.getElementById('liqSell');
+  const buyEstEl  = document.getElementById('buyEstimate');
+  const sellEstEl = document.getElementById('sellEstimate');
 
   // 청산가 계산 및 업데이트
   // 롱 청산가 ≈ 진입가 × (1 - 1/레버리지)
@@ -74,6 +77,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const liqShort = price * (1 + 1 / state.leverage);
     liqBuyEl.textContent  = liqLong  > 0 ? liqLong.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT' : '—';
     liqSellEl.textContent = liqShort > 0 ? liqShort.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT' : '—';
+
+    // 예상 수령액 업데이트
+    updateEstimate();
+  };
+
+  const updateEstimate = () => {
+    if (!buyEstEl || !sellEstEl) return;
+    const price  = getEffectivePrice() || getCurrentPrice();
+    const amount = resolveAmountUsdt();
+
+    if (!amount || !price) {
+      buyEstEl.textContent  = '≈ — USDT';
+      sellEstEl.textContent = '≈ — USDT';
+      return;
+    }
+
+    // 매수/매도 모두 수수료 차감 후 USDT 기준 표시
+    const received = amount * (1 - FEE_RATE);
+    const formatted = received.toLocaleString('ko-KR', { minimumFractionDigits: 5, maximumFractionDigits: 5 });
+
+    buyEstEl.textContent  = '≈ ' + formatted + ' USDT';
+    sellEstEl.textContent = '≈ ' + formatted + ' USDT';
   };
 
   // ===== 유효 가격 (시장가이면 현재가) =====
@@ -111,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 가격/수량 변경 시 정보 행 갱신
-  if (priceInput)  priceInput.addEventListener('input',  updateInfoRows);
-  if (amountInput) amountInput.addEventListener('input', updateInfoRows);
+  if (priceInput)  priceInput.addEventListener('input',  () => { updateInfoRows(); updateEstimate(); });
+  if (amountInput) amountInput.addEventListener('input', () => { updateInfoRows(); updateEstimate(); });
 
   // ===== 주문 유형 탭 =====
   typeTabs.forEach(tab => {
@@ -174,16 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 버튼 피드백 (텍스트 잠시 변경) =====
   const flashBtn = (btn, msg, colorClass) => {
-    const original = btn.textContent;
+    const span      = btn.querySelector('span:first-child');
+    const original  = span ? span.textContent : '';
     const origClass = btn.className;
-    btn.textContent = msg;
+    if (span) span.textContent = msg;
     btn.classList.remove('trade-unified__btn--buy', 'trade-unified__btn--sell');
     btn.classList.add(colorClass);
     btn.disabled = true;
     setTimeout(() => {
-      btn.textContent = original;
-      btn.className   = origClass;
-      btn.disabled    = false;
+      if (span) span.textContent = original;
+      btn.className = origClass;
+      btn.disabled  = false;
     }, 1200);
   };
 
@@ -285,6 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!mode) return;
       state.mode      = mode;
       state.orderType = 'limit';
+      updateInfoRows();
+      updateEstimate();
       if (priceInput) {
         priceInput.disabled      = false;
         priceInput.placeholder   = '0.00';
@@ -400,4 +428,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 초기화 =====
   updateAvailable();
+  updateEstimate();
 });
