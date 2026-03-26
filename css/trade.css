@@ -230,6 +230,7 @@
 /* 매수 / 매도 버튼 */
 .trade-unified__actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
