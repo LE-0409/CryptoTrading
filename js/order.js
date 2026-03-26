@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     futuresUsdt: 0.00,
     mode:        'spot',      // 'spot' | 'futures'
     orderType:   'limit',     // 'limit' | 'market' | 'conditional'
+    amountUnit:  'BTC',       // 'BTC' | 'USDT'
     leverage:    10,
     marginMode:  '격리',
     tif:         'GTC',
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tpslCheckbox   = document.getElementById('tpslCheckbox');
   const tpslSection    = document.getElementById('tpslSection');
   const reduceOnlyCb   = document.getElementById('reduceOnlyCheckbox');
+  const unitSelBtn     = document.querySelector('.trade-unified__unit-sel');
   const avblTransferBtn = document.querySelector('.trade-unified__avbl-btn');
   const typeTabs       = document.querySelectorAll('.trade-unified__type-tab');
 
@@ -90,17 +92,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 슬라이더: % → 수량 계산 =====
   const applySliderPct = (pct) => {
-    const price = getEffectivePrice();
+    const price = getEffectivePrice() || getCurrentPrice();
     if (!price) return;
     const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
+    const portion = usdt * pct / 100;
 
-    let btcAmt;
-    if (state.mode === 'spot') {
-      btcAmt = (usdt * pct / 100) / price;
+    if (state.amountUnit === 'USDT') {
+      // USDT 단위: 사용 금액 직접 표시
+      if (amountInput) amountInput.value = portion > 0 ? portion.toFixed(2) : '';
     } else {
-      btcAmt = (usdt * pct / 100 * state.leverage) / price;
+      // BTC 단위: USDT → BTC 환산
+      const btcAmt = state.mode === 'spot'
+        ? portion / price
+        : portion * state.leverage / price;
+      if (amountInput) amountInput.value = btcAmt > 0 ? btcAmt.toFixed(6) : '';
     }
-    if (amountInput) amountInput.value = btcAmt > 0 ? btcAmt.toFixed(6) : '';
     updateMarks(pct);
     updateInfoRows();
   };
@@ -125,6 +131,25 @@ document.addEventListener('DOMContentLoaded', () => {
       applySliderPct(pct);
     });
   });
+
+  // ===== 수량 단위 전환 (BTC ↔ USDT) =====
+  const updateUnitSel = () => {
+    if (!unitSelBtn) return;
+    unitSelBtn.textContent = state.amountUnit + ' ▾';
+    if (amountInput) {
+      amountInput.placeholder = state.amountUnit === 'BTC' ? '0.000000' : '0.00';
+      amountInput.value = '';
+    }
+    if (slider) slider.value = 0;
+    updateMarks(0);
+  };
+
+  if (unitSelBtn) {
+    unitSelBtn.addEventListener('click', () => {
+      state.amountUnit = state.amountUnit === 'BTC' ? 'USDT' : 'BTC';
+      updateUnitSel();
+    });
+  }
 
   // 가격/수량 변경 시 정보 행 갱신
   if (priceInput)  priceInput.addEventListener('input',  updateInfoRows);
@@ -229,11 +254,19 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAvailable();
   };
 
+  // 입력값을 항상 BTC 수량으로 변환
+  const getAmountInBtc = (price) => {
+    const raw = parseFloat(amountInput?.value);
+    if (!raw || raw <= 0) return 0;
+    if (state.amountUnit === 'USDT') return raw / price;
+    return raw;
+  };
+
   // ===== 매수 버튼 =====
   if (buyBtn) {
     buyBtn.addEventListener('click', () => {
-      const price  = getEffectivePrice();
-      const amount = parseFloat(amountInput?.value);
+      const price  = getEffectivePrice() || getCurrentPrice();
+      const amount = getAmountInBtc(price);
 
       if (!price || !amount || price <= 0 || amount <= 0) {
         flashBtn(buyBtn, '가격/수량 입력 필요', 'trade-unified__btn--warn');
@@ -266,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 매도 버튼 =====
   if (sellBtn) {
     sellBtn.addEventListener('click', () => {
-      const price  = getEffectivePrice();
-      const amount = parseFloat(amountInput?.value);
+      const price  = getEffectivePrice() || getCurrentPrice();
+      const amount = getAmountInBtc(price);
 
       if (!price || !amount || price <= 0 || amount <= 0) {
         flashBtn(sellBtn, '가격/수량 입력 필요', 'trade-unified__btn--warn');
