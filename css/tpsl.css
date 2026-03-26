@@ -1,0 +1,117 @@
+/* ===== TP/SL Section ===== */
+
+.tpsl {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.tpsl__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+
+.tpsl__toggle:hover {
+  color: var(--text-primary);
+}
+
+.tpsl__toggle-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.tpsl--open .tpsl__toggle-arrow {
+  transform: rotate(180deg);
+}
+
+/* Body (collapsed by default) */
+.tpsl__body {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.tpsl--open .tpsl__body {
+  display: flex;
+}
+
+/* Mode tabs (ROI / PnL) */
+.tpsl__mode-tabs {
+  display: flex;
+  gap: 4px;
+  background-color: var(--bg-primary);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.tpsl__mode-tab {
+  flex: 1;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: 3px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.tpsl__mode-tab:hover {
+  color: var(--text-secondary);
+}
+
+.tpsl__mode-tab--active {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* TP / SL sections */
+.tpsl__section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tpsl__section-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tpsl__section-label--tp { color: var(--color-buy); }
+.tpsl__section-label--sl { color: var(--color-sell); }
+
+/* Slider row with amount display */
+.tpsl__slider-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tpsl__slider-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tpsl__slider-pct {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tpsl__slider-amount {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}

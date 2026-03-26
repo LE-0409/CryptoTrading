@@ -7,16 +7,14 @@
   overflow: hidden;
 }
 
-/* Header + Ticker Bar are fixed height */
-.header        { flex: 0 0 var(--header-height); }
-.ticker-bar    { flex: 0 0 var(--ticker-height); }
+.header     { flex: 0 0 var(--header-height); }
+.ticker-bar { flex: 0 0 var(--ticker-height); }
 
-/* Main trading area fills remaining height */
 .main-layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr var(--right-width);
-  grid-template-rows: 1fr;
   flex: 1 1 0;
+  min-height: 0;
   overflow: hidden;
   gap: var(--gap);
   background-color: var(--border);
@@ -33,12 +31,13 @@
 
 .chart-wrapper {
   flex: 1 1 0;
+  min-height: 0;
   overflow: hidden;
 }
 
-.trade-wrapper {
-  flex: 0 0 auto;
-}
+/* 현물/선물 폼 — 기본 숨김, active 시 표시 */
+.trade-wrapper--spot    { display: block; }
+.trade-wrapper--futures { display: none; }
 
 /* Right panel: order book on top, recent trades below */
 .right-panel {
@@ -49,12 +48,15 @@
   background-color: var(--border);
 }
 
-.orderbook-wrapper {
-  flex: 1 1 0;
-  overflow: hidden;
-}
+.orderbook-wrapper    { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.recent-trades-wrapper { flex: 0 0 240px; overflow: hidden; }
 
-.recent-trades-wrapper {
-  flex: 0 0 240px;
+/* Bottom panel */
+.bottom-panel {
+  flex: 0 0 var(--bottom-panel-height);
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }

@@ -1,0 +1,186 @@
+/* ===== Portfolio Page ===== */
+
+.page-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Summary cards */
+.portfolio-summary {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.summary-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-card--total {
+  background-color: var(--bg-secondary);
+  border-color: var(--color-brand);
+}
+
+.summary-card__label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.summary-card__value {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.summary-card__value--large {
+  font-size: 26px;
+  color: var(--color-brand);
+}
+
+.summary-card__sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.summary-pnl--pos  { color: var(--color-buy); }
+.summary-pnl--neg  { color: var(--color-sell); }
+.summary-pnl--zero { color: var(--text-muted); }
+
+/* Charts */
+.portfolio-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.chart-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card__title {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-card__canvas {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-card__placeholder {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Sections */
+.portfolio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.portfolio-section__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Table (reuse history styles) */
+.history-table-wrap {
+  overflow-x: auto;
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.history-table thead th {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg-secondary);
+}
+
+.history-table tbody td {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tbody tr:hover td {
+  background-color: var(--bg-hover);
+}
+
+.history-table__empty td {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 0;
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+/* Badges & PnL colors */
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font);
+}
+
+.badge--long  { background-color: var(--color-buy-bg);  color: var(--color-buy); }
+.badge--short { background-color: var(--color-sell-bg); color: var(--color-sell); }
+
+.pnl--pos  { color: var(--color-buy); }
+.pnl--neg  { color: var(--color-sell); }
+.pnl--zero { color: var(--text-secondary); }

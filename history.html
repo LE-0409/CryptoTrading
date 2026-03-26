@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>거래내역 — CryptoTrading</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/history.css" />
+</head>
+<body class="page-body">
+
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="header__logo">
+      <div class="header__logo-icon">C</div>
+      CryptoTrade
+    </div>
+    <nav class="header__nav">
+      <a class="header__nav-item" href="index.html">현물</a>
+      <a class="header__nav-item" href="index.html">선물</a>
+      <a class="header__nav-item" href="portfolio.html">포트폴리오</a>
+      <a class="header__nav-item header__nav-item--active" href="history.html">거래내역</a>
+    </nav>
+    <div class="header__account">
+      <div class="header__balances">
+        <div class="header__balance">
+          <span class="header__balance-label">현물 USDT</span>
+          <span class="header__balance-value">100.00</span>
+        </div>
+        <div class="header__balance header__balance--futures">
+          <span class="header__balance-label">선물 USDT</span>
+          <span class="header__balance-value">0.00</span>
+        </div>
+      </div>
+      <div class="header__settings-wrap">
+        <button class="header__btn header__btn--settings">⚙</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Content ===== -->
+  <div class="page-content">
+
+    <div class="page-title">거래내역</div>
+
+    <!-- Tabs -->
+    <div class="history-tabs">
+      <button class="history-tab history-tab--active">체결 내역</button>
+      <button class="history-tab">미체결 주문</button>
+      <button class="history-tab">TP/SL 체결 내역</button>
+      <button class="history-tab">펀딩비 내역</button>
+    </div>
+
+    <!-- 체결 내역 -->
+    <div class="history-pane history-pane--active" id="paneTradeHistory">
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>시각</th>
+              <th>코인</th>
+              <th>구분</th>
+              <th>방향</th>
+              <th>주문 유형</th>
+              <th>체결가</th>
+              <th>수량</th>
+              <th>총금액</th>
+              <th>수수료</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="9">체결 내역이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 미체결 주문 -->
+    <div class="history-pane" id="panePending">
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>주문 시각</th>
+              <th>코인</th>
+              <th>구분</th>
+              <th>방향</th>
+              <th>주문 유형</th>
+              <th>주문가</th>
+              <th>수량</th>
+              <th>총금액</th>
+              <th>수정</th>
+              <th>취소</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="10">미체결 주문이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TP/SL 체결 내역 -->
+    <div class="history-pane" id="paneTpsl">
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>체결 시각</th>
+              <th>코인</th>
+              <th>구분</th>
+              <th>TP / SL</th>
+              <th>트리거 방식</th>
+              <th>트리거 가격</th>
+              <th>체결가</th>
+              <th>청산 수량</th>
+              <th>실현 PnL</th>
+              <th>수수료</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="10">TP/SL 체결 내역이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 펀딩비 내역 -->
+    <div class="history-pane" id="paneFunding">
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>시각</th>
+              <th>코인</th>
+              <th>포지션 방향</th>
+              <th>포지션 크기</th>
+              <th>펀딩비율</th>
+              <th>부과 금액 (USDT)</th>
+              <th>수취 / 지급</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="7">펀딩비 내역이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

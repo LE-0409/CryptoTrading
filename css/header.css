@@ -61,7 +61,7 @@
   color: var(--text-primary);
 }
 
-/* Right side: Account info */
+/* Right side account area */
 .header__account {
   display: flex;
   align-items: center;
@@ -69,11 +69,23 @@
   flex-shrink: 0;
 }
 
+/* Dual balance display */
+.header__balances {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .header__balance {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 1px;
+}
+
+.header__balance--futures {
+  padding-left: 20px;
+  border-left: 1px solid var(--border-light);
 }
 
 .header__balance-label {
@@ -88,29 +100,70 @@
   color: var(--text-primary);
 }
 
-.header__btn {
-  padding: 6px 14px;
+/* Settings button & dropdown */
+.header__settings-wrap {
+  position: relative;
+}
+
+.header__btn--settings {
+  width: 32px;
+  height: 32px;
   border-radius: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: opacity 0.15s;
-}
-
-.header__btn:hover {
-  opacity: 0.85;
-}
-
-.header__btn--deposit {
-  background-color: var(--color-brand);
-  color: var(--bg-primary);
-}
-
-.header__btn--history {
+  font-size: 16px;
+  color: var(--text-secondary);
   background-color: var(--bg-tertiary);
-  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
 }
 
-/* Ticker Bar (coin stats below header) */
+.header__btn--settings:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.settings-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  min-width: 160px;
+  z-index: 200;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.settings-dropdown--open {
+  display: block;
+}
+
+.settings-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: background-color 0.1s;
+}
+
+.settings-dropdown__item:hover {
+  background-color: var(--bg-hover);
+}
+
+.settings-dropdown__item--danger {
+  color: var(--color-sell);
+}
+
+.settings-dropdown__item--danger:hover {
+  background-color: var(--color-sell-bg);
+}
+
+/* Ticker Bar */
 .ticker-bar {
   display: flex;
   align-items: center;

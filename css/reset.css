@@ -36,6 +36,7 @@
   --sidebar-width: 220px;
   --right-width:   300px;
   --gap:           1px;
+  --bottom-panel-height: 220px;
 }
 
 html, body {

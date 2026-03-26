@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>포트폴리오 — CryptoTrading</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/portfolio.css" />
+</head>
+<body class="page-body">
+
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="header__logo">
+      <div class="header__logo-icon">C</div>
+      CryptoTrade
+    </div>
+    <nav class="header__nav">
+      <a class="header__nav-item" href="index.html">현물</a>
+      <a class="header__nav-item" href="index.html">선물</a>
+      <a class="header__nav-item header__nav-item--active" href="portfolio.html">포트폴리오</a>
+      <a class="header__nav-item" href="history.html">거래내역</a>
+    </nav>
+    <div class="header__account">
+      <div class="header__balances">
+        <div class="header__balance">
+          <span class="header__balance-label">현물 USDT</span>
+          <span class="header__balance-value">100.00</span>
+        </div>
+        <div class="header__balance header__balance--futures">
+          <span class="header__balance-label">선물 USDT</span>
+          <span class="header__balance-value">0.00</span>
+        </div>
+      </div>
+      <div class="header__settings-wrap">
+        <button class="header__btn header__btn--settings">⚙</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Content ===== -->
+  <div class="page-content">
+
+    <div class="page-title">포트폴리오</div>
+
+    <!-- 총 자산 요약 카드 -->
+    <div class="portfolio-summary">
+      <div class="summary-card summary-card--total">
+        <span class="summary-card__label">총 평가금액</span>
+        <span class="summary-card__value summary-card__value--large">100.00 USDT</span>
+        <span class="summary-card__sub">초기 자산 대비 <span class="summary-pnl summary-pnl--zero">+0.00 USDT (0.00%)</span></span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">현물 자산</span>
+        <span class="summary-card__value">100.00 USDT</span>
+        <span class="summary-card__sub">현물 잔고 + 보유 코인 평가금액</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">선물 자산</span>
+        <span class="summary-card__value">0.00 USDT</span>
+        <span class="summary-card__sub">선물 잔고 + 미실현 PnL</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">총 실현 PnL</span>
+        <span class="summary-card__value summary-pnl--zero">0.00 USDT</span>
+        <span class="summary-card__sub">누적 수익 (수수료 포함)</span>
+      </div>
+    </div>
+
+    <!-- 수익률 그래프 -->
+    <div class="portfolio-charts">
+      <div class="chart-card chart-card--line">
+        <div class="chart-card__title">총 자산 변화</div>
+        <div class="chart-card__canvas" id="portfolioLineChart">
+          <div class="chart-card__placeholder">거래 데이터가 쌓이면 표시됩니다</div>
+        </div>
+      </div>
+      <div class="chart-card chart-card--bar">
+        <div class="chart-card__title">일별 손익</div>
+        <div class="chart-card__canvas" id="portfolioBarChart">
+          <div class="chart-card__placeholder">거래 데이터가 쌓이면 표시됩니다</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 현물 보유 자산 -->
+    <div class="portfolio-section">
+      <div class="portfolio-section__title">현물 보유 자산</div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>코인</th>
+              <th>보유 수량</th>
+              <th>평균 매수가</th>
+              <th>현재가</th>
+              <th>평가금액</th>
+              <th>미실현 PnL</th>
+              <th>ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="7">보유 중인 현물 자산이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 선물 보유 포지션 -->
+    <div class="portfolio-section">
+      <div class="portfolio-section__title">선물 포지션</div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>코인</th>
+              <th>방향</th>
+              <th>레버리지</th>
+              <th>진입가</th>
+              <th>현재가</th>
+              <th>수량</th>
+              <th>미실현 PnL</th>
+              <th>ROI</th>
+              <th>청산가</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="history-table__empty">
+              <td colspan="9">보유 중인 선물 포지션이 없습니다</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
