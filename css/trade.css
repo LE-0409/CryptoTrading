@@ -227,26 +227,6 @@
   flex-shrink: 0;
 }
 
-.trade-unified__opt-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.trade-unified__tif-btn {
-  font-size: 11px;
-  color: var(--text-muted);
-  padding: 3px 7px;
-  background: var(--bg-primary);
-  border-radius: 3px;
-  border: 1px solid var(--border-light);
-  transition: color 0.15s;
-}
-
-.trade-unified__tif-btn:hover {
-  color: var(--text-primary);
-}
-
 /* 매수 / 매도 버튼 */
 .trade-unified__actions {
   display: flex;

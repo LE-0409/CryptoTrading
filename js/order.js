@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     orderType:   'limit',     // 'limit' | 'market' | 'conditional'
     leverage:    10,
     marginMode:  '격리',
-    tif:         'GTC',
-    reduceOnly:  false,
   };
 
   // ===== DOM =====
@@ -26,10 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sellBtn        = document.getElementById('uniSellBtn');
   const marginModeBtn  = document.getElementById('marginModeBtn');
   const leverageBtn    = document.getElementById('leverageBtn');
-  const tifBtn         = document.getElementById('tifBtn');
   const tpslCheckbox   = document.getElementById('tpslCheckbox');
   const tpslSection    = document.getElementById('tpslSection');
-  const reduceOnlyCb   = document.getElementById('reduceOnlyCheckbox');
   const avblTransferBtn = document.querySelector('.trade-unified__avbl-btn');
   const typeTabs       = document.querySelectorAll('.trade-unified__type-tab');
 
@@ -88,11 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return parseFloat(priceInput?.value) || 0;
   };
 
-  // ===== 슬라이더: % → 수량(USDT) 계산 =====
+  // ===== 슬라이더: % → 수량 입력란에 퍼센트 표시 =====
   const applySliderPct = (pct) => {
-    const usdt    = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
-    const portion = usdt * pct / 100;
-    if (amountInput) amountInput.value = portion > 0 ? portion.toFixed(2) : '';
+    if (amountInput) amountInput.value = pct > 0 ? pct + '%' : '';
     updateMarks(pct);
     updateInfoRows();
   };
@@ -180,23 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ===== TIF 버튼 (순환) =====
-  const tifOptions = ['GTC', 'IOC', 'FOK'];
-  if (tifBtn) {
-    tifBtn.addEventListener('click', () => {
-      const idx = tifOptions.indexOf(state.tif);
-      state.tif = tifOptions[(idx + 1) % tifOptions.length];
-      tifBtn.textContent = 'TIF ' + state.tif + ' ▾';
-    });
-  }
-
-  // ===== Reduce-Only =====
-  if (reduceOnlyCb) {
-    reduceOnlyCb.addEventListener('change', () => {
-      state.reduceOnly = reduceOnlyCb.checked;
-    });
-  }
-
   // ===== 버튼 피드백 (텍스트 잠시 변경) =====
   const flashBtn = (btn, msg, colorClass) => {
     const original = btn.textContent;
@@ -221,12 +198,24 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAvailable();
   };
 
+  // 입력값을 USDT 금액으로 변환 (퍼센트면 잔고 비율 계산)
+  const resolveAmountUsdt = () => {
+    const raw = amountInput?.value?.trim();
+    if (!raw) return 0;
+    if (raw.endsWith('%')) {
+      const pct  = parseFloat(raw);
+      const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
+      return isNaN(pct) ? 0 : usdt * pct / 100;
+    }
+    return parseFloat(raw) || 0;
+  };
+
   // ===== 매수 버튼 =====
   // amount = USDT 금액, btcAmt = 실제 수령 BTC 수량
   if (buyBtn) {
     buyBtn.addEventListener('click', () => {
       const price   = getEffectivePrice() || getCurrentPrice();
-      const amount  = parseFloat(amountInput?.value); // USDT
+      const amount  = resolveAmountUsdt(); // USDT
       const btcAmt  = amount / price;
 
       if (!amount || amount <= 0) {
@@ -261,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sellBtn) {
     sellBtn.addEventListener('click', () => {
       const price   = getEffectivePrice() || getCurrentPrice();
-      const amount  = parseFloat(amountInput?.value); // USDT
+      const amount  = resolveAmountUsdt(); // USDT
       const btcAmt  = amount / price;
 
       if (!amount || amount <= 0) {
