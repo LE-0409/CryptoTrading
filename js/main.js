@@ -10,13 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   navItems.forEach(item => {
     item.addEventListener('click', e => {
-      const text = item.textContent.trim();
-      if (text !== '현물' && text !== '선물') return;
+      const mode = item.dataset.mode;
+      if (!mode) return;
 
+      e.preventDefault();
       navItems.forEach(n => n.classList.remove('header__nav-item--active'));
       item.classList.add('header__nav-item--active');
 
-      if (text === '현물') {
+      if (mode === 'spot') {
         spotWrapper.style.display    = 'block';
         futuresWrapper.style.display = 'none';
       } else {
