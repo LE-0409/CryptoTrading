@@ -48,7 +48,33 @@ document.addEventListener('DOMContentLoaded', () => {
     updateInfoRows();
   };
 
-  const updateInfoRows = () => {};
+  const liqBuyEl  = document.getElementById('liqBuy');
+  const liqSellEl = document.getElementById('liqSell');
+
+  // 청산가 계산 및 업데이트
+  // 롱 청산가 ≈ 진입가 × (1 - 1/레버리지)
+  // 숏 청산가 ≈ 진입가 × (1 + 1/레버리지)
+  const updateInfoRows = () => {
+    if (!liqBuyEl || !liqSellEl) return;
+
+    if (state.mode !== 'futures') {
+      liqBuyEl.textContent  = '—';
+      liqSellEl.textContent = '—';
+      return;
+    }
+
+    const price = getEffectivePrice() || getCurrentPrice();
+    if (!price) {
+      liqBuyEl.textContent  = '—';
+      liqSellEl.textContent = '—';
+      return;
+    }
+
+    const liqLong  = price * (1 - 1 / state.leverage);
+    const liqShort = price * (1 + 1 / state.leverage);
+    liqBuyEl.textContent  = liqLong  > 0 ? liqLong.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT' : '—';
+    liqSellEl.textContent = liqShort > 0 ? liqShort.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT' : '—';
+  };
 
   // ===== 유효 가격 (시장가이면 현재가) =====
   const getEffectivePrice = () => {

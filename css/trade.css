@@ -227,6 +227,25 @@
   flex-shrink: 0;
 }
 
+/* 청산가 표시 */
+.trade-unified__liq-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.trade-unified__liq-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.trade-unified__liq-value {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
 /* 매수 / 매도 버튼 */
 .trade-unified__actions {
   display: flex;
