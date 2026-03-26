@@ -404,7 +404,10 @@
 
               <!-- Take Profit -->
               <div class="tpsl-block">
-                <span class="tpsl-block__title tpsl-block__title--tp">Take Profit</span>
+                <div class="tpsl-block__header">
+                  <span class="tpsl-block__title tpsl-block__title--tp">Take Profit</span>
+                  <span class="tpsl-block__preview" id="tpPreview">—</span>
+                </div>
                 <div class="trade-unified__input-row">
                   <input class="trade-unified__input" type="text" inputmode="decimal" placeholder="0.00" id="tpPrice" />
                   <button class="tpsl-block__unit-btn" id="tpUnitBtn">USDT</button>
@@ -413,7 +416,10 @@
 
               <!-- Stop Loss -->
               <div class="tpsl-block">
-                <span class="tpsl-block__title tpsl-block__title--sl">Stop Loss</span>
+                <div class="tpsl-block__header">
+                  <span class="tpsl-block__title tpsl-block__title--sl">Stop Loss</span>
+                  <span class="tpsl-block__preview" id="slPreview">—</span>
+                </div>
                 <div class="trade-unified__input-row">
                   <input class="trade-unified__input" type="text" inputmode="decimal" placeholder="0.00" id="slPrice" />
                   <button class="tpsl-block__unit-btn" id="slUnitBtn">USDT</button>

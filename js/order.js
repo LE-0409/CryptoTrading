@@ -225,10 +225,43 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       btn.classList.remove('tpsl-block__unit-btn--roi');
     }
+
+    updatePreview(type);
   };
 
   if (tpUnitBtn) tpUnitBtn.addEventListener('click', () => switchUnit('tp'));
   if (slUnitBtn) slUnitBtn.addEventListener('click', () => switchUnit('sl'));
+
+  const tpPreview = document.getElementById('tpPreview');
+  const slPreview = document.getElementById('slPreview');
+
+  // 입력값 변경 시 반대 단위 미리보기 갱신
+  const updatePreview = (type) => {
+    const isTp    = type === 'tp';
+    const input   = isTp ? tpPriceInput : slPriceInput;
+    const preview = isTp ? tpPreview    : slPreview;
+    const unit    = isTp ? tpslUnit.tp  : tpslUnit.sl;
+    if (!preview) return;
+
+    const val = parseFloat(input?.value);
+    if (!val || isNaN(val)) {
+      preview.textContent = '—';
+      return;
+    }
+
+    if (unit === 'USDT') {
+      // 입력이 USDT → ROI% 표시
+      const roi = parseFloat(usdtToRoi(val, isTp));
+      preview.textContent = isNaN(roi) ? '—' : (isTp ? '+' : '-') + Math.abs(roi).toFixed(2) + '%';
+    } else {
+      // 입력이 ROI% → USDT 표시
+      const usdt = parseFloat(roiToUsdt(val, isTp));
+      preview.textContent = isNaN(usdt) ? '—' : usdt.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT';
+    }
+  };
+
+  if (tpPriceInput) tpPriceInput.addEventListener('input', () => updatePreview('tp'));
+  if (slPriceInput) slPriceInput.addEventListener('input', () => updatePreview('sl'));
 
   // ===== 잔고 이체 버튼 =====
   if (avblTransferBtn) {

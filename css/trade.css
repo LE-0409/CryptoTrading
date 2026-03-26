@@ -307,9 +307,21 @@
   gap: 5px;
 }
 
+.tpsl-block__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .tpsl-block__title {
   font-size: 11px;
   font-weight: 600;
+}
+
+.tpsl-block__preview {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
 }
 
 .tpsl-block__title--tp { color: var(--color-buy); }
