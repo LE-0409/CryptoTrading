@@ -397,15 +397,32 @@
           <!-- 옵션 -->
           <div class="trade-unified__options">
             <label class="trade-unified__opt">
-              <input type="checkbox" class="trade-unified__checkbox" />
+              <input type="checkbox" class="trade-unified__checkbox" id="tpslCheckbox" />
               <span>TP / SL</span>
             </label>
+            <!-- TP/SL 입력 (체크 시 표시) -->
+            <div class="trade-unified__tpsl-section" id="tpslSection">
+              <div class="trade-unified__field">
+                <span class="trade-unified__field-label">Take Profit (USDT)</span>
+                <div class="trade-unified__input-row">
+                  <input class="trade-unified__input" type="number" placeholder="0.00" id="tpPrice" />
+                  <span class="trade-unified__unit">USDT</span>
+                </div>
+              </div>
+              <div class="trade-unified__field">
+                <span class="trade-unified__field-label">Stop Loss (USDT)</span>
+                <div class="trade-unified__input-row">
+                  <input class="trade-unified__input" type="number" placeholder="0.00" id="slPrice" />
+                  <span class="trade-unified__unit">USDT</span>
+                </div>
+              </div>
+            </div>
             <div class="trade-unified__opt-row trade-unified__futures-only">
               <label class="trade-unified__opt">
-                <input type="checkbox" class="trade-unified__checkbox" />
+                <input type="checkbox" class="trade-unified__checkbox" id="reduceOnlyCheckbox" />
                 <span>Reduce-Only</span>
               </label>
-              <button class="trade-unified__tif-btn">TIF GTC ▾</button>
+              <button class="trade-unified__tif-btn" id="tifBtn">TIF GTC ▾</button>
             </div>
           </div>
 
@@ -578,23 +595,29 @@
       </div>
       <div class="modal__body">
         <div class="transfer__direction">
-          <span class="transfer__from">현물</span>
-          <button class="transfer__swap-btn">⇄</button>
-          <span class="transfer__to">선물</span>
+          <div class="transfer__side">
+            <span class="transfer__side-label">출금</span>
+            <span class="transfer__side-name" id="transferFrom">현물</span>
+          </div>
+          <button class="transfer__swap-btn" id="transferSwapBtn">⇄</button>
+          <div class="transfer__side">
+            <span class="transfer__side-label">입금</span>
+            <span class="transfer__side-name" id="transferTo">선물</span>
+          </div>
         </div>
         <div class="transfer__available">
           <span class="transfer__available-label">이체 가능</span>
           <span class="transfer__available-value" id="transferAvailable">100.00 USDT</span>
         </div>
-        <div class="trade__input-row">
-          <span class="trade__input-label">금액</span>
-          <input class="trade__input" type="number" placeholder="0.00" id="transferAmount" />
-          <button class="transfer__max-btn">MAX</button>
-          <span class="trade__input-unit">USDT</span>
+        <div class="transfer__input-row">
+          <input class="transfer__input" type="number" placeholder="0.00" id="transferAmount" />
+          <button class="transfer__max-btn" id="transferMaxBtn">MAX</button>
+          <span class="transfer__unit">USDT</span>
         </div>
       </div>
       <div class="modal__footer">
-        <button class="modal__btn modal__btn--confirm">확인</button>
+        <button class="modal__btn modal__btn--cancel" id="transferCancelBtn">취소</button>
+        <button class="modal__btn modal__btn--confirm" id="transferConfirmBtn">이체</button>
       </div>
     </div>
   </div>
@@ -620,5 +643,6 @@
   </div>
 
   <script src="js/main.js"></script>
+  <script src="js/order.js"></script>
 </body>
 </html>

@@ -68,21 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ===== 이체 모달 =====
+  // ===== 이체 모달 열기 (닫기/이체 로직은 order.js) =====
   const transferModal = document.getElementById('transferModal');
   const transferBtn   = document.getElementById('transferBtn');
-  const transferClose = document.getElementById('transferClose');
 
   if (transferBtn) {
     transferBtn.addEventListener('click', () => {
       settingsDropdown.classList.remove('settings-dropdown--open');
       transferModal.classList.add('modal-overlay--open');
-    });
-  }
-
-  if (transferClose) {
-    transferClose.addEventListener('click', () => {
-      transferModal.classList.remove('modal-overlay--open');
+      // 모달 열릴 때 잔고 갱신 이벤트 트리거
+      transferModal.dispatchEvent(new CustomEvent('modal-open'));
     });
   }
 
@@ -103,13 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resetClose)     resetClose.addEventListener('click', closeResetModal);
   if (resetCancelBtn) resetCancelBtn.addEventListener('click', closeResetModal);
 
-  // 오버레이 클릭 시 모달 닫기
-  [transferModal, resetModal].forEach(modal => {
-    if (!modal) return;
-    modal.addEventListener('click', e => {
-      if (e.target === modal) modal.classList.remove('modal-overlay--open');
+  // 오버레이 클릭 시 초기화 모달 닫기 (이체 모달은 order.js에서 처리)
+  if (resetModal) {
+    resetModal.addEventListener('click', e => {
+      if (e.target === resetModal) resetModal.classList.remove('modal-overlay--open');
     });
-  });
+  }
 
   // ===== 거래내역 페이지 탭 전환 =====
   const historyTabs  = document.querySelectorAll('.history-tab');

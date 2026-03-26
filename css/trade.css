@@ -320,6 +320,21 @@
   white-space: nowrap;
 }
 
+/* TP/SL 입력 섹션 */
+.trade-unified__tpsl-section {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0 2px;
+  border-top: 1px solid var(--border);
+}
+
+/* 경고 버튼 */
+.trade-unified__btn--warn {
+  background-color: var(--bg-tertiary);
+  color: var(--color-sell);
+}
+
 /* 선물 전용 요소 */
 .trade-unified__futures-only {
   display: none;
