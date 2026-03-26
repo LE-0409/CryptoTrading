@@ -4,9 +4,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 현물 / 선물 탭 전환 =====
-  const navItems = document.querySelectorAll('.header__nav-item');
-  const spotWrapper    = document.querySelector('.trade-wrapper--spot');
-  const futuresWrapper = document.querySelector('.trade-wrapper--futures');
+  const navItems  = document.querySelectorAll('.header__nav-item');
+  const buyBtn    = document.getElementById('uniBuyBtn');
+  const sellBtn   = document.getElementById('uniSellBtn');
 
   navItems.forEach(item => {
     item.addEventListener('click', e => {
@@ -18,11 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.add('header__nav-item--active');
 
       if (mode === 'spot') {
-        spotWrapper.style.display    = 'block';
-        futuresWrapper.style.display = 'none';
+        document.body.classList.remove('mode-futures');
+        document.body.classList.add('mode-spot');
+        if (buyBtn)  buyBtn.textContent  = '매수';
+        if (sellBtn) sellBtn.textContent = '매도';
       } else {
-        spotWrapper.style.display    = 'none';
-        futuresWrapper.style.display = 'block';
+        document.body.classList.remove('mode-spot');
+        document.body.classList.add('mode-futures');
+        if (buyBtn)  buyBtn.textContent  = '매수 / 롱';
+        if (sellBtn) sellBtn.textContent = '매도 / 숏';
       }
     });
   });
@@ -40,11 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ===== TP/SL 토글 =====
-  document.querySelectorAll('.tpsl__toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tpsl = btn.closest('.tpsl');
-      tpsl.classList.toggle('tpsl--open');
+  // ===== 주문 유형 탭 전환 =====
+  const typeTabs = document.querySelectorAll('.trade-unified__type-tab');
+  typeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      typeTabs.forEach(t => t.classList.remove('trade-unified__type-tab--active'));
+      tab.classList.add('trade-unified__type-tab--active');
     });
   });
 

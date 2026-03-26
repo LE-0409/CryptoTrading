@@ -191,7 +191,7 @@
         </ul>
       </aside>
 
-      <!-- Center: Chart + Trade Form -->
+      <!-- Center: Chart -->
       <section class="center-panel">
 
         <!-- Chart -->
@@ -217,353 +217,14 @@
           </div>
         </div>
 
-        <!-- ===== 현물 트레이드 폼 ===== -->
-        <div class="trade-wrapper trade-wrapper--spot">
-          <div class="trade-form">
-
-            <!-- Buy Panel -->
-            <div class="trade-panel">
-              <div class="trade__panel-label trade__panel-label--buy">매수</div>
-              <div class="trade__type-tabs">
-                <button class="trade__type-tab trade__type-tab--active">지정가</button>
-                <button class="trade__type-tab">시장가</button>
-              </div>
-              <div class="trade__available">
-                <span class="trade__available-label">사용 가능</span>
-                <span class="trade__available-value" id="buyAvailable">100.00 USDT</span>
-              </div>
-              <div class="trade__input-group">
-                <div class="trade__input-row">
-                  <span class="trade__input-label">가격</span>
-                  <input class="trade__input" type="number" placeholder="0.00" id="buyPrice" />
-                  <span class="trade__input-unit">USDT</span>
-                </div>
-                <div class="trade__input-row">
-                  <span class="trade__input-label">수량</span>
-                  <input class="trade__input" type="number" placeholder="0.000000" id="buyAmount" />
-                  <span class="trade__input-unit">BTC</span>
-                </div>
-              </div>
-              <div class="trade__slider-row">
-                <input class="trade__slider" type="range" min="0" max="100" value="0" id="buySlider" />
-                <span class="trade__slider-pct" id="buyPct">0%</span>
-              </div>
-              <div class="trade__total-row">
-                <span class="trade__total-label">총액</span>
-                <span class="trade__total-value" id="buyTotal">0.00 USDT</span>
-              </div>
-              <!-- TP/SL -->
-              <div class="tpsl">
-                <button class="tpsl__toggle">
-                  <span>TP / SL</span>
-                  <span class="tpsl__toggle-arrow">▼</span>
-                </button>
-                <div class="tpsl__body">
-                  <div class="tpsl__mode-tabs">
-                    <button class="tpsl__mode-tab tpsl__mode-tab--active">ROI (%)</button>
-                    <button class="tpsl__mode-tab">PnL (USDT)</button>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--tp">Take Profit</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--sl">Stop Loss</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button class="trade__submit trade__submit--buy">BTC 매수</button>
-            </div>
-
-            <!-- Sell Panel -->
-            <div class="trade-panel">
-              <div class="trade__panel-label trade__panel-label--sell">매도</div>
-              <div class="trade__type-tabs">
-                <button class="trade__type-tab trade__type-tab--active">지정가</button>
-                <button class="trade__type-tab">시장가</button>
-              </div>
-              <div class="trade__available">
-                <span class="trade__available-label">보유 BTC</span>
-                <span class="trade__available-value" id="sellAvailable">0.00000000 BTC</span>
-              </div>
-              <div class="trade__input-group">
-                <div class="trade__input-row">
-                  <span class="trade__input-label">가격</span>
-                  <input class="trade__input" type="number" placeholder="0.00" id="sellPrice" />
-                  <span class="trade__input-unit">USDT</span>
-                </div>
-                <div class="trade__input-row">
-                  <span class="trade__input-label">수량</span>
-                  <input class="trade__input" type="number" placeholder="0.000000" id="sellAmount" />
-                  <span class="trade__input-unit">BTC</span>
-                </div>
-              </div>
-              <div class="trade__slider-row">
-                <input class="trade__slider" type="range" min="0" max="100" value="0" id="sellSlider" />
-                <span class="trade__slider-pct" id="sellPct">0%</span>
-              </div>
-              <div class="trade__total-row">
-                <span class="trade__total-label">총액</span>
-                <span class="trade__total-value" id="sellTotal">0.00 USDT</span>
-              </div>
-              <!-- TP/SL -->
-              <div class="tpsl">
-                <button class="tpsl__toggle">
-                  <span>TP / SL</span>
-                  <span class="tpsl__toggle-arrow">▼</span>
-                </button>
-                <div class="tpsl__body">
-                  <div class="tpsl__mode-tabs">
-                    <button class="tpsl__mode-tab tpsl__mode-tab--active">ROI (%)</button>
-                    <button class="tpsl__mode-tab">PnL (USDT)</button>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--tp">Take Profit</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--sl">Stop Loss</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button class="trade__submit trade__submit--sell">BTC 매도</button>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- ===== 선물 트레이드 폼 ===== -->
-        <div class="trade-wrapper trade-wrapper--futures">
-          <!-- Leverage + Margin controls -->
-          <div class="futures-controls">
-            <div class="futures-leverage">
-              <span class="futures-controls__label">레버리지</span>
-              <div class="futures-leverage__row">
-                <input class="trade__slider futures-leverage__slider" type="range" min="1" max="125" value="10" />
-                <div class="futures-leverage__input-wrap">
-                  <input class="futures-leverage__input" type="number" value="10" min="1" max="125" />
-                  <span class="futures-controls__unit">x</span>
-                </div>
-              </div>
-            </div>
-            <div class="futures-margin">
-              <span class="futures-controls__label">마진</span>
-              <div class="futures-margin__tabs">
-                <button class="futures-margin__tab futures-margin__tab--active">격리</button>
-                <button class="futures-margin__tab">교차</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="trade-form">
-
-            <!-- Long Panel -->
-            <div class="trade-panel">
-              <div class="trade__panel-label trade__panel-label--buy">롱 (Long)</div>
-              <div class="trade__type-tabs">
-                <button class="trade__type-tab trade__type-tab--active">지정가</button>
-                <button class="trade__type-tab">시장가</button>
-              </div>
-              <div class="trade__available">
-                <span class="trade__available-label">사용 가능</span>
-                <span class="trade__available-value">0.00 USDT</span>
-              </div>
-              <div class="trade__input-group">
-                <div class="trade__input-row">
-                  <span class="trade__input-label">가격</span>
-                  <input class="trade__input" type="number" placeholder="0.00" />
-                  <span class="trade__input-unit">USDT</span>
-                </div>
-                <div class="trade__input-row">
-                  <span class="trade__input-label">수량</span>
-                  <input class="trade__input" type="number" placeholder="0.000000" />
-                  <span class="trade__input-unit">BTC</span>
-                </div>
-              </div>
-              <div class="trade__slider-row">
-                <input class="trade__slider" type="range" min="0" max="100" value="0" />
-                <span class="trade__slider-pct">0%</span>
-              </div>
-              <div class="trade__total-row">
-                <span class="trade__total-label">증거금</span>
-                <span class="trade__total-value">0.00 USDT</span>
-              </div>
-              <div class="futures-info-row">
-                <span class="futures-info__label">청산가 예상</span>
-                <span class="futures-info__value">—</span>
-              </div>
-              <!-- TP/SL -->
-              <div class="tpsl">
-                <button class="tpsl__toggle">
-                  <span>TP / SL</span>
-                  <span class="tpsl__toggle-arrow">▼</span>
-                </button>
-                <div class="tpsl__body">
-                  <div class="tpsl__mode-tabs">
-                    <button class="tpsl__mode-tab tpsl__mode-tab--active">ROI (%)</button>
-                    <button class="tpsl__mode-tab">PnL (USDT)</button>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--tp">Take Profit</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--sl">Stop Loss</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button class="trade__submit trade__submit--buy">롱 진입</button>
-            </div>
-
-            <!-- Short Panel -->
-            <div class="trade-panel">
-              <div class="trade__panel-label trade__panel-label--sell">숏 (Short)</div>
-              <div class="trade__type-tabs">
-                <button class="trade__type-tab trade__type-tab--active">지정가</button>
-                <button class="trade__type-tab">시장가</button>
-              </div>
-              <div class="trade__available">
-                <span class="trade__available-label">사용 가능</span>
-                <span class="trade__available-value">0.00 USDT</span>
-              </div>
-              <div class="trade__input-group">
-                <div class="trade__input-row">
-                  <span class="trade__input-label">가격</span>
-                  <input class="trade__input" type="number" placeholder="0.00" />
-                  <span class="trade__input-unit">USDT</span>
-                </div>
-                <div class="trade__input-row">
-                  <span class="trade__input-label">수량</span>
-                  <input class="trade__input" type="number" placeholder="0.000000" />
-                  <span class="trade__input-unit">BTC</span>
-                </div>
-              </div>
-              <div class="trade__slider-row">
-                <input class="trade__slider" type="range" min="0" max="100" value="0" />
-                <span class="trade__slider-pct">0%</span>
-              </div>
-              <div class="trade__total-row">
-                <span class="trade__total-label">증거금</span>
-                <span class="trade__total-value">0.00 USDT</span>
-              </div>
-              <div class="futures-info-row">
-                <span class="futures-info__label">청산가 예상</span>
-                <span class="futures-info__value">—</span>
-              </div>
-              <!-- TP/SL -->
-              <div class="tpsl">
-                <button class="tpsl__toggle">
-                  <span>TP / SL</span>
-                  <span class="tpsl__toggle-arrow">▼</span>
-                </button>
-                <div class="tpsl__body">
-                  <div class="tpsl__mode-tabs">
-                    <button class="tpsl__mode-tab tpsl__mode-tab--active">ROI (%)</button>
-                    <button class="tpsl__mode-tab">PnL (USDT)</button>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--tp">Take Profit</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                  <div class="tpsl__section">
-                    <div class="tpsl__section-label tpsl__section-label--sl">Stop Loss</div>
-                    <div class="trade__input-row">
-                      <span class="trade__input-label">가격</span>
-                      <input class="trade__input" type="number" placeholder="0.00" />
-                      <span class="trade__input-unit">USDT</span>
-                    </div>
-                    <div class="tpsl__slider-row">
-                      <span class="tpsl__slider-label">청산 비율</span>
-                      <input class="trade__slider" type="range" min="0" max="100" value="100" />
-                      <span class="tpsl__slider-pct">100%</span>
-                      <span class="tpsl__slider-amount">≈ 0.000000 BTC</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button class="trade__submit trade__submit--sell">숏 진입</button>
-            </div>
-
-          </div>
-        </div>
 
       </section>
 
-      <!-- Right: Order Book + Recent Trades -->
+      <!-- Right: Order Book + Trade Panel -->
       <aside class="right-panel">
+
+        <!-- 호가창 + 체결 내역 -->
+        <div class="orderbook-section">
 
         <div class="orderbook-wrapper">
           <div class="panel__title">호가창</div>
@@ -676,6 +337,118 @@
             </ul>
           </div>
         </div>
+
+        </div><!-- /.orderbook-section -->
+
+        <!-- 통합 트레이드 패널 -->
+        <div class="trade-unified-wrapper">
+
+          <!-- 선물 전용: 마진 + 레버리지 -->
+          <div class="trade-unified__controls trade-unified__futures-only">
+            <button class="trade-unified__ctrl-btn" id="marginModeBtn">격리</button>
+            <button class="trade-unified__ctrl-btn trade-unified__ctrl-btn--leverage" id="leverageBtn">10x</button>
+            <button class="trade-unified__ctrl-more">···</button>
+          </div>
+
+          <!-- 주문 유형 탭 -->
+          <div class="trade-unified__type-tabs">
+            <button class="trade-unified__type-tab trade-unified__type-tab--active">지정가</button>
+            <button class="trade-unified__type-tab">시장가</button>
+            <button class="trade-unified__type-tab">조건부 ▾</button>
+          </div>
+
+          <!-- 사용 가능 잔고 -->
+          <div class="trade-unified__avbl">
+            <span>사용 가능 —&nbsp;</span>
+            <span class="trade-unified__avbl-value" id="uniAvailable">0.00 USDT</span>
+            <button class="trade-unified__avbl-btn">⇄</button>
+          </div>
+
+          <!-- 가격 입력 -->
+          <div class="trade-unified__field">
+            <span class="trade-unified__field-label">가격</span>
+            <div class="trade-unified__input-row">
+              <input class="trade-unified__input" type="number" placeholder="0.00" id="uniPrice" />
+              <span class="trade-unified__unit">USDT</span>
+              <button class="trade-unified__bbo-btn">BBO</button>
+            </div>
+          </div>
+
+          <!-- 수량 입력 -->
+          <div class="trade-unified__field">
+            <span class="trade-unified__field-label">수량</span>
+            <div class="trade-unified__input-row">
+              <input class="trade-unified__input" type="number" placeholder="0.000000" id="uniAmount" />
+              <button class="trade-unified__unit-sel">BTC ▾</button>
+            </div>
+          </div>
+
+          <!-- 비율 슬라이더 -->
+          <div class="trade-unified__slider-wrap">
+            <input class="trade-unified__slider" type="range" min="0" max="100" value="0" id="uniSlider" />
+            <div class="trade-unified__slider-marks">
+              <span class="trade-unified__slider-mark"></span>
+              <span class="trade-unified__slider-mark"></span>
+              <span class="trade-unified__slider-mark"></span>
+              <span class="trade-unified__slider-mark"></span>
+              <span class="trade-unified__slider-mark"></span>
+            </div>
+          </div>
+
+          <!-- 옵션 -->
+          <div class="trade-unified__options">
+            <label class="trade-unified__opt">
+              <input type="checkbox" class="trade-unified__checkbox" />
+              <span>TP / SL</span>
+            </label>
+            <div class="trade-unified__opt-row trade-unified__futures-only">
+              <label class="trade-unified__opt">
+                <input type="checkbox" class="trade-unified__checkbox" />
+                <span>Reduce-Only</span>
+              </label>
+              <button class="trade-unified__tif-btn">TIF GTC ▾</button>
+            </div>
+          </div>
+
+          <!-- 매수 / 매도 버튼 -->
+          <div class="trade-unified__actions">
+            <button class="trade-unified__btn trade-unified__btn--buy" id="uniBuyBtn">매수 / 롱</button>
+            <button class="trade-unified__btn trade-unified__btn--sell" id="uniSellBtn">매도 / 숏</button>
+          </div>
+
+          <!-- 정보 행 -->
+          <div class="trade-unified__info">
+            <div class="trade-unified__info-col">
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">청산가</span>
+                <span class="trade-unified__info-value">— USDT</span>
+              </div>
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">비용</span>
+                <span class="trade-unified__info-value">0.0000 BTC</span>
+              </div>
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">최대</span>
+                <span class="trade-unified__info-value">0 BTC</span>
+              </div>
+            </div>
+            <div class="trade-unified__info-col trade-unified__info-col--right">
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">청산가</span>
+                <span class="trade-unified__info-value">— USDT</span>
+              </div>
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">비용</span>
+                <span class="trade-unified__info-value">0.0000 BTC</span>
+              </div>
+              <div class="trade-unified__info-row">
+                <span class="trade-unified__info-label">최대</span>
+                <span class="trade-unified__info-value">0 BTC</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.trade-unified-wrapper -->
 
       </aside>
 

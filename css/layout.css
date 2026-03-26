@@ -35,21 +35,26 @@
   overflow: hidden;
 }
 
-/* 현물/선물 폼 — 기본 숨김, active 시 표시 */
-.trade-wrapper--spot    { display: block; }
-.trade-wrapper--futures { display: none; }
-
-/* Right panel: order book on top, recent trades below */
+/* Right panel: orderbook section (left) + trade panel (right) */
 .right-panel {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
   gap: var(--gap);
   background-color: var(--border);
 }
 
+.orderbook-section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: var(--gap);
+  flex: 1;
+  min-width: 0;
+}
+
 .orderbook-wrapper    { flex: 1 1 0; min-height: 0; overflow: hidden; }
-.recent-trades-wrapper { flex: 0 0 240px; overflow: hidden; }
+.recent-trades-wrapper { flex: 0 0 200px; overflow: hidden; }
 
 /* Bottom panel */
 .bottom-panel {
