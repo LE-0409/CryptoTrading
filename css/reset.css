@@ -1,0 +1,95 @@
+/* ===== CSS Reset & Base Variables ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colors */
+  --bg-primary:    #0b0e11;
+  --bg-secondary:  #1e2026;
+  --bg-tertiary:   #2b2f36;
+  --bg-hover:      #2b2f36;
+
+  --border:        #2b2f36;
+  --border-light:  #363c45;
+
+  --text-primary:  #eaecef;
+  --text-secondary:#848e9c;
+  --text-muted:    #5e6673;
+
+  --color-buy:     #0ecb81;
+  --color-sell:    #f6465d;
+  --color-brand:   #f0b90b;
+
+  --color-buy-bg:  rgba(14, 203, 129, 0.1);
+  --color-sell-bg: rgba(246, 70, 93, 0.1);
+
+  /* Typography */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Roboto Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --header-height: 60px;
+  --ticker-height: 52px;
+  --sidebar-width: 220px;
+  --right-width:   300px;
+  --gap:           1px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+input {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+input::placeholder {
+  color: var(--text-muted);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+}

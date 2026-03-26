@@ -1,0 +1,202 @@
+/* ===== Trade Form (Buy / Sell) ===== */
+
+.trade-wrapper {
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+}
+
+.trade-form {
+  display: flex;
+  gap: var(--gap);
+  background-color: var(--border);
+}
+
+/* Buy / Sell panels side by side */
+.trade-panel {
+  flex: 1;
+  padding: 14px 16px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Order type tabs (Limit / Market / Stop-Limit) */
+.trade__type-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.trade__type-tab {
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.trade__type-tab:hover {
+  color: var(--text-primary);
+}
+
+.trade__type-tab--active {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Available balance line */
+.trade__available {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trade__available-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.trade__available-value {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* Input rows */
+.trade__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trade__input-row {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 7px 10px;
+  gap: 6px;
+  transition: border-color 0.15s;
+}
+
+.trade__input-row:focus-within {
+  border-color: var(--color-brand);
+}
+
+.trade__input-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 46px;
+}
+
+.trade__input {
+  flex: 1;
+  text-align: right;
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+
+.trade__input-unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 36px;
+  text-align: right;
+}
+
+/* Percentage slider */
+.trade__slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trade__slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.trade__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  cursor: pointer;
+}
+
+.trade__slider-pct {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 32px;
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+/* Total row */
+.trade__total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trade__total-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.trade__total-value {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* Submit buttons */
+.trade__submit {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: opacity 0.15s;
+}
+
+.trade__submit:hover { opacity: 0.88; }
+
+.trade__submit--buy {
+  background-color: var(--color-buy);
+  color: #fff;
+}
+
+.trade__submit--sell {
+  background-color: var(--color-sell);
+  color: #fff;
+}
+
+/* Panel label */
+.trade__panel-label {
+  font-size: 13px;
+  font-weight: 700;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.trade__panel-label--buy  {
+  color: var(--color-buy);
+  border-bottom-color: var(--color-buy);
+}
+
+.trade__panel-label--sell {
+  color: var(--color-sell);
+  border-bottom-color: var(--color-sell);
+}

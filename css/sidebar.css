@@ -1,0 +1,145 @@
+/* ===== Left Sidebar — Coin List ===== */
+
+.sidebar {
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Search */
+.sidebar__search {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar__search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 5px 10px;
+  transition: border-color 0.15s;
+}
+
+.sidebar__search-input-wrap:focus-within {
+  border-color: var(--color-brand);
+}
+
+.sidebar__search-icon {
+  color: var(--text-muted);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sidebar__search-input {
+  flex: 1;
+  font-size: 12px;
+}
+
+/* Quote tabs (USDT / BTC / BNB) */
+.sidebar__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar__tab {
+  flex: 1;
+  padding: 7px 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.sidebar__tab:hover {
+  color: var(--text-primary);
+}
+
+.sidebar__tab--active {
+  color: var(--color-brand);
+  border-bottom-color: var(--color-brand);
+}
+
+/* Column headers */
+.sidebar__col-headers {
+  display: grid;
+  grid-template-columns: 1fr 80px 56px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar__col-header {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.sidebar__col-header:first-child {
+  text-align: left;
+}
+
+/* Coin list */
+.sidebar__list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar__coin {
+  display: grid;
+  grid-template-columns: 1fr 80px 56px;
+  align-items: center;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  border-radius: 0;
+}
+
+.sidebar__coin:hover {
+  background-color: var(--bg-hover);
+}
+
+.sidebar__coin--active {
+  background-color: var(--bg-tertiary);
+}
+
+.sidebar__coin-name {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar__coin-symbol {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar__coin-base {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sidebar__coin-price {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.sidebar__coin-change {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-align: right;
+  font-weight: 500;
+}
+
+.sidebar__coin-change--up   { color: var(--color-buy); }
+.sidebar__coin-change--down { color: var(--color-sell); }

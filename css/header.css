@@ -1,0 +1,174 @@
+/* ===== Header ===== */
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  gap: 24px;
+  z-index: 100;
+}
+
+/* Logo */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-brand);
+  flex-shrink: 0;
+}
+
+.header__logo-icon {
+  width: 28px;
+  height: 28px;
+  background-color: var(--color-brand);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--bg-primary);
+}
+
+/* Navigation */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.header__nav-item {
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.15s, background-color 0.15s;
+  white-space: nowrap;
+}
+
+.header__nav-item:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.header__nav-item--active {
+  color: var(--text-primary);
+}
+
+/* Right side: Account info */
+.header__account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header__balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.header__balance-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.header__balance-value {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.header__btn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.header__btn:hover {
+  opacity: 0.85;
+}
+
+.header__btn--deposit {
+  background-color: var(--color-brand);
+  color: var(--bg-primary);
+}
+
+.header__btn--history {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Ticker Bar (coin stats below header) */
+.ticker-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  gap: 24px;
+  overflow-x: auto;
+}
+
+.ticker-bar::-webkit-scrollbar { display: none; }
+
+.ticker__pair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ticker__symbol {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ticker__price {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+.ticker__price--up   { color: var(--color-buy); }
+.ticker__price--down { color: var(--color-sell); }
+
+.ticker__stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.ticker__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ticker__stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ticker__stat-value {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.ticker__stat-value--up   { color: var(--color-buy); }
+.ticker__stat-value--down { color: var(--color-sell); }

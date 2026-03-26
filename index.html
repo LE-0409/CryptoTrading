@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoTrading</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
+  <link rel="stylesheet" href="css/chart.css" />
+  <link rel="stylesheet" href="css/orderbook.css" />
+  <link rel="stylesheet" href="css/trade.css" />
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- ===== Header ===== -->
+    <header class="header">
+      <div class="header__logo">
+        <div class="header__logo-icon">C</div>
+        CryptoTrade
+      </div>
+
+      <nav class="header__nav">
+        <a class="header__nav-item header__nav-item--active" href="#">현물</a>
+        <a class="header__nav-item" href="#">선물</a>
+        <a class="header__nav-item" href="#">마켓</a>
+        <a class="header__nav-item" href="#">포트폴리오</a>
+      </nav>
+
+      <div class="header__account">
+        <div class="header__balance">
+          <span class="header__balance-label">보유 USDT</span>
+          <span class="header__balance-value" id="userBalance">10,000.00</span>
+        </div>
+        <button class="header__btn header__btn--deposit">입금</button>
+        <button class="header__btn header__btn--history">거래내역</button>
+      </div>
+    </header>
+
+    <!-- ===== Ticker Bar ===== -->
+    <div class="ticker-bar">
+      <div class="ticker__pair">
+        <span class="ticker__symbol">BTC / USDT</span>
+      </div>
+      <span class="ticker__price ticker__price--up" id="tickerPrice">65,432.10</span>
+      <div class="ticker__stats">
+        <div class="ticker__stat">
+          <span class="ticker__stat-label">24h 변동</span>
+          <span class="ticker__stat-value ticker__stat-value--up" id="ticker24hChange">+2.34%</span>
+        </div>
+        <div class="ticker__stat">
+          <span class="ticker__stat-label">24h 고가</span>
+          <span class="ticker__stat-value" id="ticker24hHigh">66,120.00</span>
+        </div>
+        <div class="ticker__stat">
+          <span class="ticker__stat-label">24h 저가</span>
+          <span class="ticker__stat-value" id="ticker24hLow">63,850.00</span>
+        </div>
+        <div class="ticker__stat">
+          <span class="ticker__stat-label">24h 거래량(BTC)</span>
+          <span class="ticker__stat-value" id="ticker24hVol">12,840.32</span>
+        </div>
+        <div class="ticker__stat">
+          <span class="ticker__stat-label">24h 거래대금</span>
+          <span class="ticker__stat-value" id="ticker24hQuoteVol">839.2M USDT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Main Layout ===== -->
+    <main class="main-layout">
+
+      <!-- Left: Coin List Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar__search">
+          <div class="sidebar__search-input-wrap">
+            <span class="sidebar__search-icon">&#128269;</span>
+            <input class="sidebar__search-input" type="text" placeholder="코인 검색" />
+          </div>
+        </div>
+
+        <div class="sidebar__tabs">
+          <button class="sidebar__tab sidebar__tab--active">USDT</button>
+          <button class="sidebar__tab">BTC</button>
+          <button class="sidebar__tab">BNB</button>
+        </div>
+
+        <div class="sidebar__col-headers">
+          <span class="sidebar__col-header">페어</span>
+          <span class="sidebar__col-header">현재가</span>
+          <span class="sidebar__col-header">변동</span>
+        </div>
+
+        <ul class="sidebar__list" id="coinList">
+          <li class="sidebar__coin sidebar__coin--active" data-symbol="BTCUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">BTC</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">65,432</span>
+            <span class="sidebar__coin-change sidebar__coin-change--up">+2.34%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="ETHUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">ETH</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">3,210</span>
+            <span class="sidebar__coin-change sidebar__coin-change--up">+1.12%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="BNBUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">BNB</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">580.40</span>
+            <span class="sidebar__coin-change sidebar__coin-change--down">-0.75%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="SOLUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">SOL</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">172.30</span>
+            <span class="sidebar__coin-change sidebar__coin-change--up">+3.50%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="XRPUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">XRP</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">0.5820</span>
+            <span class="sidebar__coin-change sidebar__coin-change--down">-1.22%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="ADAUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">ADA</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">0.4510</span>
+            <span class="sidebar__coin-change sidebar__coin-change--up">+0.88%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="DOGEUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">DOGE</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">0.1234</span>
+            <span class="sidebar__coin-change sidebar__coin-change--down">-2.10%</span>
+          </li>
+          <li class="sidebar__coin" data-symbol="DOTUSDT">
+            <div class="sidebar__coin-name">
+              <span class="sidebar__coin-symbol">DOT</span>
+              <span class="sidebar__coin-base">/ USDT</span>
+            </div>
+            <span class="sidebar__coin-price">7.820</span>
+            <span class="sidebar__coin-change sidebar__coin-change--up">+1.65%</span>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Center: Chart + Trade Form -->
+      <section class="center-panel">
+
+        <!-- Chart -->
+        <div class="chart-wrapper">
+          <div class="chart__toolbar">
+            <button class="chart__tf-btn">1m</button>
+            <button class="chart__tf-btn">5m</button>
+            <button class="chart__tf-btn">15m</button>
+            <button class="chart__tf-btn chart__tf-btn--active">1H</button>
+            <button class="chart__tf-btn">4H</button>
+            <button class="chart__tf-btn">1D</button>
+            <button class="chart__tf-btn">1W</button>
+            <div class="chart__toolbar-divider"></div>
+            <button class="chart__type-btn">캔들</button>
+            <button class="chart__type-btn">라인</button>
+          </div>
+          <div class="chart__canvas">
+            <div id="tradingChart"></div>
+            <div class="chart__placeholder" id="chartPlaceholder">
+              <span class="chart__placeholder-icon">&#128200;</span>
+              <span>차트 로딩 중...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trade Form -->
+        <div class="trade-wrapper">
+          <div class="trade-form">
+
+            <!-- Buy Panel -->
+            <div class="trade-panel">
+              <div class="trade__panel-label trade__panel-label--buy">매수</div>
+              <div class="trade__type-tabs">
+                <button class="trade__type-tab trade__type-tab--active">지정가</button>
+                <button class="trade__type-tab">시장가</button>
+              </div>
+              <div class="trade__available">
+                <span class="trade__available-label">사용 가능</span>
+                <span class="trade__available-value" id="buyAvailable">10,000.00 USDT</span>
+              </div>
+              <div class="trade__input-group">
+                <div class="trade__input-row">
+                  <span class="trade__input-label">가격</span>
+                  <input class="trade__input" type="number" placeholder="0.00" id="buyPrice" />
+                  <span class="trade__input-unit">USDT</span>
+                </div>
+                <div class="trade__input-row">
+                  <span class="trade__input-label">수량</span>
+                  <input class="trade__input" type="number" placeholder="0.000000" id="buyAmount" />
+                  <span class="trade__input-unit">BTC</span>
+                </div>
+              </div>
+              <div class="trade__slider-row">
+                <input class="trade__slider" type="range" min="0" max="100" value="0" id="buySlider" />
+                <span class="trade__slider-pct" id="buyPct">0%</span>
+              </div>
+              <div class="trade__total-row">
+                <span class="trade__total-label">총액</span>
+                <span class="trade__total-value" id="buyTotal">0.00 USDT</span>
+              </div>
+              <button class="trade__submit trade__submit--buy">BTC 매수</button>
+            </div>
+
+            <!-- Sell Panel -->
+            <div class="trade-panel">
+              <div class="trade__panel-label trade__panel-label--sell">매도</div>
+              <div class="trade__type-tabs">
+                <button class="trade__type-tab trade__type-tab--active">지정가</button>
+                <button class="trade__type-tab">시장가</button>
+              </div>
+              <div class="trade__available">
+                <span class="trade__available-label">보유 BTC</span>
+                <span class="trade__available-value" id="sellAvailable">0.00000000 BTC</span>
+              </div>
+              <div class="trade__input-group">
+                <div class="trade__input-row">
+                  <span class="trade__input-label">가격</span>
+                  <input class="trade__input" type="number" placeholder="0.00" id="sellPrice" />
+                  <span class="trade__input-unit">USDT</span>
+                </div>
+                <div class="trade__input-row">
+                  <span class="trade__input-label">수량</span>
+                  <input class="trade__input" type="number" placeholder="0.000000" id="sellAmount" />
+                  <span class="trade__input-unit">BTC</span>
+                </div>
+              </div>
+              <div class="trade__slider-row">
+                <input class="trade__slider" type="range" min="0" max="100" value="0" id="sellSlider" />
+                <span class="trade__slider-pct" id="sellPct">0%</span>
+              </div>
+              <div class="trade__total-row">
+                <span class="trade__total-label">총액</span>
+                <span class="trade__total-value" id="sellTotal">0.00 USDT</span>
+              </div>
+              <button class="trade__submit trade__submit--sell">BTC 매도</button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right: Order Book + Recent Trades -->
+      <aside class="right-panel">
+
+        <!-- Order Book -->
+        <div class="orderbook-wrapper">
+          <div class="panel__title">호가창</div>
+          <div class="orderbook">
+            <div class="orderbook__headers">
+              <span class="orderbook__header">가격(USDT)</span>
+              <span class="orderbook__header">수량(BTC)</span>
+              <span class="orderbook__header">누적(BTC)</span>
+            </div>
+
+            <!-- Sell orders (asks) -->
+            <div class="orderbook__sells" id="askList">
+              <div class="orderbook__row orderbook__row--sell" style="--depth:72%">
+                <span class="orderbook__price">65,500.00</span>
+                <span class="orderbook__amount">0.8420</span>
+                <span class="orderbook__total">5.2310</span>
+              </div>
+              <div class="orderbook__row orderbook__row--sell" style="--depth:55%">
+                <span class="orderbook__price">65,480.00</span>
+                <span class="orderbook__amount">1.2100</span>
+                <span class="orderbook__total">4.3890</span>
+              </div>
+              <div class="orderbook__row orderbook__row--sell" style="--depth:43%">
+                <span class="orderbook__price">65,460.00</span>
+                <span class="orderbook__amount">0.5500</span>
+                <span class="orderbook__total">3.1790</span>
+              </div>
+              <div class="orderbook__row orderbook__row--sell" style="--depth:30%">
+                <span class="orderbook__price">65,450.00</span>
+                <span class="orderbook__amount">0.3200</span>
+                <span class="orderbook__total">2.6290</span>
+              </div>
+              <div class="orderbook__row orderbook__row--sell" style="--depth:18%">
+                <span class="orderbook__price">65,440.00</span>
+                <span class="orderbook__amount">0.1800</span>
+                <span class="orderbook__total">2.3090</span>
+              </div>
+            </div>
+
+            <!-- Current price -->
+            <div class="orderbook__mid">
+              <span class="orderbook__mid-price orderbook__mid-price--up" id="midPrice">65,432.10</span>
+              <span class="orderbook__mid-usd">≈ $65,432.10</span>
+            </div>
+
+            <!-- Buy orders (bids) -->
+            <div class="orderbook__buys" id="bidList">
+              <div class="orderbook__row orderbook__row--buy" style="--depth:20%">
+                <span class="orderbook__price">65,420.00</span>
+                <span class="orderbook__amount">0.2100</span>
+                <span class="orderbook__total">0.2100</span>
+              </div>
+              <div class="orderbook__row orderbook__row--buy" style="--depth:35%">
+                <span class="orderbook__price">65,400.00</span>
+                <span class="orderbook__amount">0.4800</span>
+                <span class="orderbook__total">0.6900</span>
+              </div>
+              <div class="orderbook__row orderbook__row--buy" style="--depth:50%">
+                <span class="orderbook__price">65,380.00</span>
+                <span class="orderbook__amount">0.9200</span>
+                <span class="orderbook__total">1.6100</span>
+              </div>
+              <div class="orderbook__row orderbook__row--buy" style="--depth:65%">
+                <span class="orderbook__price">65,360.00</span>
+                <span class="orderbook__amount">1.1500</span>
+                <span class="orderbook__total">2.7600</span>
+              </div>
+              <div class="orderbook__row orderbook__row--buy" style="--depth:80%">
+                <span class="orderbook__price">65,340.00</span>
+                <span class="orderbook__amount">1.4300</span>
+                <span class="orderbook__total">4.1900</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Trades -->
+        <div class="recent-trades-wrapper">
+          <div class="panel__title">체결 내역</div>
+          <div class="recent-trades">
+            <div class="recent-trades__headers">
+              <span class="recent-trades__header">시간</span>
+              <span class="recent-trades__header">가격(USDT)</span>
+              <span class="recent-trades__header">수량(BTC)</span>
+            </div>
+            <ul class="recent-trades__list" id="recentTradesList">
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:32:05</span>
+                <span class="recent-trades__price recent-trades__price--up">65,432.10</span>
+                <span class="recent-trades__amount">0.0512</span>
+              </li>
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:32:03</span>
+                <span class="recent-trades__price recent-trades__price--down">65,410.00</span>
+                <span class="recent-trades__amount">0.1230</span>
+              </li>
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:32:01</span>
+                <span class="recent-trades__price recent-trades__price--up">65,425.50</span>
+                <span class="recent-trades__amount">0.0340</span>
+              </li>
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:31:58</span>
+                <span class="recent-trades__price recent-trades__price--down">65,400.00</span>
+                <span class="recent-trades__amount">0.2100</span>
+              </li>
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:31:55</span>
+                <span class="recent-trades__price recent-trades__price--up">65,418.00</span>
+                <span class="recent-trades__amount">0.0780</span>
+              </li>
+              <li class="recent-trades__row">
+                <span class="recent-trades__time">14:31:52</span>
+                <span class="recent-trades__price recent-trades__price--up">65,430.00</span>
+                <span class="recent-trades__amount">0.0920</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
