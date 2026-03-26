@@ -29,11 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const avblTransferBtn = document.querySelector('.trade-unified__avbl-btn');
   const typeTabs       = document.querySelectorAll('.trade-unified__type-tab');
 
-  // 정보 행
-  const infoBuyCost    = document.querySelector('.trade-unified__info-col:first-child .trade-unified__info-row:nth-child(2) .trade-unified__info-value');
-  const infoBuyMax     = document.querySelector('.trade-unified__info-col:first-child .trade-unified__info-row:nth-child(3) .trade-unified__info-value');
-  const infoSellCost   = document.querySelector('.trade-unified__info-col--right .trade-unified__info-row:nth-child(2) .trade-unified__info-value');
-  const infoSellMax    = document.querySelector('.trade-unified__info-col--right .trade-unified__info-row:nth-child(3) .trade-unified__info-value');
 
   // ===== 현재가 가져오기 =====
   const getCurrentPrice = () => {
@@ -53,30 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateInfoRows();
   };
 
-  // ===== 정보 행 업데이트 (비용, 최대) =====
-  const updateInfoRows = () => {
-    const price  = getEffectivePrice();
-    const usdt   = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
-    const btc    = state.spotBtc;
-
-    if (price > 0) {
-      const maxBuy = state.mode === 'spot'
-        ? usdt / price
-        : (usdt * state.leverage) / price;
-      const maxSell = state.mode === 'spot' ? btc : maxBuy;
-
-      if (infoBuyMax)  infoBuyMax.textContent  = maxBuy.toFixed(4) + ' BTC';
-      if (infoSellMax) infoSellMax.textContent = maxSell.toFixed(4) + ' BTC';
-
-      const amount = parseFloat(amountInput?.value) || 0;
-      const cost   = state.mode === 'spot'
-        ? amount * price
-        : (amount * price) / state.leverage;
-
-      if (infoBuyCost)  infoBuyCost.textContent  = cost.toFixed(4) + ' USDT';
-      if (infoSellCost) infoSellCost.textContent = cost.toFixed(4) + ' USDT';
-    }
-  };
+  const updateInfoRows = () => {};
 
   // ===== 유효 가격 (시장가이면 현재가) =====
   const getEffectivePrice = () => {

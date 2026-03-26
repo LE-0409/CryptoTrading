@@ -258,48 +258,6 @@
   color: #fff;
 }
 
-/* 정보 행 (청산가, 비용, 최대) */
-.trade-unified__info {
-  display: flex;
-  gap: 4px;
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
-}
-
-.trade-unified__info-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.trade-unified__info-col--right {
-  text-align: right;
-}
-
-.trade-unified__info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 4px;
-}
-
-.trade-unified__info-col--right .trade-unified__info-row {
-  flex-direction: row-reverse;
-}
-
-.trade-unified__info-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.trade-unified__info-value {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
 
 /* TP/SL 입력 섹션 */
 .trade-unified__tpsl-section {
