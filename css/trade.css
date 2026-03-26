@@ -295,9 +295,94 @@
 .trade-unified__tpsl-section {
   display: none;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding: 8px 0 2px;
   border-top: 1px solid var(--border);
+}
+
+/* TP/SL 블록 */
+.tpsl-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tpsl-block__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tpsl-block__title {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tpsl-block__title--tp { color: var(--color-buy); }
+.tpsl-block__title--sl { color: var(--color-sell); }
+
+.tpsl-block__pct {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* TP/SL 슬라이더 */
+.tpsl-block__slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tpsl-block__slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 2px;
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+
+.tpsl-block__slider--tp {
+  background: var(--bg-tertiary);
+}
+
+.tpsl-block__slider--tp::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-buy);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+}
+
+.tpsl-block__slider--sl {
+  background: var(--bg-tertiary);
+}
+
+.tpsl-block__slider--sl::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-sell);
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+}
+
+.tpsl-block__marks {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tpsl-block__mark {
+  width: 6px;
+  height: 6px;
+  background: var(--bg-tertiary);
+  transform: rotate(45deg);
+  border: 1px solid var(--border-light);
+  cursor: pointer;
 }
 
 /* 경고 버튼 */

@@ -401,20 +401,51 @@
             </label>
             <!-- TP/SL 입력 (체크 시 표시) -->
             <div class="trade-unified__tpsl-section" id="tpslSection">
-              <div class="trade-unified__field">
-                <span class="trade-unified__field-label">Take Profit (USDT)</span>
+
+              <!-- Take Profit -->
+              <div class="tpsl-block">
+                <div class="tpsl-block__header">
+                  <span class="tpsl-block__title tpsl-block__title--tp">Take Profit</span>
+                  <span class="tpsl-block__pct" id="tpPctDisplay">+0.00%</span>
+                </div>
                 <div class="trade-unified__input-row">
-                  <input class="trade-unified__input" type="number" placeholder="0.00" id="tpPrice" />
+                  <input class="trade-unified__input" type="text" inputmode="decimal" placeholder="0.00" id="tpPrice" />
                   <span class="trade-unified__unit">USDT</span>
                 </div>
-              </div>
-              <div class="trade-unified__field">
-                <span class="trade-unified__field-label">Stop Loss (USDT)</span>
-                <div class="trade-unified__input-row">
-                  <input class="trade-unified__input" type="number" placeholder="0.00" id="slPrice" />
-                  <span class="trade-unified__unit">USDT</span>
+                <div class="tpsl-block__slider-wrap">
+                  <input class="tpsl-block__slider tpsl-block__slider--tp" type="range" min="0" max="100" value="0" id="tpSlider" />
+                  <div class="tpsl-block__marks">
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                  </div>
                 </div>
               </div>
+
+              <!-- Stop Loss -->
+              <div class="tpsl-block">
+                <div class="tpsl-block__header">
+                  <span class="tpsl-block__title tpsl-block__title--sl">Stop Loss</span>
+                  <span class="tpsl-block__pct" id="slPctDisplay">-0.00%</span>
+                </div>
+                <div class="trade-unified__input-row">
+                  <input class="trade-unified__input" type="text" inputmode="decimal" placeholder="0.00" id="slPrice" />
+                  <span class="trade-unified__unit">USDT</span>
+                </div>
+                <div class="tpsl-block__slider-wrap">
+                  <input class="tpsl-block__slider tpsl-block__slider--sl" type="range" min="0" max="100" value="0" id="slSlider" />
+                  <div class="tpsl-block__marks">
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                    <span class="tpsl-block__mark"></span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
