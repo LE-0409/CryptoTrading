@@ -170,97 +170,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ===== TP/SL 슬라이더 & 입력 연동 =====
-  const tpSlider     = document.getElementById('tpSlider');
-  const slSlider     = document.getElementById('slSlider');
+  // ===== TP/SL 단위 토글 =====
   const tpPriceInput = document.getElementById('tpPrice');
   const slPriceInput = document.getElementById('slPrice');
-  const tpPctDisplay = document.getElementById('tpPctDisplay');
-  const slPctDisplay = document.getElementById('slPctDisplay');
+  const tpUnitBtn    = document.getElementById('tpUnitBtn');
+  const slUnitBtn    = document.getElementById('slUnitBtn');
 
-  // 기준가 → 목표가 계산 (TP: +%, SL: -%)
-  const pctToPrice = (basePct, isTp) => {
-    const base = getEffectivePrice() || getCurrentPrice();
-    if (!base) return 0;
-    return isTp
-      ? base * (1 + basePct / 100)
-      : base * (1 - basePct / 100);
+  // 단위 상태: 'USDT' | 'ROI'
+  const tpslUnit = { tp: 'USDT', sl: 'USDT' };
+
+  const getBase = () => getEffectivePrice() || getCurrentPrice();
+
+  // USDT ↔ ROI 값 변환
+  const usdtToRoi = (usdt, isTp) => {
+    const base = getBase();
+    if (!base) return '';
+    const pct = isTp
+      ? ((usdt - base) / base) * 100
+      : ((base - usdt) / base) * 100;
+    return pct.toFixed(2);
   };
 
-  // 목표가 → 퍼센트 계산
-  const priceToTpPct = (targetPrice) => {
-    const base = getEffectivePrice() || getCurrentPrice();
-    if (!base) return 0;
-    return ((targetPrice - base) / base) * 100;
+  const roiToUsdt = (roi, isTp) => {
+    const base = getBase();
+    if (!base) return '';
+    const price = isTp
+      ? base * (1 + roi / 100)
+      : base * (1 - roi / 100);
+    return price.toFixed(2);
   };
 
-  const priceToslPct = (targetPrice) => {
-    const base = getEffectivePrice() || getCurrentPrice();
-    if (!base) return 0;
-    return ((base - targetPrice) / base) * 100;
+  const switchUnit = (type) => {
+    const isTp     = type === 'tp';
+    const unitRef  = tpslUnit;
+    const input    = isTp ? tpPriceInput : slPriceInput;
+    const btn      = isTp ? tpUnitBtn    : slUnitBtn;
+    const current  = isTp ? unitRef.tp   : unitRef.sl;
+    const newUnit  = current === 'USDT' ? 'ROI' : 'USDT';
+
+    // 현재 값을 새 단위로 변환
+    const val = parseFloat(input?.value);
+    if (val && !isNaN(val)) {
+      input.value = current === 'USDT'
+        ? usdtToRoi(val, isTp)   // USDT → ROI
+        : roiToUsdt(val, isTp);  // ROI → USDT
+    }
+
+    if (isTp) unitRef.tp = newUnit; else unitRef.sl = newUnit;
+    btn.textContent = newUnit;
+    input.placeholder = newUnit === 'ROI' ? '0.00' : '0.00';
+
+    if (newUnit === 'ROI') {
+      btn.classList.add('tpsl-block__unit-btn--roi');
+    } else {
+      btn.classList.remove('tpsl-block__unit-btn--roi');
+    }
   };
 
-  // TP 슬라이더 → 입력란에 퍼센트 표시
-  if (tpSlider) {
-    tpSlider.addEventListener('input', () => {
-      const pct = parseInt(tpSlider.value);
-      if (tpPriceInput) tpPriceInput.value = pct > 0 ? '+' + pct + '%' : '';
-      if (tpPctDisplay) tpPctDisplay.textContent = '+' + pct.toFixed(2) + '%';
-      updateTpslMarks(tpSlider, pct, true);
-    });
-  }
-
-  // SL 슬라이더 → 입력란에 퍼센트 표시
-  if (slSlider) {
-    slSlider.addEventListener('input', () => {
-      const pct = parseInt(slSlider.value);
-      if (slPriceInput) slPriceInput.value = pct > 0 ? '-' + pct + '%' : '';
-      if (slPctDisplay) slPctDisplay.textContent = '-' + pct.toFixed(2) + '%';
-      updateTpslMarks(slSlider, pct, false);
-    });
-  }
-
-  // TP 가격 직접 입력(USDT) → 슬라이더 & 퍼센트 갱신
-  if (tpPriceInput) {
-    tpPriceInput.addEventListener('input', () => {
-      const raw = tpPriceInput.value.trim();
-      if (raw.endsWith('%')) return; // 슬라이더 입력이면 무시
-      const target = parseFloat(raw);
-      if (!target) return;
-      const pct = Math.max(0, Math.min(100, priceToTpPct(target)));
-      if (tpSlider) tpSlider.value = pct;
-      if (tpPctDisplay) tpPctDisplay.textContent = '+' + pct.toFixed(2) + '%';
-      updateTpslMarks(tpSlider, pct, true);
-    });
-  }
-
-  // SL 가격 직접 입력(USDT) → 슬라이더 & 퍼센트 갱신
-  if (slPriceInput) {
-    slPriceInput.addEventListener('input', () => {
-      const raw = slPriceInput.value.trim();
-      if (raw.endsWith('%')) return; // 슬라이더 입력이면 무시
-      const target = parseFloat(raw);
-      if (!target) return;
-      const pct = Math.max(0, Math.min(100, priceToslPct(target)));
-      if (slSlider) slSlider.value = pct;
-      if (slPctDisplay) slPctDisplay.textContent = '-' + pct.toFixed(2) + '%';
-      updateTpslMarks(slSlider, pct, false);
-    });
-  }
-
-  // 마커 색상 업데이트
-  const updateTpslMarks = (sliderEl, pct, isTp) => {
-    if (!sliderEl) return;
-    const wrap  = sliderEl.closest('.tpsl-block__slider-wrap');
-    if (!wrap) return;
-    const marks = wrap.querySelectorAll('.tpsl-block__mark');
-    const color = isTp ? 'var(--color-buy)' : 'var(--color-sell)';
-    marks.forEach((mark, i) => {
-      const active = i * 25 <= pct;
-      mark.style.background  = active ? color : '';
-      mark.style.borderColor = active ? color : '';
-    });
-  };
+  if (tpUnitBtn) tpUnitBtn.addEventListener('click', () => switchUnit('tp'));
+  if (slUnitBtn) slUnitBtn.addEventListener('click', () => switchUnit('sl'));
 
   // ===== 잔고 이체 버튼 =====
   if (avblTransferBtn) {
