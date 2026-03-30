@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     mode:         'futures',
     orderType:    'limit',
     leverage:     10,
-    marginMode:   '격리',
     positions:    JSON.parse(localStorage.getItem(LS_POSITIONS) || '[]'),
     pendingOrders:JSON.parse(localStorage.getItem(LS_PENDING)   || '[]'),
   };
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const availableEl     = document.getElementById('uniAvailable');
   const buyBtn          = document.getElementById('uniBuyBtn');
   const sellBtn         = document.getElementById('uniSellBtn');
-  const marginModeBtn   = document.getElementById('marginModeBtn');
   const leverageBtn     = document.getElementById('leverageBtn');
   const tpslCheckbox    = document.getElementById('tpslCheckbox');
   const tpslSection     = document.getElementById('tpslSection');
@@ -153,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ===== 포지션 업데이트 헬퍼 =====
-  const updateFuturesPos = (symbol, side, btcAmt, price, margin, lev, marginMode, tp, sl) => {
+  const updateFuturesPos = (symbol, side, btcAmt, price, margin, lev, tp, sl) => {
     const pos = state.positions.find(p =>
       p.symbol === symbol && p.mode === 'futures' && p.side === side && p.leverage === lev);
     if (pos) {
@@ -162,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pos.qty = total; pos.margin += margin;
     } else {
       state.positions.push({ id: Date.now(), symbol, mode: 'futures', side,
-        leverage: lev, marginMode, entryPrice: price, qty: btcAmt,
+        leverage: lev, entryPrice: price, qty: btcAmt,
         margin, tp, sl, openTime: new Date().toISOString() });
     }
   };
@@ -174,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const margin     = amount / state.leverage;
     state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
     const dir = side === 'buy' ? 'long' : 'short';
-    updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, state.marginMode, tp, sl);
+    updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, tp, sl);
 
     addTradeRecord(side, price, btcAmt, amount, amount * FEE_RATE);
     saveSnapshot(price);
@@ -189,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { tp, sl } = getTpSlFromForm(price);
     state.pendingOrders.push({
       id: Date.now(), symbol, mode: state.mode, side,
-      leverage: state.leverage, marginMode: state.marginMode,
+      leverage: state.leverage,
       orderType: 'limit', price, qty: btcAmt, total: amount,
       margin: reservedMargin, tp, sl, time: new Date().toISOString(),
     });
@@ -341,18 +339,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tpPriceInput) tpPriceInput.addEventListener('input', () => updatePreview('tp'));
   if (slPriceInput) slPriceInput.addEventListener('input', () => updatePreview('sl'));
 
-  // ===== 레버리지 / 마진 모드 =====
+  // ===== 레버리지 =====
   if (leverageBtn) leverageBtn.addEventListener('click', () => {
     const val = parseInt(prompt('레버리지 설정 (1 ~ 125):', state.leverage));
     if (isNaN(val) || val < 1 || val > 125) return;
     state.leverage = val;
     leverageBtn.textContent = val + 'x';
     updateInfoRows();
-  });
-
-  if (marginModeBtn) marginModeBtn.addEventListener('click', () => {
-    state.marginMode = state.marginMode === '격리' ? '교차' : '격리';
-    marginModeBtn.textContent = state.marginMode;
   });
 
   // ===== 버튼 피드백 =====

@@ -40,7 +40,6 @@ const renderPositions = () => {
     return `<tr>
       <td><span style="color:${sideColor}">${base} ${sideLabel}</span></td>
       <td>${pos.leverage}x</td>
-      <td>${pos.marginMode}</td>
       <td>${_fmt(pos.entryPrice)}</td>
       <td>${_fmt(cp)}</td>
       <td>${pos.qty.toFixed(6)}</td>
@@ -111,7 +110,7 @@ const executeLimitOrder = (order, fillPrice) => {
   // 증거금은 주문 등록 시 이미 차감됨
   const dir = order.side === 'buy' ? 'long' : 'short';
   h.updateFuturesPos(order.symbol, dir, order.qty, order.price, order.margin,
-    order.leverage, order.marginMode, order.tp, order.sl);
+    order.leverage, order.tp, order.sl);
 
   h.addTradeRecord(order.side, order.price, order.qty, order.total, order.total * h.FEE_RATE);
   h.saveSnapshot?.(order.price);
