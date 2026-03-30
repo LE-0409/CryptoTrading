@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.mode !== 'futures') {
       liqBuyEl.textContent  = '—';
       liqSellEl.textContent = '—';
+      updateEstimate();
       return;
     }
 
