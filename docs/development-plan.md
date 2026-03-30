@@ -12,7 +12,7 @@
 
 | 모드 | 설명 |
 |------|------|
-| 현물 (Spot) | USDT/BTC 마켓, 포지션 평균 단가 합산 |
+| 현물 (Spot) | USDT 마켓, 포지션 평균 단가 합산 |
 | 선물 (Futures) | USDT-M 무기한 계약, 레버리지 1x~125x, 롱/숏 |
 
 ### 잔고 구분
@@ -40,54 +40,23 @@
 ## 거래 마켓
 
 ### 현물 마켓
-사이드바 탭: **USDT**, **BTC** 2개만 지원. (BNB 탭 제거)
+사이드바 탭: **USDT** 1개만 지원.
 
-### USDT 마켓 (시가총액 상위 10개 고정)
+### USDT 마켓 (2개 고정)
 
 | # | 심볼 | 이름 |
 |---|------|------|
 | 1 | BTCUSDT | Bitcoin |
 | 2 | ETHUSDT | Ethereum |
-| 3 | BNBUSDT | BNB |
-| 4 | SOLUSDT | Solana |
-| 5 | XRPUSDT | XRP |
-| 6 | DOGEUSDT | Dogecoin |
-| 7 | ADAUSDT | Cardano |
-| 8 | AVAXUSDT | Avalanche |
-| 9 | DOTUSDT | Polkadot |
-| 10 | MATICUSDT | Polygon |
-
-### BTC 마켓 (시가총액 상위 10개 고정, BTC 제외)
-
-| # | 심볼 | 이름 |
-|---|------|------|
-| 1 | ETHBTC | Ethereum |
-| 2 | BNBBTC | BNB |
-| 3 | SOLBTC | Solana |
-| 4 | XRPBTC | XRP |
-| 5 | DOGEBTC | Dogecoin |
-| 6 | ADABTC | Cardano |
-| 7 | AVAXBTC | Avalanche |
-| 8 | DOTBTC | Polkadot |
-| 9 | MATICBTC | Polygon |
-| 10 | LINKBTC | Chainlink |
 
 > 고정 목록 방식 채택 — 실시간 순위 변동 반영 없음. 목록 변경 시 `js/api.js` 상수만 수정.
 
-### 선물 마켓 (USDT-M 무기한 계약, 현물과 동일한 10개 고정)
+### 선물 마켓 (USDT-M 무기한 계약, 현물과 동일한 2개 고정)
 
 | # | 심볼 | 이름 |
 |---|------|------|
 | 1 | BTCUSDT | Bitcoin |
 | 2 | ETHUSDT | Ethereum |
-| 3 | BNBUSDT | BNB |
-| 4 | SOLUSDT | Solana |
-| 5 | XRPUSDT | XRP |
-| 6 | DOGEUSDT | Dogecoin |
-| 7 | ADAUSDT | Cardano |
-| 8 | AVAXUSDT | Avalanche |
-| 9 | DOTUSDT | Polkadot |
-| 10 | MATICUSDT | Polygon |
 
 ---
 
@@ -136,7 +105,7 @@
     - 전체 초기화 (클릭 시 확인 팝업 후 실행)
 
 ### 사이드바
-- 탭: **USDT**, **BTC** (BNB 탭 제거)
+- 탭: **USDT**
 
 ### 이체 모달
 - 방향 선택 토글: **현물 → 선물** / **선물 → 현물**
@@ -146,13 +115,13 @@
 - 확인 버튼 (이체 후 모달 닫힘, 잔고 즉시 반영)
 
 ### TP/SL 토글 섹션 (현물/선물 공통)
-- ROI(%) / PnL(USDT or BTC) 방식 선택 탭
+- ROI(%) / PnL(USDT) 방식 선택 탭
 - TP 가격 입력란
   - 청산 비율 슬라이더 (25% / 50% / 75% / 100% 프리셋)
-  - 슬라이더 옆 실시간 청산 수량/금액 표시 (예: 50% → 0.0769 BTC / 5,000 USDT)
+  - 슬라이더 옆 실시간 청산 수량/금액 표시 (예: 50% → 5,000 USDT)
 - SL 가격 입력란
   - 청산 비율 슬라이더 (25% / 50% / 75% / 100% 프리셋)
-  - 슬라이더 옆 실시간 청산 수량/금액 표시
+  - 슬라이더 옆 실시간 청산 수량/금액 표시 (USDT 기준)
 
 ### 트레이드 폼
 
@@ -448,7 +417,7 @@
 | 방식 | 입력 | 트리거 가격 계산 |
 |------|------|----------------|
 | ROI (%) | 목표 수익률 % | 진입가 × (1 ± ROI%) |
-| PnL (USDT/BTC) | 목표 손익 금액 | 진입가 ± (PnL ÷ 수량) |
+| PnL (USDT) | 목표 손익 금액 | 진입가 ± (PnL ÷ 수량) |
 
 #### 수량 비율 설정
 - TP/SL 각각 **포지션의 몇 %를 청산**할지 설정 가능
@@ -464,7 +433,7 @@
 #### 구현 항목
 - [ ] `js/tpsl.js` — TP/SL 로직 (설정, 모니터링, 자동 체결)
 - [ ] ROI 기준 트리거 가격 계산
-- [ ] PnL 기준 트리거 가격 계산 (마켓별: USDT/BTC)
+- [ ] PnL 기준 트리거 가격 계산 (USDT 기준)
 - [ ] 청산 비율 슬라이더 (TP/SL 각각)
 - [ ] 현재가 실시간 모니터링 → 트리거 도달 시 자동 체결
 - [ ] TP/SL 설정값 `localStorage` 저장 (새로고침 후 유지)
