@@ -3,16 +3,24 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ===== 상태 =====
+  // ===== localStorage 키 =====
+  const LS_STATE   = 'ct_state';
+  const LS_HISTORY = 'ct_history';
+
+  // ===== 상태 (localStorage에서 복원) =====
+  const saved = JSON.parse(localStorage.getItem(LS_STATE) || 'null');
   const state = {
-    spotUsdt:   100.00,
-    spotBtc:    0.000000,
-    futuresUsdt: 0.00,
-    mode:        'spot',      // 'spot' | 'futures'
-    orderType:   'limit',     // 'limit' | 'market' | 'conditional'
+    spotUsdt:    saved?.spotUsdt    ?? 100.00,
+    spotBtc:     saved?.spotBtc     ?? 0.000000,
+    futuresUsdt: saved?.futuresUsdt ?? 0.00,
+    mode:        'spot',
+    orderType:   'limit',
     leverage:    10,
     marginMode:  '격리',
   };
+
+  // ===== 체결 내역 =====
+  let tradeHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
 
   // ===== DOM =====
   const priceInput     = document.getElementById('uniPrice');
@@ -37,6 +45,76 @@ document.addEventListener('DOMContentLoaded', () => {
     return parseFloat(el.textContent.replace(/,/g, '')) || 65432.10;
   };
 
+  // ===== localStorage 저장 =====
+  const saveState = () => {
+    localStorage.setItem(LS_STATE, JSON.stringify({
+      spotUsdt:    state.spotUsdt,
+      spotBtc:     state.spotBtc,
+      futuresUsdt: state.futuresUsdt,
+    }));
+  };
+
+  // ===== 체결 내역 기록 =====
+  const addTradeRecord = (side, price, btcQty, usdtTotal, fee) => {
+    const symbol = (typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : null) || 'BTCUSDT';
+    tradeHistory.unshift({
+      time:      new Date().toISOString(),
+      symbol,
+      mode:      state.mode,
+      side,
+      orderType: state.orderType,
+      price,
+      qty:       btcQty,
+      total:     usdtTotal,
+      fee,
+    });
+    if (tradeHistory.length > 200) tradeHistory.length = 200;
+    localStorage.setItem(LS_HISTORY, JSON.stringify(tradeHistory));
+    renderTradeHistory();
+  };
+
+  // ===== 체결 내역 렌더링 =====
+  const renderTradeHistory = () => {
+    const tbody = document.querySelector('#paneHistory tbody');
+    if (!tbody) return;
+
+    if (!tradeHistory.length) {
+      tbody.innerHTML = '<tr class="bp-table__empty"><td colspan="9">체결 내역 없음</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = tradeHistory.slice(0, 50).map(r => {
+      const t       = new Date(r.time);
+      const timeStr = t.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })
+                    + ' ' + t.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const base    = r.symbol.replace('USDT', '');
+      const modeKr  = r.mode === 'spot' ? '현물' : '선물';
+      const sideKr  = r.side === 'buy'  ? '매수'  : '매도';
+      const typeKr  = r.orderType === 'market' ? '시장가' : '지정가';
+      const color   = r.side === 'buy' ? 'var(--color-buy)' : 'var(--color-sell)';
+      return `<tr>
+        <td>${timeStr}</td>
+        <td>${base}/USDT</td>
+        <td>${modeKr}</td>
+        <td style="color:${color}">${sideKr}</td>
+        <td>${typeKr}</td>
+        <td>${r.price.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</td>
+        <td>${r.qty.toFixed(6)}</td>
+        <td>${r.total.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</td>
+        <td>${r.fee.toFixed(4)}</td>
+      </tr>`;
+    }).join('');
+  };
+
+  // ===== 자산 탭 렌더링 =====
+  const renderAssets = () => {
+    const cards = document.querySelectorAll('.bp-asset-card .bp-asset-card__value');
+    if (cards.length < 3) return;
+    cards[0].textContent = state.spotUsdt.toFixed(2);
+    cards[1].textContent = state.futuresUsdt.toFixed(2);
+    cards[2].textContent = (state.spotUsdt + state.futuresUsdt).toFixed(2) + ' USDT';
+  };
+
   // ===== 잔고 표시 업데이트 =====
   const updateAvailable = () => {
     const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
@@ -45,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const futBalEl  = document.getElementById('futuresBalance');
     if (spotBalEl) spotBalEl.textContent = state.spotUsdt.toFixed(2);
     if (futBalEl)  futBalEl.textContent  = state.futuresUsdt.toFixed(2);
+    renderAssets();
     updateInfoRows();
   };
 
@@ -348,6 +427,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         state.spotUsdt = Math.max(0, state.spotUsdt - amount);
         state.spotBtc += btcAmt;
+        addTradeRecord('buy', price, btcAmt, amount, amount * FEE_RATE);
+        saveState();
         flashBtn(buyBtn, '✓ 매수 완료', 'trade-unified__btn--buy');
       } else {
         const margin = amount / state.leverage;
@@ -356,6 +437,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+        addTradeRecord('buy', price, btcAmt, amount, amount * FEE_RATE);
+        saveState();
         flashBtn(buyBtn, '✓ 롱 진입', 'trade-unified__btn--buy');
       }
 
@@ -383,6 +466,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         state.spotBtc  = Math.max(0, state.spotBtc - btcAmt);
         state.spotUsdt += amount;
+        addTradeRecord('sell', price, btcAmt, amount, amount * FEE_RATE);
+        saveState();
         flashBtn(sellBtn, '✓ 매도 완료', 'trade-unified__btn--sell');
       } else {
         const margin = amount / state.leverage;
@@ -391,6 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+        addTradeRecord('sell', price, btcAmt, amount, amount * FEE_RATE);
+        saveState();
         flashBtn(sellBtn, '✓ 숏 진입', 'trade-unified__btn--sell');
       }
 
@@ -506,6 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.spotUsdt    += amount;
       }
 
+      saveState();
       closeTransferModal();
       updateAvailable();
     });
@@ -520,7 +608,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ===== 전체 초기화 버튼 =====
+  const resetModal  = document.getElementById('resetModal');
+  const dangerBtn   = resetModal?.querySelector('.modal__btn--danger');
+  if (dangerBtn) {
+    dangerBtn.addEventListener('click', () => {
+      state.spotUsdt    = 100;
+      state.spotBtc     = 0;
+      state.futuresUsdt = 0;
+      tradeHistory      = [];
+      localStorage.removeItem(LS_STATE);
+      localStorage.removeItem(LS_HISTORY);
+      resetModal.classList.remove('modal-overlay--open');
+      updateAvailable();
+      renderTradeHistory();
+    });
+  }
+
   // ===== 초기화 =====
   updateAvailable();
   updateEstimate();
+  renderTradeHistory();
 });

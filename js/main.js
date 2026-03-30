@@ -110,6 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ===== 코인 검색 필터 =====
+  const searchInput = document.querySelector('.sidebar__search-input');
+  const coinItems   = document.querySelectorAll('.sidebar__coin');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toUpperCase();
+      coinItems.forEach(item => {
+        const symbol = (item.dataset.symbol || '').toUpperCase();
+        item.style.display = (!q || symbol.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+
   // ===== 거래내역 페이지 탭 전환 =====
   const historyTabs  = document.querySelectorAll('.history-tab');
   const historyPanes = document.querySelectorAll('.history-pane');
