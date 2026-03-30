@@ -255,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (raw.endsWith('%')) {
       const pct  = parseFloat(raw);
       const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
-      return isNaN(pct) ? 0 : usdt * pct / 100;
+      if (isNaN(pct)) return 0;
+      // 선물: pct는 증거금 비율 → 노셔널 = 잔고 * pct/100 * leverage
+      return state.mode === 'futures'
+        ? usdt * pct / 100 * state.leverage
+        : usdt * pct / 100;
     }
     return parseFloat(raw) || 0;
   };
