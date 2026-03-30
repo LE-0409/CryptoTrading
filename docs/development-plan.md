@@ -6,13 +6,18 @@
 - UI 레이아웃 완성 (HTML/CSS 전체)
 - `js/main.js` — 탭 전환, 모달, 설정 드롭다운
 - `js/order.js` — 현물/선물 기본 매매, 레버리지, 마진 모드, 잔고 이체, TP/SL UI, 슬라이더
-- `js/chart.js` — Lightweight Charts 연동, Binance REST API 캔들 로드, 타임프레임/차트유형 전환
+- `js/api.js` — Binance WebSocket 연결 관리 (자동 재연결, 심볼/타임프레임 전환)
+- `js/ticker.js` — 티커 바 + 사이드바 실시간 가격/변동률 업데이트
+- `js/orderbook.js` — 호가창 실시간 렌더링 (depth 바, 누적 수량)
+- `js/trades.js` — 체결 내역 실시간 업데이트
+- `js/chart.js` — Lightweight Charts, REST API 캔들, WebSocket 실시간 캔들, 타임프레임/차트유형 전환
 
 ### 미완료
-- 실시간 데이터 (WebSocket) 미연결 — 가격/호가창/체결내역 하드코딩 상태
-- 차트 실시간 캔들 업데이트 없음
 - 데이터 영속성 없음 (localStorage 미사용)
-- 포지션 관리, TP/SL 실행 로직 미구현
+- 포지션 관리 UI (포지션 목록 표시, 부분 청산)
+- TP/SL 실행 로직 (트리거 모니터링, 자동 체결)
+- 거래내역/포트폴리오 페이지 데이터 연동
+- 펀딩비, 강제 청산 시뮬레이션
 
 ---
 
@@ -344,25 +349,25 @@
 
 ## 개발 단계
 
-### Phase 1 — 실시간 가격 연동
+### Phase 1 — 실시간 가격 연동 ✅ 완료
 **목표:** 하드코딩 데이터를 실제 Binance 데이터로 교체
 
-- [ ] `js/api.js` — Binance REST/WebSocket 공통 모듈
-- [ ] 티커 바 (가격, 24h 변동, 고/저가, 거래량) 실시간 업데이트
-- [ ] 사이드바 코인 목록 가격/변동률 실시간 업데이트
-- [ ] 호가창 중간 현재가 업데이트
+- [x] `js/api.js` — Binance WebSocket 관리 (자동 재연결, 심볼/타임프레임 전환)
+- [x] 티커 바 (가격, 24h 변동, 고/저가, 거래량) 실시간 업데이트
+- [x] 사이드바 코인 목록 가격/변동률 실시간 업데이트
+- [x] 호가창 미드 프라이스 실시간 업데이트
 
 **산출물:** `js/api.js`, `js/ticker.js`
 
 ---
 
-### Phase 2 — 캔들 차트 구현 ✅ (부분 완료)
+### Phase 2 — 캔들 차트 구현 ✅ 완료
 **목표:** TradingView Lightweight Charts로 실제 캔들 차트 렌더링
 
 - [x] Lightweight Charts 라이브러리 추가 (`index.html`)
 - [x] `js/chart.js` — 캔들 차트 초기화 및 렌더링
 - [x] REST API로 과거 캔들 데이터 로드 (Binance `/api/v3/klines`, 500봉)
-- [ ] WebSocket으로 실시간 캔들 업데이트
+- [x] WebSocket으로 실시간 캔들 업데이트
 - [x] 타임프레임 버튼 (1m / 5m / 15m / 1H / 4H / 1D / 1W) 동작
 - [x] 라인 차트 / 캔들 차트 전환 버튼 동작
 - [x] `css/chart.css` — 차트 영역 스타일 조정
@@ -371,14 +376,14 @@
 
 ---
 
-### Phase 3 — 호가창 & 체결 내역 연동
+### Phase 3 — 호가창 & 체결 내역 연동 ✅ 완료
 **목표:** 실시간 호가창/체결 내역 렌더링
 
-- [ ] `js/orderbook.js` — 호가창 렌더링 및 실시간 업데이트
-- [ ] 매도 호가 (asks) / 매수 호가 (bids) 정렬 및 누적 계산
-- [ ] 깊이 바 (`--depth` CSS 변수) 동적 계산
-- [ ] `js/trades.js` — 최근 체결 내역 실시간 업데이트
-- [ ] 체결 방향(매수/매도)에 따른 색상 표시
+- [x] `js/orderbook.js` — 호가창 렌더링 및 실시간 업데이트
+- [x] 매도 호가 (asks) / 매수 호가 (bids) 정렬 및 누적 계산
+- [x] 깊이 바 (`--depth` CSS 변수) 동적 계산
+- [x] `js/trades.js` — 최근 체결 내역 실시간 업데이트
+- [x] 체결 방향(매수/매도)에 따른 색상 표시
 
 **산출물:** `js/orderbook.js`, `js/trades.js`
 

@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       currentInterval = tf;
       fetchKlines(currentSymbol, currentInterval);
+      BinanceWS.setInterval(tf);
     });
   });
 
@@ -136,9 +137,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const symbol = coin.dataset.symbol;
     if (symbol === currentSymbol) return;
 
+    // 사이드바 활성화 표시
+    document.querySelectorAll('.sidebar__coin').forEach(el =>
+      el.classList.toggle('sidebar__coin--active', el.dataset.symbol === symbol));
+
     currentSymbol = symbol;
     if (placeholder) placeholder.style.display = 'flex';
     fetchKlines(currentSymbol, currentInterval);
+    BinanceWS.setSymbol(symbol);
+
+    // 다른 모듈에 심볼 변경 알림
+    document.dispatchEvent(new CustomEvent('symbol:change', { detail: { symbol } }));
+  });
+
+  // ===== 실시간 캔들 업데이트 (WebSocket) =====
+  document.addEventListener('binance:kline', ({ detail: d }) => {
+    const k      = d.k;
+    const candle = {
+      time:  k.t / 1000,
+      open:  parseFloat(k.o),
+      high:  parseFloat(k.h),
+      low:   parseFloat(k.l),
+      close: parseFloat(k.c),
+    };
+    candleSeries.update(candle);
+    lineSeries.update({ time: candle.time, value: candle.close });
   });
 
 });
