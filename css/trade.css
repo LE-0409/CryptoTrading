@@ -86,16 +86,6 @@
   font-family: var(--font-mono);
 }
 
-.trade-unified__avbl-btn {
-  margin-left: auto;
-  color: var(--text-muted);
-  font-size: 15px;
-  transition: color 0.15s;
-}
-
-.trade-unified__avbl-btn:hover {
-  color: var(--color-brand);
-}
 
 /* 입력 필드 */
 .trade-unified__field {

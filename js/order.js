@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const leverageBtn     = document.getElementById('leverageBtn');
   const tpslCheckbox    = document.getElementById('tpslCheckbox');
   const tpslSection     = document.getElementById('tpslSection');
-  const avblTransferBtn = document.querySelector('.trade-unified__avbl-btn');
   const typeTabs        = document.querySelectorAll('.trade-unified__type-tab');
   const tpPriceInput    = document.getElementById('tpPrice');
   const slPriceInput    = document.getElementById('slPrice');
