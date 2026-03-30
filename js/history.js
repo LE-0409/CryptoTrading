@@ -5,11 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 헤더 잔고 =====
   const saved = JSON.parse(localStorage.getItem('ct_state') || 'null');
-  document.querySelectorAll('.header__balance-value')[0]?.setAttribute('data-val', '');
   const balEls = document.querySelectorAll('.header__balance-value');
   if (saved) {
-    if (balEls[0]) balEls[0].textContent = parseFloat(saved.spotUsdt    || 0).toFixed(2);
-    if (balEls[1]) balEls[1].textContent = parseFloat(saved.futuresUsdt || 0).toFixed(2);
+    if (balEls[0]) balEls[0].textContent = parseFloat(saved.futuresUsdt || 0).toFixed(2);
   }
 
   // ===== 데이터 로드 =====
@@ -35,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<tr>
           <td>${fmtTime(r.time)}</td>
           <td>${r.symbol.replace('USDT', '')}/USDT</td>
-          <td>${r.mode === 'spot' ? '현물' : '선물'}</td>
           <td style="color:${color}">${r.side === 'buy' ? '매수' : '매도'}</td>
           <td>${r.orderType === 'market' ? '시장가' : '지정가'}</td>
           <td>${fmtNum(r.price)}</td>
@@ -58,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<tr>
           <td>${fmtTime(o.time)}</td>
           <td>${o.symbol.replace('USDT', '')}/USDT</td>
-          <td>${o.mode === 'spot' ? '현물' : '선물'}</td>
           <td style="color:${color}">${o.side === 'buy' ? '매수' : '매도'}</td>
           <td>지정가</td>
           <td>${fmtNum(o.price)}</td>
@@ -109,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<tr>
           <td>${fmtTime(r.time)}</td>
           <td>${r.symbol.replace('USDT', '')}/USDT</td>
-          <td>${r.mode === 'spot' ? '현물' : '선물'}</td>
           <td style="color:${typeColor}">${r.tpslType}</td>
           <td>가격</td>
           <td>${r.triggerPrice ? fmtNum(r.triggerPrice) : '—'}</td>

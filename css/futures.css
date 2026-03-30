@@ -1,10 +1,10 @@
-/* ===== Futures Mode Overrides ===== */
+/* ===== Futures Mode ===== */
 
-/* 선물 모드에서 선물 전용 요소 표시 */
-body.mode-futures .trade-unified__futures-only {
+/* 선물 전용 요소 항상 표시 */
+.trade-unified__futures-only {
   display: flex;
 }
 
-body.mode-futures .trade-unified__controls {
+.trade-unified__controls {
   display: flex;
 }

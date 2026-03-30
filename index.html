@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="css/modal.css" />
   <link rel="stylesheet" href="css/toast.css" />
 </head>
-<body>
+<body class="mode-futures">
   <div class="app-wrapper">
 
     <!-- ===== Header ===== -->
@@ -28,8 +28,7 @@
       </div>
 
       <nav class="header__nav">
-        <a class="header__nav-item header__nav-item--active" href="#" data-mode="spot">현물</a>
-        <a class="header__nav-item" href="#" data-mode="futures">선물</a>
+        <a class="header__nav-item header__nav-item--active" href="#">선물</a>
         <a class="header__nav-item" href="portfolio.html">포트폴리오</a>
         <a class="header__nav-item" href="history.html">거래내역</a>
       </nav>
@@ -37,18 +36,13 @@
       <div class="header__account">
         <div class="header__balances">
           <div class="header__balance">
-            <span class="header__balance-label">현물 USDT</span>
-            <span class="header__balance-value" id="spotBalance">100.00</span>
-          </div>
-          <div class="header__balance header__balance--futures">
             <span class="header__balance-label">선물 USDT</span>
-            <span class="header__balance-value" id="futuresBalance">0.00</span>
+            <span class="header__balance-value" id="futuresBalance">100.00</span>
           </div>
         </div>
         <div class="header__settings-wrap">
           <button class="header__btn header__btn--settings" id="settingsBtn">⚙</button>
           <div class="settings-dropdown" id="settingsDropdown">
-            <button class="settings-dropdown__item" id="transferBtn">현물 ↔ 선물 이체</button>
             <button class="settings-dropdown__item settings-dropdown__item--danger" id="resetBtn">전체 초기화</button>
           </div>
         </div>
@@ -440,7 +434,6 @@
                 <tr>
                   <th>주문 시각</th>
                   <th>코인</th>
-                  <th>구분</th>
                   <th>방향</th>
                   <th>주문 유형</th>
                   <th>주문가</th>
@@ -452,7 +445,7 @@
               </thead>
               <tbody>
                 <tr class="bp-table__empty">
-                  <td colspan="10">미체결 주문 없음</td>
+                  <td colspan="9">미체결 주문 없음</td>
                 </tr>
               </tbody>
             </table>
@@ -467,7 +460,6 @@
                 <tr>
                   <th>시각</th>
                   <th>코인</th>
-                  <th>구분</th>
                   <th>방향</th>
                   <th>주문 유형</th>
                   <th>체결가</th>
@@ -478,7 +470,7 @@
               </thead>
               <tbody>
                 <tr class="bp-table__empty">
-                  <td colspan="9">체결 내역 없음</td>
+                  <td colspan="8">체결 내역 없음</td>
                 </tr>
               </tbody>
             </table>
@@ -489,12 +481,8 @@
         <div class="bottom-panel__pane" id="paneAssets">
           <div class="bp-assets">
             <div class="bp-asset-card">
-              <span class="bp-asset-card__label">현물 USDT</span>
-              <span class="bp-asset-card__value">100.00</span>
-            </div>
-            <div class="bp-asset-card">
               <span class="bp-asset-card__label">선물 USDT</span>
-              <span class="bp-asset-card__value">0.00</span>
+              <span class="bp-asset-card__value">100.00</span>
             </div>
             <div class="bp-asset-card">
               <span class="bp-asset-card__label">총 평가금액</span>
@@ -506,42 +494,6 @@
       </div>
     </div>
 
-  </div>
-
-  <!-- ===== 이체 모달 ===== -->
-  <div class="modal-overlay" id="transferModal">
-    <div class="modal">
-      <div class="modal__header">
-        <span class="modal__title">현물 ↔ 선물 이체</span>
-        <button class="modal__close" id="transferClose">✕</button>
-      </div>
-      <div class="modal__body">
-        <div class="transfer__direction">
-          <div class="transfer__side">
-            <span class="transfer__side-label">출금</span>
-            <span class="transfer__side-name" id="transferFrom">현물</span>
-          </div>
-          <button class="transfer__swap-btn" id="transferSwapBtn">⇄</button>
-          <div class="transfer__side">
-            <span class="transfer__side-label">입금</span>
-            <span class="transfer__side-name" id="transferTo">선물</span>
-          </div>
-        </div>
-        <div class="transfer__available">
-          <span class="transfer__available-label">이체 가능</span>
-          <span class="transfer__available-value" id="transferAvailable">100.00 USDT</span>
-        </div>
-        <div class="transfer__input-row">
-          <input class="transfer__input" type="number" placeholder="0.00" id="transferAmount" />
-          <button class="transfer__max-btn" id="transferMaxBtn">MAX</button>
-          <span class="transfer__unit">USDT</span>
-        </div>
-      </div>
-      <div class="modal__footer">
-        <button class="modal__btn modal__btn--cancel" id="transferCancelBtn">취소</button>
-        <button class="modal__btn modal__btn--confirm" id="transferConfirmBtn">이체</button>
-      </div>
-    </div>
   </div>
 
   <!-- ===== 초기화 확인 모달 ===== -->

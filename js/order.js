@@ -12,10 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 상태 (localStorage 복원) =====
   const saved = JSON.parse(localStorage.getItem(LS_STATE) || 'null');
   const state = {
-    spotUsdt:     saved?.spotUsdt    ?? 100.00,
-    spotBtc:      saved?.spotBtc     ?? 0.000000,
-    futuresUsdt:  saved?.futuresUsdt ?? 0.00,
-    mode:         'spot',
+    futuresUsdt:  saved?.futuresUsdt ?? 100.00,
+    mode:         'futures',
     orderType:    'limit',
     leverage:     10,
     marginMode:   '격리',
@@ -61,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== localStorage 저장 =====
   const saveState = () => localStorage.setItem(LS_STATE, JSON.stringify({
-    spotUsdt: state.spotUsdt, spotBtc: state.spotBtc, futuresUsdt: state.futuresUsdt,
+    futuresUsdt: state.futuresUsdt,
   }));
   const savePositions = () => localStorage.setItem(LS_POSITIONS, JSON.stringify(state.positions));
   const savePending   = () => localStorage.setItem(LS_PENDING,   JSON.stringify(state.pendingOrders));
@@ -84,12 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 포트폴리오 스냅샷 저장 =====
   const saveSnapshot = (refPrice) => {
     const snapshots = JSON.parse(localStorage.getItem('ct_snapshots') || '[]');
-    const coinValue = (state.positions || [])
-      .filter(p => p.mode === 'spot')
-      .reduce((s, p) => s + p.qty * refPrice, 0);
+    const futuresPnl = (state.positions || [])
+      .filter(p => p.mode === 'futures')
+      .reduce((s, p) => {
+        const dir = p.side === 'long' ? 1 : -1;
+        return s + (refPrice - p.entryPrice) * p.qty * dir;
+      }, 0);
     snapshots.push({
       time:  Math.floor(Date.now() / 1000),
-      total: parseFloat((state.spotUsdt + coinValue + state.futuresUsdt).toFixed(2)),
+      total: parseFloat((state.futuresUsdt + futuresPnl).toFixed(2)),
     });
     if (snapshots.length > 1000) snapshots.shift();
     localStorage.setItem('ct_snapshots', JSON.stringify(snapshots));
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.querySelector('#paneHistory tbody');
     if (!tbody) return;
     if (!tradeHistory.length) {
-      tbody.innerHTML = '<tr class="bp-table__empty"><td colspan="9">체결 내역 없음</td></tr>';
+      tbody.innerHTML = '<tr class="bp-table__empty"><td colspan="8">체결 내역 없음</td></tr>';
       return;
     }
     tbody.innerHTML = tradeHistory.slice(0, 50).map(r => {
@@ -111,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return `<tr>
         <td>${ts}</td>
         <td>${r.symbol.replace('USDT', '')}/USDT</td>
-        <td>${r.mode === 'spot' ? '현물' : '선물'}</td>
         <td style="color:${color}">${r.side === 'buy' ? '매수' : '매도'}</td>
         <td>${r.orderType === 'market' ? '시장가' : '지정가'}</td>
         <td>${r.price.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}</td>
@@ -125,20 +125,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 자산 탭 렌더링 =====
   const renderAssets = () => {
     const cards = document.querySelectorAll('.bp-asset-card .bp-asset-card__value');
-    if (cards.length < 3) return;
-    cards[0].textContent = state.spotUsdt.toFixed(2);
-    cards[1].textContent = state.futuresUsdt.toFixed(2);
-    cards[2].textContent = (state.spotUsdt + state.futuresUsdt).toFixed(2) + ' USDT';
+    if (cards.length < 2) return;
+    cards[0].textContent = state.futuresUsdt.toFixed(2);
+    cards[1].textContent = state.futuresUsdt.toFixed(2) + ' USDT';
   };
 
   // ===== 잔고 표시 업데이트 =====
   const updateAvailable = () => {
-    const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
-    if (availableEl) availableEl.textContent = usdt.toFixed(2) + ' USDT';
-    const spotBalEl = document.getElementById('spotBalance');
-    const futBalEl  = document.getElementById('futuresBalance');
-    if (spotBalEl) spotBalEl.textContent = state.spotUsdt.toFixed(2);
-    if (futBalEl)  futBalEl.textContent  = state.futuresUsdt.toFixed(2);
+    if (availableEl) availableEl.textContent = state.futuresUsdt.toFixed(2) + ' USDT';
+    const futBalEl = document.getElementById('futuresBalance');
+    if (futBalEl) futBalEl.textContent = state.futuresUsdt.toFixed(2);
     renderAssets();
     updateInfoRows();
   };
@@ -157,26 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ===== 포지션 업데이트 헬퍼 =====
-  const updateSpotPos = (symbol, btcAmt, price, cost, tp, sl) => {
-    const pos = state.positions.find(p => p.symbol === symbol && p.mode === 'spot');
-    if (pos) {
-      const total = pos.qty + btcAmt;
-      pos.entryPrice = (pos.qty * pos.entryPrice + btcAmt * price) / total;
-      pos.qty = total; pos.margin += cost;
-    } else {
-      state.positions.push({ id: Date.now(), symbol, mode: 'spot', side: 'long',
-        leverage: 1, marginMode: '—', entryPrice: price, qty: btcAmt,
-        margin: cost, tp, sl, openTime: new Date().toISOString() });
-    }
-  };
-
-  const reduceSpotPos = (symbol, btcAmt) => {
-    const i = state.positions.findIndex(p => p.symbol === symbol && p.mode === 'spot');
-    if (i < 0) return;
-    state.positions[i].qty -= btcAmt;
-    if (state.positions[i].qty < 0.000001) state.positions.splice(i, 1);
-  };
-
   const updateFuturesPos = (symbol, side, btcAmt, price, margin, lev, marginMode, tp, sl) => {
     const pos = state.positions.find(p =>
       p.symbol === symbol && p.mode === 'futures' && p.side === side && p.leverage === lev);
@@ -193,25 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== 시장가 즉시 체결 =====
   const executeMarket = (side, price, btcAmt, amount) => {
-    const symbol    = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
+    const symbol     = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
     const { tp, sl } = getTpSlFromForm(price);
-
-    if (state.mode === 'spot') {
-      if (side === 'buy') {
-        state.spotUsdt = Math.max(0, state.spotUsdt - amount);
-        state.spotBtc += btcAmt;
-        updateSpotPos(symbol, btcAmt, price, amount, tp, sl);
-      } else {
-        state.spotBtc  = Math.max(0, state.spotBtc - btcAmt);
-        state.spotUsdt += amount * (1 - FEE_RATE);
-        reduceSpotPos(symbol, btcAmt);
-      }
-    } else {
-      const margin = amount / state.leverage;
-      state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
-      const dir = side === 'buy' ? 'long' : 'short';
-      updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, state.marginMode, tp, sl);
-    }
+    const margin     = amount / state.leverage;
+    state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+    const dir = side === 'buy' ? 'long' : 'short';
+    updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, state.marginMode, tp, sl);
 
     addTradeRecord(side, price, btcAmt, amount, amount * FEE_RATE);
     saveSnapshot(price);
@@ -237,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== positions.js에 노출 =====
   window._orderHelpers = {
     updateAvailable, addTradeRecord, saveState, savePositions, savePending,
-    updateSpotPos, reduceSpotPos, updateFuturesPos, saveSnapshot, FEE_RATE,
+    updateFuturesPos, saveSnapshot, FEE_RATE,
   };
 
   // ===== 청산가 / 예상 수령액 =====
@@ -253,13 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const raw = amountInput?.value?.trim();
     if (!raw) return 0;
     if (raw.endsWith('%')) {
-      const pct  = parseFloat(raw);
-      const usdt = state.mode === 'spot' ? state.spotUsdt : state.futuresUsdt;
+      const pct = parseFloat(raw);
       if (isNaN(pct)) return 0;
-      // 선물: pct는 증거금 비율 → 노셔널 = 잔고 * pct/100 * leverage
-      return state.mode === 'futures'
-        ? usdt * pct / 100 * state.leverage
-        : usdt * pct / 100;
+      // pct는 증거금 비율 → 노셔널 = 잔고 * pct/100 * leverage
+      return state.futuresUsdt * pct / 100 * state.leverage;
     }
     return parseFloat(raw) || 0;
   };
@@ -278,10 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateInfoRows = () => {
     if (!liqBuyEl || !liqSellEl) return;
-    if (state.mode !== 'futures') {
-      liqBuyEl.textContent = liqSellEl.textContent = '—';
-      updateEstimate(); return;
-    }
     const price = getEffectivePrice() || getCurrentPrice();
     if (!price) { liqBuyEl.textContent = liqSellEl.textContent = '—'; return; }
     const fmt = n => n.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT';
@@ -432,27 +388,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!amount || amount <= 0) { flashBtn(buyBtn, '수량(USDT) 입력 필요', 'trade-unified__btn--warn'); return; }
 
-      if (state.mode === 'spot') {
-        if (amount > state.spotUsdt + 0.0001) { flashBtn(buyBtn, '잔고 부족', 'trade-unified__btn--warn'); return; }
-        if (state.orderType === 'limit') {
-          addPendingOrder('buy', price, btcAmt, amount);
-          flashBtn(buyBtn, '✓ 매수 주문 등록', 'trade-unified__btn--buy');
-        } else {
-          executeMarket('buy', price, btcAmt, amount);
-          flashBtn(buyBtn, '✓ 매수 완료', 'trade-unified__btn--buy');
-        }
+      const margin = amount / state.leverage;
+      if (margin > state.futuresUsdt + 0.0001) { flashBtn(buyBtn, '증거금 부족', 'trade-unified__btn--warn'); return; }
+      if (state.orderType === 'limit') {
+        state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+        saveState(); updateAvailable();
+        addPendingOrder('buy', price, btcAmt, amount, margin);
+        flashBtn(buyBtn, '✓ 롱 주문 등록', 'trade-unified__btn--buy');
       } else {
-        const margin = amount / state.leverage;
-        if (margin > state.futuresUsdt + 0.0001) { flashBtn(buyBtn, '증거금 부족', 'trade-unified__btn--warn'); return; }
-        if (state.orderType === 'limit') {
-          state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
-          saveState(); updateAvailable();
-          addPendingOrder('buy', price, btcAmt, amount, margin);
-          flashBtn(buyBtn, '✓ 롱 주문 등록', 'trade-unified__btn--buy');
-        } else {
-          executeMarket('buy', price, btcAmt, amount);
-          flashBtn(buyBtn, '✓ 롱 진입', 'trade-unified__btn--buy');
-        }
+        executeMarket('buy', price, btcAmt, amount);
+        flashBtn(buyBtn, '✓ 롱 진입', 'trade-unified__btn--buy');
       }
       resetForm();
     });
@@ -467,104 +412,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!amount || amount <= 0) { flashBtn(sellBtn, '수량(USDT) 입력 필요', 'trade-unified__btn--warn'); return; }
 
-      if (state.mode === 'spot') {
-        if (btcAmt > state.spotBtc + 0.000001) { flashBtn(sellBtn, '보유 BTC 부족', 'trade-unified__btn--warn'); return; }
-        if (state.orderType === 'limit') {
-          addPendingOrder('sell', price, btcAmt, amount);
-          flashBtn(sellBtn, '✓ 매도 주문 등록', 'trade-unified__btn--sell');
-        } else {
-          executeMarket('sell', price, btcAmt, amount);
-          flashBtn(sellBtn, '✓ 매도 완료', 'trade-unified__btn--sell');
-        }
+      const margin = amount / state.leverage;
+      if (margin > state.futuresUsdt + 0.0001) { flashBtn(sellBtn, '증거금 부족', 'trade-unified__btn--warn'); return; }
+      if (state.orderType === 'limit') {
+        state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+        saveState(); updateAvailable();
+        addPendingOrder('sell', price, btcAmt, amount, margin);
+        flashBtn(sellBtn, '✓ 숏 주문 등록', 'trade-unified__btn--sell');
       } else {
-        const margin = amount / state.leverage;
-        if (margin > state.futuresUsdt + 0.0001) { flashBtn(sellBtn, '증거금 부족', 'trade-unified__btn--warn'); return; }
-        if (state.orderType === 'limit') {
-          state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
-          saveState(); updateAvailable();
-          addPendingOrder('sell', price, btcAmt, amount, margin);
-          flashBtn(sellBtn, '✓ 숏 주문 등록', 'trade-unified__btn--sell');
-        } else {
-          executeMarket('sell', price, btcAmt, amount);
-          flashBtn(sellBtn, '✓ 숏 진입', 'trade-unified__btn--sell');
-        }
+        executeMarket('sell', price, btcAmt, amount);
+        flashBtn(sellBtn, '✓ 숏 진입', 'trade-unified__btn--sell');
       }
       resetForm();
     });
   }
-
-  // ===== 현물 / 선물 모드 전환 =====
-  document.querySelectorAll('.header__nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const mode = item.dataset.mode;
-      if (!mode) return;
-      state.mode = mode; state.orderType = 'limit';
-      updateInfoRows(); updateEstimate();
-      if (priceInput) { priceInput.disabled = false; priceInput.placeholder = '0.00'; priceInput.style.opacity = ''; priceInput.value = ''; }
-      if (amountInput) amountInput.value = '';
-      if (slider) slider.value = 0;
-      updateMarks(0); updateAvailable();
-    });
-  });
-
-  // ===== 이체 모달 =====
-  const transferModal    = document.getElementById('transferModal');
-  const transferFromEl   = document.getElementById('transferFrom');
-  const transferToEl     = document.getElementById('transferTo');
-  const transferAvailEl  = document.getElementById('transferAvailable');
-  const transferAmountEl = document.getElementById('transferAmount');
-  const transferSwapBtn  = document.getElementById('transferSwapBtn');
-  const transferMaxBtn   = document.getElementById('transferMaxBtn');
-  const transferConfirm  = document.getElementById('transferConfirmBtn');
-  const transferCancel   = document.getElementById('transferCancelBtn');
-  const transferClose2   = document.getElementById('transferClose');
-
-  let transferToFutures = true;
-  const getTransferAvail = () => transferToFutures ? state.spotUsdt : state.futuresUsdt;
-
-  const updateTransferModal = () => {
-    if (!transferFromEl) return;
-    transferFromEl.textContent = transferToFutures ? '현물' : '선물';
-    transferToEl.textContent   = transferToFutures ? '선물' : '현물';
-    if (transferAvailEl) transferAvailEl.textContent = getTransferAvail().toFixed(2) + ' USDT';
-    if (transferAmountEl) transferAmountEl.value = '';
-  };
-
-  const closeTransferModal = () => {
-    if (transferModal) transferModal.classList.remove('modal-overlay--open');
-    if (transferAmountEl) transferAmountEl.value = '';
-  };
-
-  const openTransferModal = () => { transferToFutures = state.mode === 'spot'; updateTransferModal(); };
-
-  if (avblTransferBtn) avblTransferBtn.addEventListener('click', openTransferModal);
-  if (transferModal)   transferModal.addEventListener('modal-open', openTransferModal);
-  if (transferSwapBtn) transferSwapBtn.addEventListener('click', () => { transferToFutures = !transferToFutures; updateTransferModal(); });
-  if (transferMaxBtn)  transferMaxBtn.addEventListener('click', () => { if (transferAmountEl) transferAmountEl.value = getTransferAvail().toFixed(2); });
-
-  if (transferConfirm) {
-    transferConfirm.addEventListener('click', () => {
-      const amount = parseFloat(transferAmountEl?.value);
-      if (!amount || amount <= 0 || amount > getTransferAvail() + 0.001) {
-        if (transferAmountEl) { transferAmountEl.style.borderColor = 'var(--color-sell)'; setTimeout(() => { transferAmountEl.style.borderColor = ''; }, 1200); }
-        return;
-      }
-      if (transferToFutures) { state.spotUsdt -= amount; state.futuresUsdt += amount; }
-      else                   { state.futuresUsdt -= amount; state.spotUsdt += amount; }
-      saveState(); closeTransferModal(); updateAvailable();
-    });
-  }
-
-  if (transferCancel) transferCancel.addEventListener('click', closeTransferModal);
-  if (transferClose2) transferClose2.addEventListener('click', closeTransferModal);
-  if (transferModal)  transferModal.addEventListener('click', e => { if (e.target === transferModal) closeTransferModal(); });
 
   // ===== 전체 초기화 =====
   const resetModal = document.getElementById('resetModal');
   const dangerBtn  = resetModal?.querySelector('.modal__btn--danger');
   if (dangerBtn) {
     dangerBtn.addEventListener('click', () => {
-      state.spotUsdt = 100; state.spotBtc = 0; state.futuresUsdt = 0;
+      state.futuresUsdt = 100;
       state.positions = []; state.pendingOrders = [];
       tradeHistory = [];
       [LS_STATE, LS_HISTORY, LS_POSITIONS, LS_PENDING].forEach(k => localStorage.removeItem(k));

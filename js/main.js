@@ -3,39 +3,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ===== 현물 / 선물 탭 전환 =====
-  const navItems  = document.querySelectorAll('.header__nav-item');
-  const buyBtn    = document.getElementById('uniBuyBtn');
-  const sellBtn   = document.getElementById('uniSellBtn');
-
-  navItems.forEach(item => {
-    item.addEventListener('click', e => {
-      const mode = item.dataset.mode;
-      if (!mode) return;
-
-      e.preventDefault();
-      navItems.forEach(n => n.classList.remove('header__nav-item--active'));
-      item.classList.add('header__nav-item--active');
-
-      const setBtnLabel = (btn, text) => {
-        const span = btn?.querySelector('span:first-child');
-        if (span) span.textContent = text;
-      };
-
-      if (mode === 'spot') {
-        document.body.classList.remove('mode-futures');
-        document.body.classList.add('mode-spot');
-        setBtnLabel(buyBtn,  '매수');
-        setBtnLabel(sellBtn, '매도');
-      } else {
-        document.body.classList.remove('mode-spot');
-        document.body.classList.add('mode-futures');
-        setBtnLabel(buyBtn,  '매수 / 롱');
-        setBtnLabel(sellBtn, '매도 / 숏');
-      }
-    });
-  });
-
   // ===== 하단 패널 탭 전환 =====
   const bpTabs  = document.querySelectorAll('.bottom-panel__tab');
   const bpPanes = document.querySelectorAll('.bottom-panel__pane');
@@ -70,19 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', () => {
       settingsDropdown.classList.remove('settings-dropdown--open');
-    });
-  }
-
-  // ===== 이체 모달 열기 (닫기/이체 로직은 order.js) =====
-  const transferModal = document.getElementById('transferModal');
-  const transferBtn   = document.getElementById('transferBtn');
-
-  if (transferBtn) {
-    transferBtn.addEventListener('click', () => {
-      settingsDropdown.classList.remove('settings-dropdown--open');
-      transferModal.classList.add('modal-overlay--open');
-      // 모달 열릴 때 잔고 갱신 이벤트 트리거
-      transferModal.dispatchEvent(new CustomEvent('modal-open'));
     });
   }
 

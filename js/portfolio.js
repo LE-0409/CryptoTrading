@@ -13,13 +13,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const trades    = JSON.parse(localStorage.getItem('ct_history')   || '[]');
   const snapshots = JSON.parse(localStorage.getItem('ct_snapshots') || '[]');
 
-  const spotUsdt    = saved?.spotUsdt    ?? 100;
-  const futuresUsdt = saved?.futuresUsdt ?? 0;
+  const futuresUsdt = saved?.futuresUsdt ?? 100;
 
   // ===== 헤더 잔고 =====
   const balEls = document.querySelectorAll('.header__balance-value');
-  if (balEls[0]) balEls[0].textContent = parseFloat(spotUsdt).toFixed(2);
-  if (balEls[1]) balEls[1].textContent = parseFloat(futuresUsdt).toFixed(2);
+  if (balEls[0]) balEls[0].textContent = parseFloat(futuresUsdt).toFixed(2);
 
   // ===== Binance 현재가 조회 =====
   const SYMBOLS = ['BTCUSDT', 'ETHUSDT'];
@@ -32,14 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (e) {
     SYMBOLS.forEach(s => { prices[s] = 0; });
   }
-
-  // ===== 현물 포지션 평가 =====
-  const spotPositions = positions.filter(p => p.mode === 'spot');
-  const spotCoinValue = spotPositions.reduce((s, p) => {
-    const cp = prices[p.symbol] || p.entryPrice;
-    return s + p.qty * cp;
-  }, 0);
-  const spotTotal = spotUsdt + spotCoinValue;
 
   // ===== 선물 포지션 미실현 PnL =====
   const futPositions  = positions.filter(p => p.mode === 'futures');
@@ -54,20 +44,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const realizedPnl = trades.reduce((s, r) => s + (r.realizedPnl ?? 0) - r.fee, 0);
 
   // ===== 총 자산 =====
-  const totalAsset   = spotTotal + futuresTotal;
-  const totalPnl     = totalAsset - INIT_TOTAL;
-  const totalPnlPct  = (totalPnl / INIT_TOTAL * 100).toFixed(2);
+  const totalAsset  = futuresTotal;
+  const totalPnl    = totalAsset - INIT_TOTAL;
+  const totalPnlPct = (totalPnl / INIT_TOTAL * 100).toFixed(2);
 
   // ===== 요약 카드 업데이트 =====
   const summaryCards = document.querySelectorAll('.summary-card__value');
   const summaryPnlEl = document.querySelector('.summary-pnl');
 
   if (summaryCards[0]) summaryCards[0].textContent = fmtN(totalAsset) + ' USDT';
-  if (summaryCards[1]) summaryCards[1].textContent = fmtN(spotTotal)   + ' USDT';
-  if (summaryCards[2]) summaryCards[2].textContent = fmtN(futuresTotal) + ' USDT';
-  if (summaryCards[3]) {
-    summaryCards[3].textContent = fmtP(realizedPnl);
-    summaryCards[3].style.color = realizedPnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';
+  if (summaryCards[1]) summaryCards[1].textContent = fmtN(futuresTotal) + ' USDT';
+  if (summaryCards[2]) {
+    summaryCards[2].textContent = fmtP(realizedPnl);
+    summaryCards[2].style.color = realizedPnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';
   }
   if (summaryPnlEl) {
     const isPos = totalPnl >= 0;
@@ -75,55 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     summaryPnlEl.style.color = isPos ? 'var(--color-buy)' : 'var(--color-sell)';
   }
 
-  // ===== 현물 보유 자산 테이블 =====
-  const spotTbody = document.querySelector('.portfolio-section:nth-child(1) tbody, .portfolio-section tbody');
-  const allTbodies = document.querySelectorAll('.portfolio-section tbody');
-  const spotTableBody    = allTbodies[0];
-  const futuresTableBody = allTbodies[1];
-
-  if (spotTableBody) {
-    if (!spotPositions.length && spotUsdt <= 0) {
-      spotTableBody.innerHTML = '<tr class="history-table__empty"><td colspan="7">보유 중인 현물 자산이 없습니다</td></tr>';
-    } else {
-      const rows = [];
-
-      // USDT 잔고 행
-      if (spotUsdt > 0.001) {
-        rows.push(`<tr>
-          <td>USDT</td>
-          <td>${fmtN(spotUsdt)}</td>
-          <td>—</td>
-          <td>1.00</td>
-          <td>${fmtN(spotUsdt)}</td>
-          <td>—</td>
-          <td>—</td>
-        </tr>`);
-      }
-
-      // 코인 포지션 행
-      spotPositions.forEach(pos => {
-        const cp    = prices[pos.symbol] || pos.entryPrice;
-        const val   = pos.qty * cp;
-        const pnl   = (cp - pos.entryPrice) * pos.qty;
-        const roi   = pos.margin > 0 ? pnl / pos.margin * 100 : 0;
-        const base  = pos.symbol.replace('USDT', '');
-        const color = pnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';
-        rows.push(`<tr>
-          <td>${base}</td>
-          <td>${pos.qty.toFixed(6)}</td>
-          <td>${fmtN(pos.entryPrice)}</td>
-          <td>${fmtN(cp)}</td>
-          <td>${fmtN(val)}</td>
-          <td style="color:${color}">${pnl >= 0 ? '+' : ''}${fmtN(pnl)}</td>
-          <td style="color:${color}">${roi >= 0 ? '+' : ''}${roi.toFixed(2)}%</td>
-        </tr>`);
-      });
-
-      spotTableBody.innerHTML = rows.join('') || '<tr class="history-table__empty"><td colspan="7">보유 중인 현물 자산이 없습니다</td></tr>';
-    }
-  }
-
   // ===== 선물 포지션 테이블 =====
+  const allTbodies = document.querySelectorAll('.portfolio-section tbody');
+  const futuresTableBody = allTbodies[0];
+
   if (futuresTableBody) {
     if (!futPositions.length) {
       futuresTableBody.innerHTML = '<tr class="history-table__empty"><td colspan="9">보유 중인 선물 포지션이 없습니다</td></tr>';

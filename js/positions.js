@@ -33,24 +33,24 @@ const renderPositions = () => {
       : null;
 
     const pnlColor  = pnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';
-    const sideLabel = pos.mode === 'spot' ? '현물' : (pos.side === 'long' ? '롱' : '숏');
+    const sideLabel = pos.side === 'long' ? '롱' : '숏';
     const sideColor = (pos.side === 'long') ? 'var(--color-buy)' : 'var(--color-sell)';
     const base      = pos.symbol.replace('USDT', '');
 
     return `<tr>
       <td><span style="color:${sideColor}">${base} ${sideLabel}</span></td>
-      <td>${pos.mode === 'futures' ? pos.leverage + 'x' : '—'}</td>
-      <td>${pos.mode === 'futures' ? pos.marginMode : '—'}</td>
+      <td>${pos.leverage}x</td>
+      <td>${pos.marginMode}</td>
       <td>${_fmt(pos.entryPrice)}</td>
       <td>${_fmt(cp)}</td>
       <td>${pos.qty.toFixed(6)}</td>
       <td style="color:${pnlColor}">${pnl >= 0 ? '+' : ''}${_fmt(pnl)} USDT</td>
       <td style="color:${pnlColor}">${roi >= 0 ? '+' : ''}${roi.toFixed(2)}%</td>
-      <td>${liq ? _fmt(liq) : '—'}</td>
+      <td>${liq !== null ? _fmt(liq) : '—'}</td>
       <td>${pos.tp ? _fmt(pos.tp) : '—'}</td>
       <td>${pos.sl ? _fmt(pos.sl) : '—'}</td>
       <td><button class="bp-btn bp-btn--close bp-close-btn" data-pos-id="${pos.id}">청산</button></td>
-      <td>${_fmt(pos.mode === 'futures' ? pos.margin : pos.qty * pos.entryPrice)} USDT</td>
+      <td>${_fmt(pos.margin)} USDT</td>
     </tr>`;
   }).join('');
 };
@@ -78,7 +78,6 @@ const renderPendingOrders = () => {
     return `<tr>
       <td>${ts}</td>
       <td>${base}/USDT</td>
-      <td>${o.mode === 'spot' ? '현물' : '선물'}</td>
       <td style="color:${color}">${o.side === 'buy' ? '매수' : '매도'}</td>
       <td>지정가</td>
       <td>${_fmt(o.price)}</td>
@@ -109,22 +108,10 @@ const executeLimitOrder = (order, fillPrice) => {
     Toast.success(`${base} ${side} 지정가 체결 @ ${_fmt(order.price)}`, '주문 체결');
   }
 
-  if (order.mode === 'spot') {
-    if (order.side === 'buy') {
-      st.spotUsdt = Math.max(0, st.spotUsdt - order.total);
-      st.spotBtc += order.qty;
-      h.updateSpotPos(order.symbol, order.qty, order.price, order.total, order.tp, order.sl);
-    } else {
-      st.spotBtc  = Math.max(0, st.spotBtc - order.qty);
-      st.spotUsdt += order.total * (1 - h.FEE_RATE);
-      h.reduceSpotPos(order.symbol, order.qty);
-    }
-  } else {
-    // 증거금은 주문 등록 시 이미 차감됨
-    const dir = order.side === 'buy' ? 'long' : 'short';
-    h.updateFuturesPos(order.symbol, dir, order.qty, order.price, order.margin,
-      order.leverage, order.marginMode, order.tp, order.sl);
-  }
+  // 증거금은 주문 등록 시 이미 차감됨
+  const dir = order.side === 'buy' ? 'long' : 'short';
+  h.updateFuturesPos(order.symbol, dir, order.qty, order.price, order.margin,
+    order.leverage, order.marginMode, order.tp, order.sl);
 
   h.addTradeRecord(order.side, order.price, order.qty, order.total, order.total * h.FEE_RATE);
   h.saveSnapshot?.(order.price);
@@ -142,19 +129,14 @@ const closePosition = (pos, reason = 'manual') => {
   const dir   = pos.side === 'long' ? 1 : -1;
   const pnl   = (cp - pos.entryPrice) * pos.qty * dir;
   const base  = pos.symbol.replace('USDT', '');
-  const side  = pos.side === 'long' ? '롱' : (pos.mode === 'spot' ? '현물' : '숏');
+  const side  = pos.side === 'long' ? '롱' : '숏';
 
   st.positions = st.positions.filter(p => p.id !== pos.id);
 
   const closeSide = pos.side === 'long' ? 'sell' : 'buy';
   const fee       = pos.qty * cp * h.FEE_RATE;
 
-  if (pos.mode === 'spot') {
-    st.spotBtc   = Math.max(0, st.spotBtc - pos.qty);
-    st.spotUsdt += pos.qty * cp * (1 - h.FEE_RATE);
-  } else {
-    st.futuresUsdt += Math.max(0, pos.margin + pnl);
-  }
+  st.futuresUsdt += Math.max(0, pos.margin + pnl);
 
   h.addTradeRecord(closeSide, cp, pos.qty, pos.qty * cp, fee, {
     tpslType:     reason === 'tp' ? 'TP' : reason === 'sl' ? 'SL' : null,
@@ -258,8 +240,8 @@ document.querySelector('.bottom-panel__content')?.addEventListener('click', e =>
     const order = st.pendingOrders.find(o => o.id === orderId);
     if (!order) return;
 
-    // 선물 지정가 취소 → 예약 증거금 반환
-    if (order.mode === 'futures' && order.margin > 0) {
+    // 지정가 취소 → 예약 증거금 반환
+    if (order.margin > 0) {
       st.futuresUsdt += order.margin;
       h.saveState(); h.updateAvailable();
     }

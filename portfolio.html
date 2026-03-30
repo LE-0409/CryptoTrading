@@ -18,7 +18,6 @@
       CryptoTrade
     </div>
     <nav class="header__nav">
-      <a class="header__nav-item" href="index.html">현물</a>
       <a class="header__nav-item" href="index.html">선물</a>
       <a class="header__nav-item header__nav-item--active" href="portfolio.html">포트폴리오</a>
       <a class="header__nav-item" href="history.html">거래내역</a>
@@ -26,12 +25,8 @@
     <div class="header__account">
       <div class="header__balances">
         <div class="header__balance">
-          <span class="header__balance-label">현물 USDT</span>
-          <span class="header__balance-value">100.00</span>
-        </div>
-        <div class="header__balance header__balance--futures">
           <span class="header__balance-label">선물 USDT</span>
-          <span class="header__balance-value">0.00</span>
+          <span class="header__balance-value">100.00</span>
         </div>
       </div>
       <div class="header__settings-wrap">
@@ -53,13 +48,8 @@
         <span class="summary-card__sub">초기 자산 대비 <span class="summary-pnl summary-pnl--zero">+0.00 USDT (0.00%)</span></span>
       </div>
       <div class="summary-card">
-        <span class="summary-card__label">현물 자산</span>
-        <span class="summary-card__value">100.00 USDT</span>
-        <span class="summary-card__sub">현물 잔고 + 보유 코인 평가금액</span>
-      </div>
-      <div class="summary-card">
         <span class="summary-card__label">선물 자산</span>
-        <span class="summary-card__value">0.00 USDT</span>
+        <span class="summary-card__value">100.00 USDT</span>
         <span class="summary-card__sub">선물 잔고 + 미실현 PnL</span>
       </div>
       <div class="summary-card">
@@ -82,31 +72,6 @@
         <div class="chart-card__canvas" id="portfolioBarChart">
           <div class="chart-card__placeholder">거래 데이터가 쌓이면 표시됩니다</div>
         </div>
-      </div>
-    </div>
-
-    <!-- 현물 보유 자산 -->
-    <div class="portfolio-section">
-      <div class="portfolio-section__title">현물 보유 자산</div>
-      <div class="history-table-wrap">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>코인</th>
-              <th>보유 수량</th>
-              <th>평균 매수가</th>
-              <th>현재가</th>
-              <th>평가금액</th>
-              <th>미실현 PnL</th>
-              <th>ROI</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="history-table__empty">
-              <td colspan="7">보유 중인 현물 자산이 없습니다</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
