@@ -408,15 +408,14 @@
                   <th>미실현 PnL</th>
                   <th>ROI</th>
                   <th>청산가</th>
-                  <th>TP</th>
-                  <th>SL</th>
+                  <th>TP / SL</th>
                   <th>청산</th>
                   <th>투자금액</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="bp-table__empty">
-                  <td colspan="12">보유 포지션 없음</td>
+                  <td colspan="11">보유 포지션 없음</td>
                 </tr>
               </tbody>
             </table>
@@ -491,6 +490,67 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ===== TP / SL 설정 모달 ===== -->
+  <div class="modal-overlay" id="tpslModal">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title">TP / SL 설정</span>
+        <button class="modal__close" id="tpslModalClose">✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="tpsl-modal__info">
+          <span id="tpslModalPair" class="tpsl-modal__pair">—</span>
+          <span class="tpsl-modal__entry">진입가 <span id="tpslModalEntry">—</span> USDT</span>
+        </div>
+        <div class="tpsl-modal__field">
+          <div class="tpsl-modal__field-header">
+            <label class="tpsl-modal__label tpsl-modal__label--tp">Take Profit</label>
+            <span class="tpsl-modal__preview" id="tpslModalTpPreview">—</span>
+          </div>
+          <div class="tpsl-modal__input-row">
+            <input class="tpsl-modal__input" type="number" id="tpslModalTp" placeholder="설정 안함 (빈칸으로 해제)" min="0" />
+            <button class="tpsl-block__unit-btn" id="tpslModalTpUnit">USDT</button>
+          </div>
+          <div class="tpsl-modal__slider-wrap" id="tpslModalTpSliderWrap" data-tpsl-type="tp">
+            <input class="tpsl-modal__slider" type="range" id="tpslModalTpSlider" min="0.1" max="100" step="0.1" value="10" />
+            <div class="tpsl-modal__slider-marks">
+              <button class="tpsl-modal__mark" data-val="5">5%</button>
+              <button class="tpsl-modal__mark" data-val="10">10%</button>
+              <button class="tpsl-modal__mark" data-val="25">25%</button>
+              <button class="tpsl-modal__mark" data-val="50">50%</button>
+              <button class="tpsl-modal__mark" data-val="100">100%</button>
+            </div>
+          </div>
+        </div>
+        <div class="tpsl-modal__field">
+          <div class="tpsl-modal__field-header">
+            <label class="tpsl-modal__label tpsl-modal__label--sl">Stop Loss</label>
+            <span class="tpsl-modal__preview" id="tpslModalSlPreview">—</span>
+          </div>
+          <div class="tpsl-modal__input-row">
+            <input class="tpsl-modal__input" type="number" id="tpslModalSl" placeholder="설정 안함 (빈칸으로 해제)" min="0" />
+            <button class="tpsl-block__unit-btn" id="tpslModalSlUnit">USDT</button>
+          </div>
+          <div class="tpsl-modal__slider-wrap" id="tpslModalSlSliderWrap" data-tpsl-type="sl">
+            <input class="tpsl-modal__slider" type="range" id="tpslModalSlSlider" min="0.1" max="100" step="0.1" value="10" />
+            <div class="tpsl-modal__slider-marks">
+              <button class="tpsl-modal__mark" data-val="5">5%</button>
+              <button class="tpsl-modal__mark" data-val="10">10%</button>
+              <button class="tpsl-modal__mark" data-val="25">25%</button>
+              <button class="tpsl-modal__mark" data-val="50">50%</button>
+              <button class="tpsl-modal__mark" data-val="100">100%</button>
+            </div>
+          </div>
+        </div>
+        <p class="tpsl-modal__hint" id="tpslModalHint"></p>
+      </div>
+      <div class="modal__footer">
+        <button class="modal__btn modal__btn--cancel" id="tpslModalCancel">취소</button>
+        <button class="modal__btn modal__btn--confirm" id="tpslModalConfirm">확인</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== 초기화 확인 모달 ===== -->
