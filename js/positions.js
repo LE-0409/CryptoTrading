@@ -50,7 +50,7 @@ const renderPositions = () => {
       <td>${pos.tp ? _fmt(pos.tp) : '—'}</td>
       <td>${pos.sl ? _fmt(pos.sl) : '—'}</td>
       <td><button class="bp-btn bp-btn--close bp-close-btn" data-pos-id="${pos.id}">청산</button></td>
-      <td>—</td>
+      <td>${_fmt(pos.mode === 'futures' ? pos.margin : pos.qty * pos.entryPrice)} USDT</td>
     </tr>`;
   }).join('');
 };
