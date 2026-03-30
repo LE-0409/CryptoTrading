@@ -1,10 +1,18 @@
 # CryptoTrading 개발 계획
 
-## 현재 상태
+## 현재 상태 (2026-03-30 기준)
 
-- UI 레이아웃 완성 (HTML/CSS)
-- 모든 데이터 하드코딩된 더미 데이터
-- JS 기능 미구현
+### 완료
+- UI 레이아웃 완성 (HTML/CSS 전체)
+- `js/main.js` — 탭 전환, 모달, 설정 드롭다운
+- `js/order.js` — 현물/선물 기본 매매, 레버리지, 마진 모드, 잔고 이체, TP/SL UI, 슬라이더
+- `js/chart.js` — Lightweight Charts 연동, Binance REST API 캔들 로드, 타임프레임/차트유형 전환
+
+### 미완료
+- 실시간 데이터 (WebSocket) 미연결 — 가격/호가창/체결내역 하드코딩 상태
+- 차트 실시간 캔들 업데이트 없음
+- 데이터 영속성 없음 (localStorage 미사용)
+- 포지션 관리, TP/SL 실행 로직 미구현
 
 ---
 
@@ -348,16 +356,16 @@
 
 ---
 
-### Phase 2 — 캔들 차트 구현
+### Phase 2 — 캔들 차트 구현 ✅ (부분 완료)
 **목표:** TradingView Lightweight Charts로 실제 캔들 차트 렌더링
 
-- [ ] Lightweight Charts 라이브러리 추가 (`index.html`)
-- [ ] `js/chart.js` — 캔들 차트 초기화 및 렌더링
-- [ ] REST API로 과거 캔들 데이터 로드
+- [x] Lightweight Charts 라이브러리 추가 (`index.html`)
+- [x] `js/chart.js` — 캔들 차트 초기화 및 렌더링
+- [x] REST API로 과거 캔들 데이터 로드 (Binance `/api/v3/klines`, 500봉)
 - [ ] WebSocket으로 실시간 캔들 업데이트
-- [ ] 타임프레임 버튼 (1m / 5m / 15m / 1H / 4H / 1D / 1W) 동작
-- [ ] 라인 차트 / 캔들 차트 전환 버튼 동작
-- [ ] `css/chart.css` — 차트 영역 스타일 조정
+- [x] 타임프레임 버튼 (1m / 5m / 15m / 1H / 4H / 1D / 1W) 동작
+- [x] 라인 차트 / 캔들 차트 전환 버튼 동작
+- [x] `css/chart.css` — 차트 영역 스타일 조정
 
 **산출물:** `js/chart.js`, `css/chart.css` 수정
 
