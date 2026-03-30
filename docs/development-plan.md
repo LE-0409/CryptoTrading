@@ -13,9 +13,7 @@
 - `js/chart.js` — Lightweight Charts, REST API 캔들, WebSocket 실시간 캔들, 타임프레임/차트유형 전환
 
 ### 미완료
-- 거래내역/포트폴리오 페이지 데이터 연동
 - 펀딩비 시뮬레이션
-- 토스트 알림
 
 ---
 

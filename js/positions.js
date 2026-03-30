@@ -101,6 +101,13 @@ const executeLimitOrder = (order, fillPrice) => {
   st.pendingOrders = st.pendingOrders.filter(o => o.id !== order.id);
   h.savePending();
 
+  // 토스트 알림
+  if (typeof Toast !== 'undefined') {
+    const base  = order.symbol.replace('USDT', '');
+    const side  = order.side === 'buy' ? '매수' : '매도';
+    Toast.success(`${base} ${side} 지정가 체결 @ ${_fmt(order.price)}`, '주문 체결');
+  }
+
   if (order.mode === 'spot') {
     if (order.side === 'buy') {
       st.spotUsdt = Math.max(0, st.spotUsdt - order.total);
@@ -119,36 +126,52 @@ const executeLimitOrder = (order, fillPrice) => {
   }
 
   h.addTradeRecord(order.side, order.price, order.qty, order.total, order.total * h.FEE_RATE);
+  h.saveSnapshot?.(order.price);
   h.savePositions(); h.saveState(); h.updateAvailable();
   renderAll();
 };
 
 // ===== 포지션 청산 (TP/SL/강제/수동) =====
-const closePosition = (pos) => {
+const closePosition = (pos, reason = 'manual') => {
   const st = window._st;
   const h  = window._orderHelpers;
   if (!st || !h) return;
 
-  const cp  = _priceCache[pos.symbol] || pos.entryPrice;
-  const dir = pos.side === 'long' ? 1 : -1;
-  const pnl = (cp - pos.entryPrice) * pos.qty * dir;
+  const cp    = _priceCache[pos.symbol] || pos.entryPrice;
+  const dir   = pos.side === 'long' ? 1 : -1;
+  const pnl   = (cp - pos.entryPrice) * pos.qty * dir;
+  const base  = pos.symbol.replace('USDT', '');
+  const side  = pos.side === 'long' ? '롱' : (pos.mode === 'spot' ? '현물' : '숏');
 
   st.positions = st.positions.filter(p => p.id !== pos.id);
 
+  const closeSide = pos.side === 'long' ? 'sell' : 'buy';
+  const fee       = pos.qty * cp * h.FEE_RATE;
+
   if (pos.mode === 'spot') {
-    const proceeds  = pos.qty * cp * (1 - h.FEE_RATE);
-    st.spotBtc      = Math.max(0, st.spotBtc - pos.qty);
-    st.spotUsdt    += proceeds;
-    h.addTradeRecord('sell', cp, pos.qty, pos.qty * cp, pos.qty * cp * h.FEE_RATE);
+    st.spotBtc   = Math.max(0, st.spotBtc - pos.qty);
+    st.spotUsdt += pos.qty * cp * (1 - h.FEE_RATE);
   } else {
-    const returned  = Math.max(0, pos.margin + pnl);
-    st.futuresUsdt += returned;
-    h.addTradeRecord(
-      pos.side === 'long' ? 'sell' : 'buy',
-      cp, pos.qty, pos.qty * cp, pos.qty * cp * h.FEE_RATE);
+    st.futuresUsdt += Math.max(0, pos.margin + pnl);
   }
 
+  h.addTradeRecord(closeSide, cp, pos.qty, pos.qty * cp, fee, {
+    tpslType:     reason === 'tp' ? 'TP' : reason === 'sl' ? 'SL' : null,
+    triggerPrice: reason === 'tp' ? pos.tp : reason === 'sl' ? pos.sl : null,
+    realizedPnl:  pnl,
+  });
+  h.saveSnapshot?.(cp);
   h.savePositions(); h.saveState(); h.updateAvailable();
+
+  // ── 토스트 알림 ──
+  if (typeof Toast !== 'undefined') {
+    const pnlStr = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
+    if (reason === 'tp')          Toast.success(`${base} ${side} TP 체결 ${pnlStr}`, 'Take Profit');
+    else if (reason === 'sl')     Toast.warning(`${base} ${side} SL 체결 ${pnlStr}`, 'Stop Loss');
+    else if (reason === 'liquidation') Toast.error(`${base} ${side} 강제 청산`, '청산');
+    else                          Toast.info(`${base} ${side} 청산 완료 ${pnlStr}`, '수동 청산');
+  }
+
   renderAll();
 };
 
@@ -188,7 +211,7 @@ document.addEventListener('binance:ticker', ({ detail: d }) => {
         : pos.entryPrice * (1 + 1 / pos.leverage);
       if ((pos.side === 'long' && price <= liq) ||
           (pos.side === 'short' && price >= liq)) {
-        closePosition(pos); return;
+        closePosition(pos, 'liquidation'); return;
       }
     }
 
@@ -196,14 +219,14 @@ document.addEventListener('binance:ticker', ({ detail: d }) => {
     if (pos.tp) {
       const hit = (pos.side === 'long'  && price >= pos.tp) ||
                   (pos.side === 'short' && price <= pos.tp);
-      if (hit) { closePosition(pos); return; }
+      if (hit) { closePosition(pos, 'tp'); return; }
     }
 
     // SL
     if (pos.sl) {
       const hit = (pos.side === 'long'  && price <= pos.sl) ||
                   (pos.side === 'short' && price >= pos.sl);
-      if (hit) { closePosition(pos); return; }
+      if (hit) { closePosition(pos, 'sl'); return; }
     }
   });
 

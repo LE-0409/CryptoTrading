@@ -67,13 +67,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const savePending   = () => localStorage.setItem(LS_PENDING,   JSON.stringify(state.pendingOrders));
 
   // ===== 체결 내역 기록 =====
-  const addTradeRecord = (side, price, btcQty, usdtTotal, fee) => {
-    const symbol = window._st && typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
-    tradeHistory.unshift({ time: new Date().toISOString(), symbol, mode: state.mode,
-      side, orderType: state.orderType, price, qty: btcQty, total: usdtTotal, fee });
-    if (tradeHistory.length > 200) tradeHistory.length = 200;
+  const addTradeRecord = (side, price, btcQty, usdtTotal, fee, meta = {}) => {
+    const symbol = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
+    tradeHistory.unshift({
+      time: new Date().toISOString(), symbol, mode: state.mode,
+      side, orderType: state.orderType, price, qty: btcQty, total: usdtTotal, fee,
+      tpslType:     meta.tpslType     || null,
+      triggerPrice: meta.triggerPrice || null,
+      realizedPnl:  meta.realizedPnl  ?? null,
+    });
+    if (tradeHistory.length > 500) tradeHistory.length = 500;
     localStorage.setItem(LS_HISTORY, JSON.stringify(tradeHistory));
     renderTradeHistory();
+  };
+
+  // ===== 포트폴리오 스냅샷 저장 =====
+  const saveSnapshot = (refPrice) => {
+    const snapshots = JSON.parse(localStorage.getItem('ct_snapshots') || '[]');
+    const coinValue = (state.positions || [])
+      .filter(p => p.mode === 'spot')
+      .reduce((s, p) => s + p.qty * refPrice, 0);
+    snapshots.push({
+      time:  Math.floor(Date.now() / 1000),
+      total: parseFloat((state.spotUsdt + coinValue + state.futuresUsdt).toFixed(2)),
+    });
+    if (snapshots.length > 1000) snapshots.shift();
+    localStorage.setItem('ct_snapshots', JSON.stringify(snapshots));
   };
 
   // ===== 체결 내역 렌더링 =====
@@ -195,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     addTradeRecord(side, price, btcAmt, amount, amount * FEE_RATE);
+    saveSnapshot(price);
     saveState(); savePositions();
     updateAvailable();
     document.dispatchEvent(new CustomEvent('positions:update'));
@@ -217,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== positions.js에 노출 =====
   window._orderHelpers = {
     updateAvailable, addTradeRecord, saveState, savePositions, savePending,
-    updateSpotPos, reduceSpotPos, updateFuturesPos, FEE_RATE,
+    updateSpotPos, reduceSpotPos, updateFuturesPos, saveSnapshot, FEE_RATE,
   };
 
   // ===== 청산가 / 예상 수령액 =====
