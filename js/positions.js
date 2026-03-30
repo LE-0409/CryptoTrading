@@ -3,6 +3,7 @@
 
 // ===== 가격 캐시 =====
 const _priceCache = {};
+window._priceCache = _priceCache; // funding.js에서 참조
 
 // ===== 숫자 포맷 =====
 const _fmt = (n, d = 2) => n.toLocaleString('ko-KR', { maximumFractionDigits: d });

@@ -71,6 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ===== 펀딩비 내역 탭 =====
+  const fundingTbody = document.querySelector('#paneFunding tbody');
+  if (fundingTbody) {
+    const fundingHistory = JSON.parse(localStorage.getItem('ct_funding') || '[]');
+    if (!fundingHistory.length) {
+      fundingTbody.innerHTML = '<tr class="history-table__empty"><td colspan="7">펀딩비 내역이 없습니다</td></tr>';
+    } else {
+      fundingTbody.innerHTML = [...fundingHistory].reverse().map(f => {
+        const isReceive = f.direction === 'receive';
+        const color = isReceive ? 'var(--color-buy)' : 'var(--color-sell)';
+        const base  = f.symbol.replace('USDT', '');
+        return `<tr>
+          <td>${fmtTime(f.time)}</td>
+          <td>${base}/USDT</td>
+          <td style="color:${f.side === 'long' ? 'var(--color-buy)' : 'var(--color-sell)'}">${f.side === 'long' ? '롱' : '숏'}</td>
+          <td>${fmtNum(f.posValue)}</td>
+          <td>${(f.rate * 100).toFixed(4)}%</td>
+          <td style="color:${color}">${isReceive ? '+' : '-'}${fmtNum(f.amount, 6)}</td>
+          <td style="color:${color}">${isReceive ? '수취' : '지급'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
   // ===== TP/SL 체결 내역 탭 =====
   const tpslTbody = document.querySelector('#paneTpsl tbody');
   if (tpslTbody) {
