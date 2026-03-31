@@ -345,7 +345,7 @@
 
   /* ====================================================
      CHART VIEW  (mobile-view--chart)
-     전체 화면 차트 + 하단 메인 뒤로 버튼
+     차트 + 하단 고정 뒤로 버튼
   ==================================================== */
 
   body.mobile-view--chart .main-layout {
@@ -356,6 +356,8 @@
     overflow: hidden;
     gap: 0;
     background-color: var(--bg-primary);
+    /* 하단 고정 뒤로 버튼 영역(52px) 확보 */
+    padding-bottom: 52px;
   }
 
   body.mobile-view--chart .center-panel {
@@ -373,13 +375,23 @@
     overflow: hidden;
   }
 
-  /* 뒤로 버튼: 차트 뷰에서만 표시 */
+  /* 뒤로 버튼: 화면 하단에 항상 고정 */
   body.mobile-view--chart .mobile-nav {
     display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    z-index: 300;
     justify-content: center;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border);
   }
 
   body.mobile-view--chart .mobile-nav__item {
+    display: flex;
+    align-items: center;
     border-top: none;
     font-size: 13px;
     font-weight: 600;
