@@ -153,15 +153,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ===== TP/SL 가격 읽기 (입력 폼 기준) =====
-  const getTpSlFromForm = (entryPrice) => {
+  const getTpSlFromForm = (entryPrice, side) => {
     if (!tpslCheckbox?.checked) return { tp: null, sl: null };
-    const tpVal = parseFloat(tpPriceInput?.value);
-    const slVal = parseFloat(slPriceInput?.value);
+    const tpVal  = parseFloat(tpPriceInput?.value);
+    const slVal  = parseFloat(slPriceInput?.value);
+    const isLong = side === 'buy';
+    const lev    = state.leverage;
     return {
       tp: (!isNaN(tpVal) && tpVal > 0)
-        ? (tpslUnit.tp === 'ROI' ? entryPrice * (1 + tpVal / 100) : tpVal) : null,
+        ? (tpslUnit.tp === 'ROI'
+            ? entryPrice * (1 + (isLong ? 1 : -1) * tpVal / (100 * lev))
+            : tpVal) : null,
       sl: (!isNaN(slVal) && slVal > 0)
-        ? (tpslUnit.sl === 'ROI' ? entryPrice * (1 - slVal / 100) : slVal) : null,
+        ? (tpslUnit.sl === 'ROI'
+            ? entryPrice * (1 + (isLong ? -1 : 1) * slVal / (100 * lev))
+            : slVal) : null,
     };
   };
 
@@ -183,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 시장가 즉시 체결 =====
   const executeMarket = (side, price, btcAmt, amount) => {
     const symbol     = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
-    const { tp, sl } = getTpSlFromForm(price);
+    const { tp, sl } = getTpSlFromForm(price, side);
     const margin     = amount / state.leverage;
     const fee        = amount * FEE_RATE;
     state.futuresUsdt = Math.max(0, state.futuresUsdt - margin - fee);
@@ -200,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 지정가 주문 등록 =====
   const addPendingOrder = (side, price, btcAmt, amount, reservedMargin = 0) => {
     const symbol    = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
-    const { tp, sl } = getTpSlFromForm(price);
+    const { tp, sl } = getTpSlFromForm(price, side);
     state.pendingOrders.push({
       id: Date.now(), symbol, mode: state.mode, side,
       leverage: state.leverage,
@@ -309,12 +315,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const usdtToRoi = (usdt, isTp) => {
     const base = getBase(); if (!base) return '';
-    const pct = isTp ? ((usdt - base) / base) * 100 : ((base - usdt) / base) * 100;
+    const lev  = state.leverage;
+    const pct  = isTp
+      ? ((usdt - base) / base) * 100 * lev
+      : ((base - usdt) / base) * 100 * lev;
     return pct.toFixed(2);
   };
   const roiToUsdt = (roi, isTp) => {
     const base = getBase(); if (!base) return '';
-    return (isTp ? base * (1 + roi / 100) : base * (1 - roi / 100)).toFixed(2);
+    const lev  = state.leverage;
+    return (isTp
+      ? base * (1 + roi / (100 * lev))
+      : base * (1 - roi / (100 * lev))).toFixed(2);
   };
 
   const updatePreview = (type) => {
