@@ -492,6 +492,65 @@
 
   </div>
 
+  <!-- ===== 청산 모달 ===== -->
+  <div class="modal-overlay" id="closeModal">
+    <div class="modal modal--close">
+      <div class="modal__header">
+        <span class="modal__title">포지션 청산</span>
+        <button class="modal__close" id="closeModalClose">✕</button>
+      </div>
+      <div class="modal__body">
+
+        <!-- 포지션 정보 -->
+        <div class="close-modal__info">
+          <div class="close-modal__info-top">
+            <span class="close-modal__pair" id="closeModalPair">—</span>
+            <span class="close-modal__pnl"  id="closeModalPnl">—</span>
+          </div>
+          <div class="close-modal__info-sub">
+            <span>진입가&nbsp;<span class="close-modal__val" id="closeModalEntry">—</span></span>
+            <span>현재가&nbsp;<span class="close-modal__val" id="closeModalCurrent">—</span></span>
+            <span>전체&nbsp;<span class="close-modal__val" id="closeModalTotalQty">—</span></span>
+          </div>
+        </div>
+
+        <!-- 청산 방식 탭 -->
+        <div class="close-modal__mode-tabs">
+          <button class="close-modal__mode-tab close-modal__mode-tab--active" id="closeModeQty">수량</button>
+          <button class="close-modal__mode-tab" id="closeModePct">비율 %</button>
+        </div>
+
+        <!-- 입력 -->
+        <div class="tpsl-modal__field">
+          <div class="tpsl-modal__input-row">
+            <input class="tpsl-modal__input" type="number" id="closeModalInput" placeholder="0" min="0" step="any" />
+            <span class="close-modal__unit" id="closeModalUnit">BTC</span>
+          </div>
+          <div class="tpsl-modal__slider-wrap tpsl-modal__slider-wrap--visible">
+            <input class="tpsl-modal__slider" type="range" id="closeModalSlider" min="0" max="100" step="0.1" value="100" />
+            <div class="tpsl-modal__slider-marks">
+              <button class="tpsl-modal__mark" data-close-pct="25">25%</button>
+              <button class="tpsl-modal__mark" data-close-pct="50">50%</button>
+              <button class="tpsl-modal__mark" data-close-pct="75">75%</button>
+              <button class="tpsl-modal__mark" data-close-pct="100">100%</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 예상 실현 PnL -->
+        <div class="close-modal__estimate">
+          <span class="close-modal__estimate-label">예상 실현 PnL</span>
+          <span class="close-modal__estimate-val" id="closeModalEstPnl">—</span>
+        </div>
+
+      </div>
+      <div class="modal__footer">
+        <button class="modal__btn modal__btn--cancel" id="closeModalCancel">취소</button>
+        <button class="modal__btn modal__btn--danger"  id="closeModalConfirm">청산</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TP / SL 설정 모달 ===== -->
   <div class="modal-overlay" id="tpslModal">
     <div class="modal">

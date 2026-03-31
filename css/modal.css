@@ -342,3 +342,105 @@
   color: var(--color-brand);
   border-color: var(--color-brand);
 }
+
+/* ===== Close Position Modal ===== */
+.modal--close {
+  width: 380px;
+}
+
+.close-modal__info {
+  background-color: var(--bg-primary);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.close-modal__info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-modal__pair {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.close-modal__pnl {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.close-modal__pnl--up   { color: var(--color-buy); }
+.close-modal__pnl--down { color: var(--color-sell); }
+
+.close-modal__info-sub {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.close-modal__val {
+  color: var(--text-secondary);
+}
+
+.close-modal__mode-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.close-modal__mode-tab {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.close-modal__mode-tab--active {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.close-modal__unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.close-modal__estimate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.close-modal__estimate-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.close-modal__estimate-val {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.close-modal__estimate-val--up   { color: var(--color-buy); }
+.close-modal__estimate-val--down { color: var(--color-sell); }

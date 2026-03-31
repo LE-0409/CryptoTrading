@@ -118,25 +118,37 @@ const executeLimitOrder = (order, fillPrice) => {
 };
 
 // ===== 포지션 청산 (TP/SL/강제/수동) =====
-const closePosition = (pos, reason = 'manual') => {
+// closeQty: 청산 수량 (undefined = 전체 청산)
+const closePosition = (pos, reason = 'manual', closeQty) => {
   const st = window._st;
   const h  = window._orderHelpers;
   if (!st || !h) return;
 
   const cp    = _priceCache[pos.symbol] || pos.entryPrice;
   const dir   = pos.side === 'long' ? 1 : -1;
-  const pnl   = (cp - pos.entryPrice) * pos.qty * dir;
   const base  = pos.symbol.replace('USDT', '');
   const side  = pos.side === 'long' ? '롱' : '숏';
 
-  st.positions = st.positions.filter(p => p.id !== pos.id);
+  const qty   = (closeQty && closeQty < pos.qty) ? closeQty : pos.qty;
+  const ratio = qty / pos.qty; // 부분 청산 비율
+  const pnl   = (cp - pos.entryPrice) * qty * dir;
+  const returnedMargin = pos.margin * ratio;
 
   const closeSide = pos.side === 'long' ? 'sell' : 'buy';
-  const fee       = pos.qty * cp * h.FEE_RATE;
+  const fee       = qty * cp * h.FEE_RATE;
 
-  st.futuresUsdt += Math.max(0, pos.margin + pnl);
+  if (ratio < 1) {
+    // 부분 청산: 수량과 증거금만 줄임
+    pos.qty    -= qty;
+    pos.margin -= returnedMargin;
+    st.futuresUsdt += Math.max(0, returnedMargin + pnl);
+  } else {
+    // 전체 청산
+    st.positions = st.positions.filter(p => p.id !== pos.id);
+    st.futuresUsdt += Math.max(0, pos.margin + pnl);
+  }
 
-  h.addTradeRecord(closeSide, cp, pos.qty, pos.qty * cp, fee, {
+  h.addTradeRecord(closeSide, cp, qty, qty * cp, fee, {
     tpslType:     reason === 'tp' ? 'TP' : reason === 'sl' ? 'SL' : null,
     triggerPrice: reason === 'tp' ? pos.tp : reason === 'sl' ? pos.sl : null,
     realizedPnl:  pnl,
@@ -147,10 +159,11 @@ const closePosition = (pos, reason = 'manual') => {
   // ── 토스트 알림 ──
   if (typeof Toast !== 'undefined') {
     const pnlStr = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
-    if (reason === 'tp')          Toast.success(`${base} ${side} TP 체결 ${pnlStr}`, 'Take Profit');
-    else if (reason === 'sl')     Toast.warning(`${base} ${side} SL 체결 ${pnlStr}`, 'Stop Loss');
+    if (reason === 'tp')               Toast.success(`${base} ${side} TP 체결 ${pnlStr}`, 'Take Profit');
+    else if (reason === 'sl')          Toast.warning(`${base} ${side} SL 체결 ${pnlStr}`, 'Stop Loss');
     else if (reason === 'liquidation') Toast.error(`${base} ${side} 강제 청산`, '청산');
-    else                          Toast.info(`${base} ${side} 청산 완료 ${pnlStr}`, '수동 청산');
+    else if (ratio < 1)                Toast.info(`${base} ${side} 부분 청산 (${(ratio*100).toFixed(0)}%) ${pnlStr}`, '수동 청산');
+    else                               Toast.info(`${base} ${side} 청산 완료 ${pnlStr}`, '수동 청산');
   }
 
   renderAll();
@@ -214,6 +227,190 @@ document.addEventListener('binance:ticker', ({ detail: d }) => {
   // PnL 주기적 갱신
   _scheduleRender();
 });
+
+// ===== 청산 모달 =====
+const _closeModal    = document.getElementById('closeModal');
+let _closePosId      = null;
+let _closeMode       = 'qty'; // 'qty' | 'pct'
+
+const _updateCloseEstimate = () => {
+  const st  = window._st;
+  const pos = st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+
+  const cp    = _priceCache[pos.symbol] || pos.entryPrice;
+  const dir   = pos.side === 'long' ? 1 : -1;
+  const input = document.getElementById('closeModalInput');
+  const estEl = document.getElementById('closeModalEstPnl');
+  if (!input || !estEl) return;
+
+  const raw = parseFloat(input.value);
+  if (!raw || isNaN(raw) || raw <= 0) { estEl.textContent = '—'; estEl.className = 'close-modal__estimate-val'; return; }
+
+  const closeQty = _closeMode === 'pct'
+    ? pos.qty * (Math.min(raw, 100) / 100)
+    : Math.min(raw, pos.qty);
+
+  const pnl = (cp - pos.entryPrice) * closeQty * dir;
+  estEl.textContent = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
+  estEl.className   = 'close-modal__estimate-val ' + (pnl >= 0 ? 'close-modal__estimate-val--up' : 'close-modal__estimate-val--down');
+};
+
+const openCloseModal = (pos) => {
+  _closePosId = pos.id;
+  _closeMode  = 'qty';
+
+  const cp    = _priceCache[pos.symbol] || pos.entryPrice;
+  const dir   = pos.side === 'long' ? 1 : -1;
+  const pnl   = (cp - pos.entryPrice) * pos.qty * dir;
+  const base  = pos.symbol.replace('USDT', '');
+  const sideLabel = pos.side === 'long' ? '롱' : '숏';
+
+  document.getElementById('closeModalPair').textContent     = `${base} ${sideLabel}`;
+  document.getElementById('closeModalEntry').textContent    = _fmt(pos.entryPrice);
+  document.getElementById('closeModalCurrent').textContent  = _fmt(cp);
+  document.getElementById('closeModalTotalQty').textContent = pos.qty.toFixed(6) + ' ' + base;
+
+  const pnlEl = document.getElementById('closeModalPnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
+  pnlEl.className   = 'close-modal__pnl ' + (pnl >= 0 ? 'close-modal__pnl--up' : 'close-modal__pnl--down');
+
+  // 모드 탭 초기화
+  document.getElementById('closeModeQty').classList.add('close-modal__mode-tab--active');
+  document.getElementById('closeModePct').classList.remove('close-modal__mode-tab--active');
+
+  // 입력 초기화 (100% = 전체 수량)
+  const input  = document.getElementById('closeModalInput');
+  const slider = document.getElementById('closeModalSlider');
+  const unit   = document.getElementById('closeModalUnit');
+  input.value  = pos.qty.toFixed(6);
+  input.step   = 'any';
+  input.max    = pos.qty;
+  input.placeholder = '0';
+  slider.value = 100;
+  unit.textContent  = base;
+
+  document.getElementById('closeModalEstPnl').textContent = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
+  document.getElementById('closeModalEstPnl').className   = 'close-modal__estimate-val ' + (pnl >= 0 ? 'close-modal__estimate-val--up' : 'close-modal__estimate-val--down');
+
+  _closeModal.classList.add('modal-overlay--open');
+  input.focus();
+};
+
+const _closeCloseModal = () => {
+  _closeModal?.classList.remove('modal-overlay--open');
+  _closePosId = null;
+};
+
+const _confirmClose = () => {
+  const st  = window._st;
+  const pos = st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+
+  const input = document.getElementById('closeModalInput');
+  const raw   = parseFloat(input.value);
+  if (!raw || isNaN(raw) || raw <= 0) return;
+
+  const closeQty = _closeMode === 'pct'
+    ? pos.qty * (Math.min(raw, 100) / 100)
+    : Math.min(raw, pos.qty);
+
+  _closeCloseModal();
+  closePosition(pos, 'manual', closeQty);
+};
+
+// 모드 전환
+document.getElementById('closeModeQty')?.addEventListener('click', () => {
+  if (_closeMode === 'qty') return;
+  _closeMode = 'qty';
+  const pos = window._st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+  const base   = pos.symbol.replace('USDT', '');
+  const input  = document.getElementById('closeModalInput');
+  const slider = document.getElementById('closeModalSlider');
+  const unit   = document.getElementById('closeModalUnit');
+  const pct    = parseFloat(slider.value) || 100;
+  input.value  = (pos.qty * pct / 100).toFixed(6);
+  input.step   = 'any';
+  input.max    = pos.qty;
+  unit.textContent = base;
+  document.getElementById('closeModeQty').classList.add('close-modal__mode-tab--active');
+  document.getElementById('closeModePct').classList.remove('close-modal__mode-tab--active');
+  _updateCloseEstimate();
+});
+
+document.getElementById('closeModePct')?.addEventListener('click', () => {
+  if (_closeMode === 'pct') return;
+  _closeMode = 'pct';
+  const pos = window._st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+  const input  = document.getElementById('closeModalInput');
+  const slider = document.getElementById('closeModalSlider');
+  const unit   = document.getElementById('closeModalUnit');
+  const qty    = parseFloat(input.value) || pos.qty;
+  const pct    = Math.min(qty / pos.qty * 100, 100);
+  input.value  = pct.toFixed(1);
+  input.step   = '0.1';
+  input.max    = 100;
+  slider.value = pct;
+  unit.textContent = '%';
+  document.getElementById('closeModePct').classList.add('close-modal__mode-tab--active');
+  document.getElementById('closeModeQty').classList.remove('close-modal__mode-tab--active');
+  _updateCloseEstimate();
+});
+
+// 입력 ↔ 슬라이더 연동
+document.getElementById('closeModalInput')?.addEventListener('input', () => {
+  const pos = window._st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+  const input  = document.getElementById('closeModalInput');
+  const slider = document.getElementById('closeModalSlider');
+  const raw    = parseFloat(input.value);
+  if (!isNaN(raw) && raw > 0) {
+    const pct = _closeMode === 'pct'
+      ? Math.min(raw, 100)
+      : Math.min(raw / pos.qty * 100, 100);
+    slider.value = pct;
+  }
+  _updateCloseEstimate();
+});
+
+document.getElementById('closeModalSlider')?.addEventListener('input', () => {
+  const pos = window._st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+  const slider = document.getElementById('closeModalSlider');
+  const input  = document.getElementById('closeModalInput');
+  const pct    = parseFloat(slider.value);
+  if (_closeMode === 'pct') {
+    input.value = pct.toFixed(1);
+  } else {
+    input.value = (pos.qty * pct / 100).toFixed(6);
+  }
+  _updateCloseEstimate();
+});
+
+// % 마크 버튼
+_closeModal?.addEventListener('click', e => {
+  if (e.target === _closeModal) { _closeCloseModal(); return; }
+  const mark = e.target.closest('[data-close-pct]');
+  if (!mark) return;
+  const pos = window._st?.positions?.find(p => p.id === _closePosId);
+  if (!pos) return;
+  const pct    = parseFloat(mark.dataset.closePct);
+  const slider = document.getElementById('closeModalSlider');
+  const input  = document.getElementById('closeModalInput');
+  slider.value = pct;
+  if (_closeMode === 'pct') {
+    input.value = pct.toFixed(1);
+  } else {
+    input.value = (pos.qty * pct / 100).toFixed(6);
+  }
+  _updateCloseEstimate();
+});
+
+document.getElementById('closeModalClose')?.addEventListener('click',   _closeCloseModal);
+document.getElementById('closeModalCancel')?.addEventListener('click',  _closeCloseModal);
+document.getElementById('closeModalConfirm')?.addEventListener('click', _confirmClose);
 
 // ===== TP/SL 모달 =====
 const _tpslModal = document.getElementById('tpslModal');
@@ -421,12 +618,12 @@ document.querySelector('.bottom-panel__content')?.addEventListener('click', e =>
     return;
   }
 
-  // 청산 버튼
+  // 청산 버튼 → 청산 모달 오픈
   const closeBtn = e.target.closest('.bp-close-btn');
   if (closeBtn) {
     const posId = parseInt(closeBtn.dataset.posId);
     const pos   = window._st?.positions?.find(p => p.id === posId);
-    if (pos) closePosition(pos);
+    if (pos) openCloseModal(pos);
     return;
   }
 
