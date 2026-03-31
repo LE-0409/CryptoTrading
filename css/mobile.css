@@ -33,9 +33,14 @@
   background-color: var(--bg-hover);
 }
 
-/* ---- Mobile Scroll Area: transparent on desktop ---- */
+/* ---- Mobile Scroll Area ---- */
+/* 데스크탑: app-wrapper flex 흐름에 자연스럽게 참여 */
 .mobile-scroll-area {
-  display: contents;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ---- Mobile Chart Access Bar (hidden on desktop) ---- */
@@ -228,12 +233,8 @@
      호가창(좌) + 오더패널(우) — 하단에 포지션 패널 스크롤
   ==================================================== */
 
-  /* 스크롤 래퍼: 헤더·티커 아래 남은 공간을 채우고 세로 스크롤 */
+  /* 스크롤 래퍼: 메인 뷰에서 overflow-y: auto 로 전환 */
   body.mobile-view--main .mobile-scroll-area {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 0;
-    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
