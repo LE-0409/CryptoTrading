@@ -31,14 +31,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     SYMBOLS.forEach(s => { prices[s] = 0; });
   }
 
-  // ===== 선물 포지션 미실현 PnL =====
+  // ===== 선물 포지션 미실현 PnL / 포지션 투자금액 =====
   const futPositions  = positions.filter(p => p.mode === 'futures');
+  const lockedMargin  = futPositions.reduce((s, p) => s + (p.margin ?? 0), 0);
   const futuresPnl    = futPositions.reduce((s, p) => {
     const cp  = prices[p.symbol] || p.entryPrice;
     const dir = p.side === 'long' ? 1 : -1;
     return s + (cp - p.entryPrice) * p.qty * dir;
   }, 0);
-  const futuresTotal = futuresUsdt + futuresPnl;
+  // futuresUsdt = 포지션 증거금이 이미 차감된 잔여 잔고이므로 lockedMargin을 더해야 실제 총 자산
+  const futuresTotal = futuresUsdt + lockedMargin + futuresPnl;
 
   // ===== 총 실현 PnL (체결 내역에서 계산) =====
   const realizedPnl = trades.reduce((s, r) => s + (r.realizedPnl ?? 0) - r.fee, 0);
@@ -53,7 +55,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const summaryPnlEl = document.querySelector('.summary-pnl');
 
   if (summaryCards[0]) summaryCards[0].textContent = fmtN(totalAsset) + ' USDT';
-  if (summaryCards[1]) summaryCards[1].textContent = fmtN(futuresTotal) + ' USDT';
+  if (summaryCards[1]) {
+    summaryCards[1].textContent = fmtN(futuresTotal) + ' USDT';
+    const subEl = summaryCards[1].closest('.summary-card')?.querySelector('.summary-card__sub');
+    if (subEl) {
+      const pnlColor = futuresPnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';
+      subEl.innerHTML =
+        `잔고 ${fmtN(futuresUsdt)} &nbsp;+&nbsp; 포지션 ${fmtN(lockedMargin)} &nbsp;+&nbsp; ` +
+        `PnL <span style="color:${pnlColor}">${futuresPnl >= 0 ? '+' : ''}${fmtN(futuresPnl)}</span>`;
+    }
+  }
   if (summaryCards[2]) {
     summaryCards[2].textContent = fmtP(realizedPnl);
     summaryCards[2].style.color = realizedPnl >= 0 ? 'var(--color-buy)' : 'var(--color-sell)';

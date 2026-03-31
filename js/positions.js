@@ -129,7 +129,11 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
   const base  = pos.symbol.replace('USDT', '');
   const side  = pos.side === 'long' ? '롱' : '숏';
 
-  const qty   = (closeQty && closeQty < pos.qty) ? closeQty : pos.qty;
+  const EPSILON = 1e-8;
+  const _closeQty  = closeQty && closeQty < pos.qty ? closeQty : pos.qty;
+  // 부동소수점 오차로 남은 수량이 사실상 0이면 전체 청산으로 처리
+  const isFullClose = (pos.qty - _closeQty) < EPSILON;
+  const qty   = isFullClose ? pos.qty : _closeQty;
   const ratio = qty / pos.qty; // 부분 청산 비율
   const pnl   = (cp - pos.entryPrice) * qty * dir;
   const returnedMargin = pos.margin * ratio;
@@ -137,7 +141,7 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
   const closeSide = pos.side === 'long' ? 'sell' : 'buy';
   const fee       = qty * cp * h.FEE_RATE;
 
-  if (ratio < 1) {
+  if (!isFullClose && ratio < 1) {
     // 부분 청산: 수량과 증거금만 줄임
     pos.qty    -= qty;
     pos.margin -= returnedMargin;
@@ -162,7 +166,7 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
     if (reason === 'tp')               Toast.success(`${base} ${side} TP 체결 ${pnlStr}`, 'Take Profit');
     else if (reason === 'sl')          Toast.warning(`${base} ${side} SL 체결 ${pnlStr}`, 'Stop Loss');
     else if (reason === 'liquidation') Toast.error(`${base} ${side} 강제 청산`, '청산');
-    else if (ratio < 1)                Toast.info(`${base} ${side} 부분 청산 (${(ratio*100).toFixed(0)}%) ${pnlStr}`, '수동 청산');
+    else if (!isFullClose && ratio < 1) Toast.info(`${base} ${side} 부분 청산 (${(ratio*100).toFixed(0)}%) ${pnlStr}`, '수동 청산');
     else                               Toast.info(`${base} ${side} 청산 완료 ${pnlStr}`, '수동 청산');
   }
 
