@@ -432,21 +432,21 @@ const _tpslModal = document.getElementById('tpslModal');
 let _tpslPosId = null;
 let _tpslUnit  = { tp: 'USDT', sl: 'USDT' };
 
-// ROI 공식: 롱=(현재가-진입가)/진입가, 숏=(진입가-현재가)/진입가
+// ROI 공식 (레버리지 반영): 롱=(현재가-진입가)/진입가×레버리지, 숏=(진입가-현재가)/진입가×레버리지
 // TP는 양수(수익), SL은 음수(손실) — isTp 구분 불필요, side만으로 결정
-const _usdtToRoi = (usdt, side, entry) => {
+const _usdtToRoi = (usdt, side, entry, leverage = 1) => {
   const pct = side === 'long'
-    ? ((usdt - entry) / entry) * 100
-    : ((entry - usdt) / entry) * 100;
+    ? ((usdt - entry) / entry) * 100 * leverage
+    : ((entry - usdt) / entry) * 100 * leverage;
   return pct.toFixed(2);
 };
-const _roiToUsdt = (roi, side, entry) => {
+const _roiToUsdt = (roi, side, entry, leverage = 1) => {
   return (side === 'long'
-    ? entry * (1 + roi / 100)
-    : entry * (1 - roi / 100)).toFixed(2);
+    ? entry * (1 + roi / (100 * leverage))
+    : entry * (1 - roi / (100 * leverage))).toFixed(2);
 };
 
-const _updateTpslPreview = (type, entry, side) => {
+const _updateTpslPreview = (type, entry, side, leverage = 1) => {
   const isTp    = type === 'tp';
   const input   = document.getElementById(isTp ? 'tpslModalTp' : 'tpslModalSl');
   const preview = document.getElementById(isTp ? 'tpslModalTpPreview' : 'tpslModalSlPreview');
@@ -456,18 +456,18 @@ const _updateTpslPreview = (type, entry, side) => {
   const unit = isTp ? _tpslUnit.tp : _tpslUnit.sl;
   if (unit === 'USDT') {
     // 가격 입력 → ROI% 프리뷰
-    const roi = parseFloat(_usdtToRoi(val, side, entry));
+    const roi = parseFloat(_usdtToRoi(val, side, entry, leverage));
     if (isNaN(roi)) { preview.textContent = '—'; return; }
     const sign = roi >= 0 ? '+' : '';
     preview.textContent = sign + roi.toFixed(2) + '%';
   } else {
     // ROI% 입력 → 가격 프리뷰 (SL은 음수 roi)
-    const usdt = parseFloat(_roiToUsdt(val, side, entry));
+    const usdt = parseFloat(_roiToUsdt(val, side, entry, leverage));
     preview.textContent = isNaN(usdt) ? '—' : usdt.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT';
   }
 };
 
-const _switchTpslUnit = (type, entry, side) => {
+const _switchTpslUnit = (type, entry, side, leverage = 1) => {
   const isTp    = type === 'tp';
   const input   = document.getElementById(isTp ? 'tpslModalTp'            : 'tpslModalSl');
   const btn     = document.getElementById(isTp ? 'tpslModalTpUnit'        : 'tpslModalSlUnit');
@@ -479,7 +479,7 @@ const _switchTpslUnit = (type, entry, side) => {
   if (!isNaN(val) && val !== 0) {
     // USDT→ROI%: 결과는 부호 포함 (TP=양수, SL=음수)
     // ROI%→USDT: roi가 음수여도 올바른 가격 반환
-    input.value = current === 'USDT' ? _usdtToRoi(val, side, entry) : _roiToUsdt(val, side, entry);
+    input.value = current === 'USDT' ? _usdtToRoi(val, side, entry, leverage) : _roiToUsdt(val, side, entry, leverage);
   }
   if (isTp) _tpslUnit.tp = newUnit; else _tpslUnit.sl = newUnit;
   btn.textContent = newUnit;
@@ -496,7 +496,7 @@ const _switchTpslUnit = (type, entry, side) => {
   } else {
     wrap?.classList.remove('tpsl-modal__slider-wrap--visible');
   }
-  _updateTpslPreview(type, entry, side);
+  _updateTpslPreview(type, entry, side, leverage);
 };
 
 const openTpslModal = (pos) => {
@@ -520,8 +520,8 @@ const openTpslModal = (pos) => {
     if (slider) slider.value = t === 'tp' ? 10 : -10;
   });
 
-  _updateTpslPreview('tp', pos.entryPrice, pos.side);
-  _updateTpslPreview('sl', pos.entryPrice, pos.side);
+  _updateTpslPreview('tp', pos.entryPrice, pos.side, pos.leverage);
+  _updateTpslPreview('sl', pos.entryPrice, pos.side, pos.leverage);
 
   const hint = pos.side === 'long'
     ? `롱: TP 가격 > 진입가(${_fmt(pos.entryPrice)}), SL 가격 < 진입가 | ROI%: SL은 음수(-5% 등)`
@@ -556,8 +556,8 @@ const saveTpsl = () => {
          : (slRaw <= 0 ? null : slRaw);                              // USDT는 양수
 
   // ROI% → USDT 변환 (roi가 음수면 그대로 사용)
-  if (tp !== null && _tpslUnit.tp === 'ROI%') tp = parseFloat(_roiToUsdt(tp, pos.side, entry));
-  if (sl !== null && _tpslUnit.sl === 'ROI%') sl = parseFloat(_roiToUsdt(sl, pos.side, entry));
+  if (tp !== null && _tpslUnit.tp === 'ROI%') tp = parseFloat(_roiToUsdt(tp, pos.side, entry, pos.leverage));
+  if (sl !== null && _tpslUnit.sl === 'ROI%') sl = parseFloat(_roiToUsdt(sl, pos.side, entry, pos.leverage));
 
   // 방향 검증
   if (tp !== null) {
@@ -595,21 +595,21 @@ _tpslModal?.addEventListener('click', e => {
   if (inputEl)  inputEl.value  = val;
   if (sliderEl) sliderEl.value = val;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview(type, pos.entryPrice, pos.side);
+  if (pos) _updateTpslPreview(type, pos.entryPrice, pos.side, pos.leverage);
 });
 
 document.getElementById('tpslModalTpUnit')?.addEventListener('click', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _switchTpslUnit('tp', pos.entryPrice, pos.side);
+  if (pos) _switchTpslUnit('tp', pos.entryPrice, pos.side, pos.leverage);
 });
 document.getElementById('tpslModalSlUnit')?.addEventListener('click', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _switchTpslUnit('sl', pos.entryPrice, pos.side);
+  if (pos) _switchTpslUnit('sl', pos.entryPrice, pos.side, pos.leverage);
 });
 
 document.getElementById('tpslModalTp')?.addEventListener('input', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side);
+  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side, pos.leverage);
   if (_tpslUnit.tp === 'ROI%') {
     const v = parseFloat(document.getElementById('tpslModalTp').value);
     const s = document.getElementById('tpslModalTpSlider');
@@ -618,7 +618,7 @@ document.getElementById('tpslModalTp')?.addEventListener('input', () => {
 });
 document.getElementById('tpslModalSl')?.addEventListener('input', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side);
+  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side, pos.leverage);
   if (_tpslUnit.sl === 'ROI%') {
     const v = parseFloat(document.getElementById('tpslModalSl').value);
     const s = document.getElementById('tpslModalSlSlider');
@@ -631,14 +631,14 @@ document.getElementById('tpslModalTpSlider')?.addEventListener('input', () => {
   const i = document.getElementById('tpslModalTp');
   if (i) i.value = s.value;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side);
+  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side, pos.leverage);
 });
 document.getElementById('tpslModalSlSlider')?.addEventListener('input', () => {
   const s = document.getElementById('tpslModalSlSlider');
   const i = document.getElementById('tpslModalSl');
   if (i) i.value = s.value;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side);
+  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side, pos.leverage);
 });
 
 // ===== 버튼 이벤트 (이벤트 위임) =====
