@@ -106,12 +106,14 @@ const executeLimitOrder = (order, fillPrice) => {
     Toast.success(`${base} ${side} 지정가 체결 @ ${_fmt(order.price)}`, '주문 체결');
   }
 
-  // 증거금은 주문 등록 시 이미 차감됨
+  // 증거금은 주문 등록 시 이미 차감됨 / 수수료는 체결 시 차감
   const dir = order.side === 'buy' ? 'long' : 'short';
   h.updateFuturesPos(order.symbol, dir, order.qty, order.price, order.margin,
     order.leverage, order.tp, order.sl);
 
-  h.addTradeRecord(order.side, order.price, order.qty, order.total, order.total * h.FEE_RATE);
+  const limitFee = order.total * h.FEE_RATE;
+  st.futuresUsdt = Math.max(0, st.futuresUsdt - limitFee);
+  h.addTradeRecord(order.side, order.price, order.qty, order.total, limitFee);
   h.saveSnapshot?.(order.price, order.symbol);
   h.savePositions(); h.saveState(); h.updateAvailable();
   renderAll();
@@ -145,11 +147,11 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
     // 부분 청산: 수량과 증거금만 줄임
     pos.qty    -= qty;
     pos.margin -= returnedMargin;
-    st.futuresUsdt += Math.max(0, returnedMargin + pnl);
+    st.futuresUsdt += Math.max(0, returnedMargin + pnl - fee);
   } else {
     // 전체 청산
     st.positions = st.positions.filter(p => p.id !== pos.id);
-    st.futuresUsdt += Math.max(0, pos.margin + pnl);
+    st.futuresUsdt += Math.max(0, pos.margin + pnl - fee);
   }
 
   h.addTradeRecord(closeSide, cp, qty, qty * cp, fee, {

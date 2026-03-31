@@ -185,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const symbol     = typeof BinanceWS !== 'undefined' ? BinanceWS.getSymbol() : 'BTCUSDT';
     const { tp, sl } = getTpSlFromForm(price);
     const margin     = amount / state.leverage;
-    state.futuresUsdt = Math.max(0, state.futuresUsdt - margin);
+    const fee        = amount * FEE_RATE;
+    state.futuresUsdt = Math.max(0, state.futuresUsdt - margin - fee);
     const dir = side === 'buy' ? 'long' : 'short';
     updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, tp, sl);
 

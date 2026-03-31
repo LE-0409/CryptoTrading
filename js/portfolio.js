@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const futuresTotal = futuresUsdt + lockedMargin + futuresPnl;
 
   // ===== 총 실현 PnL (청산 체결 기록에서만 집계) =====
-  // 수수료는 잔고에서 실제로 차감되지 않으므로(기록 전용) realizedPnl 그대로 합산
+  // 수수료는 체결/청산 시 잔고에서 실제로 차감됨 — realizedPnl은 수수료 제외 순수 PnL
   const realizedPnl = trades.reduce((s, r) =>
     r.realizedPnl != null ? s + r.realizedPnl : s, 0);
 
