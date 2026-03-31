@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.futuresUsdt = 100;
       state.positions = []; state.pendingOrders = [];
       tradeHistory = [];
-      [LS_STATE, LS_HISTORY, LS_POSITIONS, LS_PENDING].forEach(k => localStorage.removeItem(k));
+      [LS_STATE, LS_HISTORY, LS_POSITIONS, LS_PENDING, 'ct_snapshots'].forEach(k => localStorage.removeItem(k));
       resetModal.classList.remove('modal-overlay--open');
       updateAvailable(); renderTradeHistory();
       document.dispatchEvent(new CustomEvent('positions:update'));
