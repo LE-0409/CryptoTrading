@@ -77,17 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ===== 포트폴리오 스냅샷 저장 =====
-  const saveSnapshot = (refPrice) => {
+  // refPrice: 방금 체결된 가격, refSymbol: 해당 심볼 (다른 심볼 포지션은 진입가 기준 = PnL 0)
+  const saveSnapshot = (refPrice, refSymbol) => {
     const snapshots = JSON.parse(localStorage.getItem('ct_snapshots') || '[]');
-    const futuresPnl = (state.positions || [])
-      .filter(p => p.mode === 'futures')
-      .reduce((s, p) => {
-        const dir = p.side === 'long' ? 1 : -1;
-        return s + (refPrice - p.entryPrice) * p.qty * dir;
-      }, 0);
+    const futPositions = (state.positions || []).filter(p => p.mode === 'futures');
+    const lockedMargin = futPositions.reduce((s, p) => s + (p.margin ?? 0), 0);
+    const futuresPnl   = futPositions.reduce((s, p) => {
+      const cp  = p.symbol === refSymbol ? refPrice : p.entryPrice;
+      const dir = p.side === 'long' ? 1 : -1;
+      return s + (cp - p.entryPrice) * p.qty * dir;
+    }, 0);
     snapshots.push({
       time:  Math.floor(Date.now() / 1000),
-      total: parseFloat((state.futuresUsdt + futuresPnl).toFixed(2)),
+      total: parseFloat((state.futuresUsdt + lockedMargin + futuresPnl).toFixed(2)),
     });
     if (snapshots.length > 1000) snapshots.shift();
     localStorage.setItem('ct_snapshots', JSON.stringify(snapshots));
@@ -174,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFuturesPos(symbol, dir, btcAmt, price, margin, state.leverage, tp, sl);
 
     addTradeRecord(side, price, btcAmt, amount, amount * FEE_RATE);
-    saveSnapshot(price);
+    saveSnapshot(price, symbol);
     saveState(); savePositions();
     updateAvailable();
     document.dispatchEvent(new CustomEvent('positions:update'));

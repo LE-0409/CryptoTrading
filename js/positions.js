@@ -112,7 +112,7 @@ const executeLimitOrder = (order, fillPrice) => {
     order.leverage, order.tp, order.sl);
 
   h.addTradeRecord(order.side, order.price, order.qty, order.total, order.total * h.FEE_RATE);
-  h.saveSnapshot?.(order.price);
+  h.saveSnapshot?.(order.price, order.symbol);
   h.savePositions(); h.saveState(); h.updateAvailable();
   renderAll();
 };
@@ -157,7 +157,7 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
     triggerPrice: reason === 'tp' ? pos.tp : reason === 'sl' ? pos.sl : null,
     realizedPnl:  pnl,
   });
-  h.saveSnapshot?.(cp);
+  h.saveSnapshot?.(cp, pos.symbol);
   h.savePositions(); h.saveState(); h.updateAvailable();
 
   // ── 토스트 알림 ──
