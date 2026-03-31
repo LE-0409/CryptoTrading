@@ -247,9 +247,10 @@ const _updateCloseEstimate = () => {
   const raw = parseFloat(input.value);
   if (!raw || isNaN(raw) || raw <= 0) { estEl.textContent = '—'; estEl.className = 'close-modal__estimate-val'; return; }
 
+  // qty 모드: raw = 증거금(margin) 기준 USDT → qty 변환
   const closeQty = _closeMode === 'pct'
     ? pos.qty * (Math.min(raw, 100) / 100)
-    : Math.min(raw, pos.qty);
+    : pos.qty * Math.min(raw / pos.margin, 1);
 
   const pnl = (cp - pos.entryPrice) * closeQty * dir;
   estEl.textContent = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
@@ -279,16 +280,16 @@ const openCloseModal = (pos) => {
   document.getElementById('closeModeQty').classList.add('close-modal__mode-tab--active');
   document.getElementById('closeModePct').classList.remove('close-modal__mode-tab--active');
 
-  // 입력 초기화 (100% = 전체 수량)
+  // 입력 초기화 (100% = 투자 증거금, USDT 단위)
   const input  = document.getElementById('closeModalInput');
   const slider = document.getElementById('closeModalSlider');
   const unit   = document.getElementById('closeModalUnit');
-  input.value  = pos.qty.toFixed(6);
+  input.value  = pos.margin.toFixed(2);
   input.step   = 'any';
-  input.max    = pos.qty;
+  input.max    = pos.margin;
   input.placeholder = '0';
   slider.value = 100;
-  unit.textContent  = base;
+  unit.textContent  = 'USDT';
 
   document.getElementById('closeModalEstPnl').textContent = (pnl >= 0 ? '+' : '') + _fmt(pnl) + ' USDT';
   document.getElementById('closeModalEstPnl').className   = 'close-modal__estimate-val ' + (pnl >= 0 ? 'close-modal__estimate-val--up' : 'close-modal__estimate-val--down');
@@ -313,7 +314,7 @@ const _confirmClose = () => {
 
   const closeQty = _closeMode === 'pct'
     ? pos.qty * (Math.min(raw, 100) / 100)
-    : Math.min(raw, pos.qty);
+    : pos.qty * Math.min(raw / pos.margin, 1);
 
   _closeCloseModal();
   closePosition(pos, 'manual', closeQty);
@@ -325,15 +326,14 @@ document.getElementById('closeModeQty')?.addEventListener('click', () => {
   _closeMode = 'qty';
   const pos = window._st?.positions?.find(p => p.id === _closePosId);
   if (!pos) return;
-  const base   = pos.symbol.replace('USDT', '');
   const input  = document.getElementById('closeModalInput');
   const slider = document.getElementById('closeModalSlider');
   const unit   = document.getElementById('closeModalUnit');
   const pct    = parseFloat(slider.value) || 100;
-  input.value  = (pos.qty * pct / 100).toFixed(6);
+  input.value  = (pos.margin * pct / 100).toFixed(2);
   input.step   = 'any';
-  input.max    = pos.qty;
-  unit.textContent = base;
+  input.max    = pos.margin;
+  unit.textContent = 'USDT';
   document.getElementById('closeModeQty').classList.add('close-modal__mode-tab--active');
   document.getElementById('closeModePct').classList.remove('close-modal__mode-tab--active');
   _updateCloseEstimate();
@@ -347,8 +347,8 @@ document.getElementById('closeModePct')?.addEventListener('click', () => {
   const input  = document.getElementById('closeModalInput');
   const slider = document.getElementById('closeModalSlider');
   const unit   = document.getElementById('closeModalUnit');
-  const qty    = parseFloat(input.value) || pos.qty;
-  const pct    = Math.min(qty / pos.qty * 100, 100);
+  const usdt   = parseFloat(input.value) || pos.margin;
+  const pct    = Math.min(usdt / pos.margin * 100, 100);
   input.value  = pct.toFixed(1);
   input.step   = '0.1';
   input.max    = 100;
@@ -369,7 +369,7 @@ document.getElementById('closeModalInput')?.addEventListener('input', () => {
   if (!isNaN(raw) && raw > 0) {
     const pct = _closeMode === 'pct'
       ? Math.min(raw, 100)
-      : Math.min(raw / pos.qty * 100, 100);
+      : Math.min(raw / pos.margin * 100, 100);
     slider.value = pct;
   }
   _updateCloseEstimate();
@@ -384,7 +384,7 @@ document.getElementById('closeModalSlider')?.addEventListener('input', () => {
   if (_closeMode === 'pct') {
     input.value = pct.toFixed(1);
   } else {
-    input.value = (pos.qty * pct / 100).toFixed(6);
+    input.value = (pos.margin * pct / 100).toFixed(2);
   }
   _updateCloseEstimate();
 });
@@ -403,7 +403,7 @@ _closeModal?.addEventListener('click', e => {
   if (_closeMode === 'pct') {
     input.value = pct.toFixed(1);
   } else {
-    input.value = (pos.qty * pct / 100).toFixed(6);
+    input.value = (pos.margin * pct / 100).toFixed(2);
   }
   _updateCloseEstimate();
 });
