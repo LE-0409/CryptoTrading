@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsBtn      = document.getElementById('settingsBtn');
   const settingsDropdown = document.getElementById('settingsDropdown');
 
-  if (settingsBtn) {
+  if (settingsBtn && settingsDropdown) {
     settingsBtn.addEventListener('click', e => {
       e.stopPropagation();
       settingsDropdown.classList.toggle('settings-dropdown--open');

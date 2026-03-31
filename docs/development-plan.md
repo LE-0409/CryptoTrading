@@ -1,6 +1,6 @@
 # CryptoTrading 개발 계획
 
-## 현재 상태 (2026-03-30 기준)
+## 현재 상태 (2026-03-31 기준)
 
 ### 완료
 - UI 레이아웃 완성 (HTML/CSS 전체)
@@ -412,7 +412,8 @@ CryptoTrading/
 │   ├── modal.css
 │   ├── toast.css
 │   ├── history.css
-│   └── portfolio.css
+│   ├── portfolio.css
+│   └── mobile.css
 ├── js/
 │   ├── main.js       # UI 인터랙션, 탭 전환, 모달
 │   ├── api.js        # Binance WebSocket 연결 관리
@@ -425,7 +426,8 @@ CryptoTrading/
 │   ├── funding.js    # 펀딩비
 │   ├── history.js    # 거래내역 페이지
 │   ├── portfolio.js  # 포트폴리오 페이지
-│   └── toast.js      # 토스트 알림
+│   ├── toast.js      # 토스트 알림
+│   └── mobile.js     # 모바일 패널 전환 & 사이드바 토글
 └── docs/
     └── development-plan.md
 ```

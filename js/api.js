@@ -44,6 +44,7 @@ const BinanceWS = (() => {
 
   // DOMContentLoaded 이후 자동 시작
   document.addEventListener('DOMContentLoaded', connect);
+  window.addEventListener('beforeunload', () => { alive = false; });
 
   return {
     setSymbol:   (s) => { if (s !== activeSym) { activeSym = s; connect(); } },
