@@ -151,6 +151,11 @@
     font-size: 12px;
   }
 
+  /* Portfolio / History: hide balance to prevent header overflow */
+  .page-body .header__balances {
+    display: none;
+  }
+
   .header__balance-label {
     display: none;
   }

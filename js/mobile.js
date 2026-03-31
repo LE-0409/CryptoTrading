@@ -82,6 +82,25 @@
     }
   }
 
+  /* ---- Handle orientation / window resize ---- */
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var body = document.body;
+      if (!isMobile()) {
+        /* Switched to desktop: strip mobile-view-- classes */
+        body.className = body.className.split(' ').filter(function (c) {
+          return c.indexOf('mobile-view--') !== 0;
+        }).join(' ').trim();
+        closeSidebar();
+      } else if (!body.className.match(/mobile-view--\w+/)) {
+        /* Switched to mobile without an active view: default to chart */
+        setMobileView('chart');
+      }
+    }, 150);
+  });
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
