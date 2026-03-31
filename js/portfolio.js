@@ -42,8 +42,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // futuresUsdt = 포지션 증거금이 이미 차감된 잔여 잔고이므로 lockedMargin을 더해야 실제 총 자산
   const futuresTotal = futuresUsdt + lockedMargin + futuresPnl;
 
-  // ===== 총 실현 PnL (체결 내역에서 계산) =====
-  const realizedPnl = trades.reduce((s, r) => s + (r.realizedPnl ?? 0) - r.fee, 0);
+  // ===== 총 실현 PnL (청산 체결 기록에서만 집계) =====
+  // 수수료는 잔고에서 실제로 차감되지 않으므로(기록 전용) realizedPnl 그대로 합산
+  const realizedPnl = trades.reduce((s, r) =>
+    r.realizedPnl != null ? s + r.realizedPnl : s, 0);
 
   // ===== 총 자산 =====
   const totalAsset  = futuresTotal;
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     trades.forEach(r => {
       const date = r.time.slice(0, 10);
       if (!dailyMap[date]) dailyMap[date] = 0;
-      dailyMap[date] += (r.realizedPnl ?? 0) - r.fee;
+      if (r.realizedPnl != null) dailyMap[date] += r.realizedPnl;
     });
 
     const histData = Object.entries(dailyMap)
