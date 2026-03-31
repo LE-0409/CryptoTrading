@@ -168,6 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
     positions
       .filter(pos => pos.symbol === currentSymbol)
       .forEach(pos => {
+        if (pos.entryPrice) {
+          const entryColor = pos.side === 'long' ? '#3a86ff' : '#ff6b9d';
+          _posLines.push({ line: candleSeries.createPriceLine({
+            price: pos.entryPrice,
+            color: entryColor,
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+            title: pos.side === 'long' ? 'Buy' : 'Sell',
+          })});
+        }
         if (pos.mode === 'futures') {
           const liq = pos.side === 'long'
             ? pos.entryPrice * (1 - 1 / pos.leverage)
