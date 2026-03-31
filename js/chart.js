@@ -150,6 +150,65 @@ document.addEventListener('DOMContentLoaded', () => {
     document.dispatchEvent(new CustomEvent('symbol:change', { detail: { symbol } }));
   });
 
+  // ===== 포지션 라인 (청산 / TP / SL) =====
+  let _posLines = [];
+
+  const clearPositionLines = () => {
+    _posLines.forEach(({ line }) => {
+      try { candleSeries.removePriceLine(line); } catch (_) {}
+    });
+    _posLines = [];
+  };
+
+  const updatePositionLines = (positions) => {
+    clearPositionLines();
+    positions
+      .filter(pos => pos.symbol === currentSymbol)
+      .forEach(pos => {
+        if (pos.mode === 'futures') {
+          const liq = pos.side === 'long'
+            ? pos.entryPrice * (1 - 1 / pos.leverage)
+            : pos.entryPrice * (1 + 1 / pos.leverage);
+          _posLines.push({ line: candleSeries.createPriceLine({
+            price: liq,
+            color: '#f6465d',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'Liq',
+          })});
+        }
+        if (pos.tp) {
+          _posLines.push({ line: candleSeries.createPriceLine({
+            price: pos.tp,
+            color: '#0ecb81',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'TP',
+          })});
+        }
+        if (pos.sl) {
+          _posLines.push({ line: candleSeries.createPriceLine({
+            price: pos.sl,
+            color: '#f0b90b',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'SL',
+          })});
+        }
+      });
+  };
+
+  document.addEventListener('positions:changed', ({ detail: { positions } }) => {
+    updatePositionLines(positions);
+  });
+
+  document.addEventListener('symbol:change', () => {
+    updatePositionLines(window._st?.positions || []);
+  });
+
   // ===== 실시간 캔들 업데이트 (WebSocket) =====
   document.addEventListener('binance:kline', ({ detail: d }) => {
     const k      = d.k;

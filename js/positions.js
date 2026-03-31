@@ -16,6 +16,11 @@ const renderPositions = () => {
   if (!st) return;
 
   const positions = st.positions || [];
+  // 차트 라인 갱신 이벤트
+  document.dispatchEvent(new CustomEvent('positions:changed', {
+    detail: { positions }
+  }));
+
   if (!positions.length) {
     tbody.innerHTML = '<tr class="bp-table__empty"><td colspan="11">보유 포지션 없음</td></tr>';
     return;
