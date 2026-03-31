@@ -132,8 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 잔고 표시 업데이트 =====
   const updateAvailable = () => {
     if (availableEl) availableEl.textContent = state.futuresUsdt.toFixed(2) + ' USDT';
+
+    // 헤더 총 평가금액 = 잔고 + 포지션 증거금 + 미실현 PnL
     const futBalEl = document.getElementById('futuresBalance');
-    if (futBalEl) futBalEl.textContent = state.futuresUsdt.toFixed(2);
+    if (futBalEl) {
+      const priceCache = window._priceCache || {};
+      const futPos = (state.positions || []).filter(p => p.mode === 'futures');
+      const lockedMargin = futPos.reduce((s, p) => s + (p.margin ?? 0), 0);
+      const unrealizedPnl = futPos.reduce((s, p) => {
+        const cp  = priceCache[p.symbol] || p.entryPrice;
+        const dir = p.side === 'long' ? 1 : -1;
+        return s + (cp - p.entryPrice) * p.qty * dir;
+      }, 0);
+      const total = state.futuresUsdt + lockedMargin + unrealizedPnl;
+      futBalEl.textContent = total.toFixed(2);
+    }
+
     renderAssets();
     updateInfoRows();
   };

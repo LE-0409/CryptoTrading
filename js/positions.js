@@ -177,7 +177,11 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
 let _renderTimer = null;
 const _scheduleRender = () => {
   if (_renderTimer) return;
-  _renderTimer = setTimeout(() => { renderPositions(); _renderTimer = null; }, 250);
+  _renderTimer = setTimeout(() => {
+    renderPositions();
+    window._orderHelpers?.updateAvailable?.();
+    _renderTimer = null;
+  }, 250);
 };
 
 document.addEventListener('binance:ticker', ({ detail: d }) => {
