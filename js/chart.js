@@ -76,6 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
       candleSeries.setData(candles);
       lineSeries.setData(candles.map(c => ({ time: c.time, value: c.close })));
 
+      // 심볼 전환 시 y축 자동 스케일 리셋 (이전 심볼의 가격대에 고정되는 현상 방지)
+      chart.priceScale('right').applyOptions({ autoScale: true });
+
       // 플레이스홀더 숨기기
       if (placeholder) placeholder.style.display = 'none';
     } catch (err) {
