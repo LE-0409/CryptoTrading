@@ -40,7 +40,16 @@
   }
 
   function init() {
-    /* ---- Mobile nav tab switching ---- */
+    /* ---- Chart icon button: enter chart view ---- */
+    var chartBtn = document.getElementById('mobileChartBtn');
+    if (chartBtn) {
+      chartBtn.addEventListener('click', function () {
+        setMobileView('chart');
+        window.scrollTo(0, 0);
+      });
+    }
+
+    /* ---- Mobile nav items (back button in chart view) ---- */
     document.querySelectorAll('.mobile-nav__item').forEach(function (item) {
       item.addEventListener('click', function () {
         setMobileView(this.dataset.panel);
@@ -78,7 +87,7 @@
 
     /* ---- Ensure a panel is visible on mobile at load ---- */
     if (isMobile() && !document.body.className.match(/mobile-view--\w+/)) {
-      setMobileView('chart');
+      setMobileView('main');
     }
   }
 
@@ -95,8 +104,8 @@
         }).join(' ').trim();
         closeSidebar();
       } else if (!body.className.match(/mobile-view--\w+/)) {
-        /* Switched to mobile without an active view: default to chart */
-        setMobileView('chart');
+        /* Switched to mobile without an active view: default to main */
+        setMobileView('main');
       }
     }, 150);
   });

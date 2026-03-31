@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="css/toast.css" />
   <link rel="stylesheet" href="css/mobile.css" />
 </head>
-<body class="mode-futures mobile-view--chart">
+<body class="mode-futures mobile-view--main">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <div class="app-wrapper">
 
@@ -273,6 +273,11 @@
 
         </div><!-- /.orderbook-section -->
 
+        <!-- Mobile: 차트 진입 버튼 (오더 패널 위) -->
+        <div class="mobile-chart-bar">
+          <button class="mobile-chart-bar__btn" id="mobileChartBtn">↗ 차트</button>
+        </div>
+
         <!-- 통합 트레이드 패널 -->
         <div class="trade-unified-wrapper">
 
@@ -493,12 +498,9 @@
       </div>
     </div>
 
-    <!-- ===== Mobile Bottom Navigation ===== -->
+    <!-- ===== Mobile Bottom Navigation (chart view only: back button) ===== -->
     <nav class="mobile-nav">
-      <button class="mobile-nav__item --active" data-panel="chart">차트</button>
-      <button class="mobile-nav__item" data-panel="orderbook">호가창</button>
-      <button class="mobile-nav__item" data-panel="trade">주문</button>
-      <button class="mobile-nav__item" data-panel="positions">포지션</button>
+      <button class="mobile-nav__item" data-panel="main" id="mobileNavBack">← 메인</button>
     </nav>
 
   </div>

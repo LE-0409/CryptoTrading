@@ -33,6 +33,30 @@
   background-color: var(--bg-hover);
 }
 
+/* ---- Mobile Chart Access Bar (hidden on desktop) ---- */
+.mobile-chart-bar {
+  display: none;
+  align-items: center;
+  padding: 8px 14px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-chart-bar__btn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-brand);
+  background-color: rgba(240, 185, 11, 0.08);
+  border: 1px solid rgba(240, 185, 11, 0.3);
+  transition: background-color 0.15s;
+}
+
+.mobile-chart-bar__btn:hover {
+  background-color: rgba(240, 185, 11, 0.16);
+}
+
 /* ---- Mobile Bottom Navigation (hidden on desktop) ---- */
 .mobile-nav {
   display: none;
@@ -182,8 +206,142 @@
     font-size: 12px;
   }
 
-  /* ---- Main layout: single column flex ---- */
-  .main-layout {
+  /* ---- Sidebar overlay on mobile ---- */
+  .sidebar--open {
+    display: flex !important;
+  }
+
+  /* ---- Modals: full width on small screens ---- */
+  .modal {
+    width: calc(100% - 24px);
+    max-width: 400px;
+  }
+
+
+  /* ====================================================
+     MAIN VIEW  (mobile-view--main)
+     스크롤 가능한 단일 컬럼: 호가창 → 체결내역 → 오더패널 → 포지션
+  ==================================================== */
+
+  /* 앱 래퍼를 스크롤 컨테이너로 전환 */
+  body.mobile-view--main .app-wrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 헤더 & 티커: 상단 고정 */
+  body.mobile-view--main .header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  body.mobile-view--main .ticker-bar {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 199;
+  }
+
+  /* 메인 레이아웃: 자연 높이 (스크롤 가능하게) */
+  body.mobile-view--main .main-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    overflow: visible;
+    gap: 0;
+    background-color: var(--bg-primary);
+  }
+
+  /* 차트 패널: 메인 뷰에서 숨김 */
+  body.mobile-view--main .center-panel {
+    display: none;
+  }
+
+  /* 우측 패널: 수직 스택 (호가창 → 체결내역 → 오더패널) */
+  body.mobile-view--main .right-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    gap: 0;
+  }
+
+  body.mobile-view--main .orderbook-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: visible;
+  }
+
+  body.mobile-view--main .orderbook-wrapper {
+    flex: 0 0 300px;
+    overflow: hidden;
+  }
+
+  body.mobile-view--main .recent-trades-wrapper {
+    flex: 0 0 160px;
+    overflow: hidden;
+  }
+
+  body.mobile-view--main .trade-unified-wrapper {
+    width: 100%;
+    flex: 0 0 auto;
+    overflow-y: visible;
+  }
+
+  /* 차트 진입 버튼: 메인 뷰에서만 표시 */
+  body.mobile-view--main .mobile-chart-bar {
+    display: flex;
+  }
+
+  /* 하단 패널: 포지션만 표시, 자연 높이로 스크롤 가능 */
+  body.mobile-view--main .bottom-panel {
+    flex: 0 0 auto;
+    height: auto;
+    overflow: visible;
+    border-top: 1px solid var(--border);
+  }
+
+  body.mobile-view--main .bottom-panel__tabs {
+    display: none;
+  }
+
+  body.mobile-view--main .bottom-panel__content {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  /* 포지션 패널만 강제 표시 */
+  body.mobile-view--main .bottom-panel__pane {
+    display: none;
+  }
+
+  body.mobile-view--main #panePositions {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  body.mobile-view--main .bp-table-wrap {
+    overflow-x: auto;
+    overflow-y: visible;
+    flex: 0 0 auto;
+  }
+
+  /* 하단 네비: 메인 뷰에서 숨김 */
+  body.mobile-view--main .mobile-nav {
+    display: none;
+  }
+
+
+  /* ====================================================
+     CHART VIEW  (mobile-view--chart)
+     전체 화면 차트 + 하단 메인 뒤로 버튼
+  ==================================================== */
+
+  body.mobile-view--chart .main-layout {
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
@@ -193,113 +351,34 @@
     background-color: var(--bg-primary);
   }
 
-  /* Hide all main panels by default */
-  .center-panel {
-    display: none;
-  }
-
-  .right-panel {
-    display: none;
-  }
-
-  /* ---- Show chart panel ---- */
   body.mobile-view--chart .center-panel {
     display: flex;
     flex: 1 1 0;
     min-height: 0;
   }
 
-  /* ---- Show orderbook panel ---- */
-  body.mobile-view--orderbook .right-panel {
-    display: flex;
-    flex: 1 1 0;
-    min-height: 0;
-    flex-direction: column;
-  }
-
-  body.mobile-view--orderbook .trade-unified-wrapper {
+  body.mobile-view--chart .right-panel {
     display: none;
   }
 
-  /* ---- Show trade panel ---- */
-  body.mobile-view--trade .right-panel {
-    display: flex;
-    flex: 1 1 0;
-    min-height: 0;
-    flex-direction: column;
-  }
-
-  body.mobile-view--trade .orderbook-section {
-    display: none;
-  }
-
-  /* Trade panel: full width, scrollable */
-  .trade-unified-wrapper {
-    width: 100%;
-    flex: 1 1 0;
-    overflow-y: auto;
-  }
-
-  /* ---- Positions panel: swap main-layout ↔ bottom-panel ---- */
-  .bottom-panel {
+  body.mobile-view--chart .bottom-panel {
     flex: 0 0 0;
     overflow: hidden;
+  }
+
+  /* 뒤로 버튼: 차트 뷰에서만 표시 */
+  body.mobile-view--chart .mobile-nav {
+    display: flex;
+    justify-content: center;
+  }
+
+  body.mobile-view--chart .mobile-nav__item {
     border-top: none;
-  }
-
-  body.mobile-view--positions .main-layout {
-    flex: 0 0 0;
-    overflow: hidden;
-  }
-
-  body.mobile-view--positions .bottom-panel {
-    flex: 1 1 0;
-    overflow: hidden;
-    border-top: 1px solid var(--border);
-  }
-
-  /* ---- Sidebar overlay on mobile ---- */
-  .sidebar--open {
-    display: flex !important;
-  }
-
-  /* ---- Orderbook: fill remaining height ---- */
-  .right-panel {
-    gap: 0;
-  }
-
-  .orderbook-section {
-    gap: 0;
-  }
-
-  .orderbook-wrapper {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-
-  .recent-trades-wrapper {
-    flex: 0 0 150px;
-  }
-
-  /* ---- Mobile nav: visible ---- */
-  .mobile-nav {
-    display: flex;
-  }
-
-  /* ---- Modals: full width on small screens ---- */
-  .modal {
-    width: calc(100% - 24px);
-    max-width: 400px;
-  }
-
-  /* ---- Bottom panel tabs: scrollable ---- */
-  .bottom-panel__tabs {
-    overflow-x: auto;
-    padding: 0 8px;
-  }
-
-  .bottom-panel__tabs::-webkit-scrollbar {
-    display: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: none;
+    padding: 0 32px;
   }
 }
 
