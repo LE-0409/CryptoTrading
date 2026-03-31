@@ -33,6 +33,11 @@
   background-color: var(--bg-hover);
 }
 
+/* ---- Mobile Scroll Area: transparent on desktop ---- */
+.mobile-scroll-area {
+  display: contents;
+}
+
 /* ---- Mobile Chart Access Bar (hidden on desktop) ---- */
 .mobile-chart-bar {
   display: none;
@@ -220,30 +225,21 @@
 
   /* ====================================================
      MAIN VIEW  (mobile-view--main)
-     스크롤 가능한 단일 컬럼: 호가창 → 체결내역 → 오더패널 → 포지션
+     호가창(좌) + 오더패널(우) — 하단에 포지션 패널 스크롤
   ==================================================== */
 
-  /* 앱 래퍼를 스크롤 컨테이너로 전환 */
-  body.mobile-view--main .app-wrapper {
+  /* 스크롤 래퍼: 헤더·티커 아래 남은 공간을 채우고 세로 스크롤 */
+  body.mobile-view--main .mobile-scroll-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* 헤더 & 티커: 상단 고정 */
-  body.mobile-view--main .header {
-    position: sticky;
-    top: 0;
-    z-index: 200;
-  }
-
-  body.mobile-view--main .ticker-bar {
-    position: sticky;
-    top: var(--header-height);
-    z-index: 199;
-  }
-
-  /* 메인 레이아웃: 자연 높이 (스크롤 가능하게) */
+  /* 메인 레이아웃: 자연 높이 */
   body.mobile-view--main .main-layout {
     display: flex;
     flex-direction: column;
@@ -253,50 +249,60 @@
     background-color: var(--bg-primary);
   }
 
-  /* 차트 패널: 메인 뷰에서 숨김 */
+  /* 차트 패널: 숨김 */
   body.mobile-view--main .center-panel {
     display: none;
   }
 
-  /* 우측 패널: 수직 스택 (호가창 → 체결내역 → 오더패널) */
+  /* 우측 패널: 좌우 2컬럼 그리드 (호가창 | 차트버튼+오더패널) */
   body.mobile-view--main .right-panel {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    overflow: visible;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    height: 480px;
+    overflow: hidden;
     gap: 0;
   }
 
+  /* 호가창 + 체결내역: 좌측 컬럼 (2행 모두 차지) */
   body.mobile-view--main .orderbook-section {
+    grid-column: 1;
+    grid-row: 1 / 3;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     gap: 0;
-    overflow: visible;
+    border-right: 1px solid var(--border);
   }
 
   body.mobile-view--main .orderbook-wrapper {
-    flex: 0 0 300px;
+    flex: 1 1 0;
+    min-height: 0;
     overflow: hidden;
   }
 
   body.mobile-view--main .recent-trades-wrapper {
-    flex: 0 0 160px;
+    flex: 0 0 140px;
     overflow: hidden;
   }
 
-  body.mobile-view--main .trade-unified-wrapper {
-    width: 100%;
-    flex: 0 0 auto;
-    overflow-y: visible;
-  }
-
-  /* 차트 진입 버튼: 메인 뷰에서만 표시 */
+  /* 차트 진입 버튼: 우측 상단 (1행) */
   body.mobile-view--main .mobile-chart-bar {
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
   }
 
-  /* 하단 패널: 포지션만 표시, 자연 높이로 스크롤 가능 */
+  /* 오더 패널: 우측 하단 (2행), 내부 스크롤 */
+  body.mobile-view--main .trade-unified-wrapper {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    flex: none;
+    overflow-y: auto;
+  }
+
+  /* 포지션 패널: 우측 하단, 자연 높이 */
   body.mobile-view--main .bottom-panel {
     flex: 0 0 auto;
     height: auto;
