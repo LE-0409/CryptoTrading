@@ -16,12 +16,15 @@
   <link rel="stylesheet" href="css/bottom-panel.css" />
   <link rel="stylesheet" href="css/modal.css" />
   <link rel="stylesheet" href="css/toast.css" />
+  <link rel="stylesheet" href="css/mobile.css" />
 </head>
-<body class="mode-futures">
+<body class="mode-futures mobile-view--chart">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <div class="app-wrapper">
 
     <!-- ===== Header ===== -->
     <header class="header">
+      <button class="header__sidebar-btn" id="sidebarToggleBtn">&#9776;</button>
       <div class="header__logo">
         <div class="header__logo-icon">C</div>
         CryptoTrade
@@ -490,6 +493,14 @@
       </div>
     </div>
 
+    <!-- ===== Mobile Bottom Navigation ===== -->
+    <nav class="mobile-nav">
+      <button class="mobile-nav__item --active" data-panel="chart">차트</button>
+      <button class="mobile-nav__item" data-panel="orderbook">호가창</button>
+      <button class="mobile-nav__item" data-panel="trade">주문</button>
+      <button class="mobile-nav__item" data-panel="positions">포지션</button>
+    </nav>
+
   </div>
 
   <!-- ===== 청산 모달 ===== -->
@@ -643,5 +654,6 @@
   <script src="js/positions.js"></script>
   <script src="js/funding.js"></script>
   <script src="js/chart.js"></script>
+  <script src="js/mobile.js"></script>
 </body>
 </html>

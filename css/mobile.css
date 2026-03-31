@@ -1,0 +1,377 @@
+/* ===== Mobile & Tablet Responsive Styles ===== */
+
+/* ---- Sidebar Backdrop ---- */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 490;
+}
+
+.sidebar-backdrop--open {
+  display: block;
+}
+
+/* ---- Sidebar Toggle / Hamburger Button (hidden on desktop) ---- */
+.header__sidebar-btn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 18px;
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+  flex-shrink: 0;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.header__sidebar-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+/* ---- Mobile Bottom Navigation (hidden on desktop) ---- */
+.mobile-nav {
+  display: none;
+  flex-shrink: 0;
+  height: 52px;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+}
+
+.mobile-nav__item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+  border-top: 2px solid transparent;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.mobile-nav__item.--active {
+  color: var(--color-brand);
+  border-top-color: var(--color-brand);
+}
+
+
+/* ======================================
+   LARGE TABLET (≤ 1280px)
+   Sidebar becomes overlay
+====================================== */
+@media (max-width: 1280px) {
+  /* Show hamburger button */
+  .header__sidebar-btn {
+    display: flex;
+  }
+
+  /* Sidebar: fixed overlay */
+  .sidebar {
+    position: fixed;
+    left: calc(-1 * var(--sidebar-width));
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    z-index: 500;
+    transition: left 0.25s ease;
+    border-right: 1px solid var(--border-light);
+    background-color: var(--bg-secondary);
+  }
+
+  .sidebar--open {
+    left: 0;
+  }
+
+  /* 2-column grid (sidebar is removed from grid flow) */
+  .main-layout {
+    grid-template-columns: 1fr var(--right-width);
+  }
+}
+
+
+/* ======================================
+   SMALL TABLET (≤ 900px)
+   Reduce right panel width
+====================================== */
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr 360px;
+  }
+
+  .trade-unified-wrapper {
+    width: 180px;
+  }
+}
+
+
+/* ======================================
+   MOBILE (≤ 768px)
+   Tab-based single panel layout
+====================================== */
+@media (max-width: 768px) {
+
+  /* ---- Header: compact ---- */
+  .header {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .header__logo {
+    font-size: 15px;
+  }
+
+  .header__logo-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  /* Navigation links hidden — replaced by mobile bottom nav */
+  .header__nav {
+    display: none;
+  }
+
+  .header__balance-label {
+    display: none;
+  }
+
+  .header__balance-value {
+    font-size: 13px;
+  }
+
+  /* ---- Ticker bar: compact & horizontal-scrollable ---- */
+  .ticker-bar {
+    padding: 0 12px;
+    gap: 14px;
+  }
+
+  .ticker__price {
+    font-size: 17px;
+  }
+
+  .ticker__stat-label {
+    font-size: 10px;
+  }
+
+  .ticker__stat-value {
+    font-size: 12px;
+  }
+
+  /* ---- Main layout: single column flex ---- */
+  .main-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    gap: 0;
+    background-color: var(--bg-primary);
+  }
+
+  /* Hide all main panels by default */
+  .center-panel {
+    display: none;
+  }
+
+  .right-panel {
+    display: none;
+  }
+
+  /* ---- Show chart panel ---- */
+  body.mobile-view--chart .center-panel {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* ---- Show orderbook panel ---- */
+  body.mobile-view--orderbook .right-panel {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  body.mobile-view--orderbook .trade-unified-wrapper {
+    display: none;
+  }
+
+  /* ---- Show trade panel ---- */
+  body.mobile-view--trade .right-panel {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  body.mobile-view--trade .orderbook-section {
+    display: none;
+  }
+
+  /* Trade panel: full width, scrollable */
+  .trade-unified-wrapper {
+    width: 100%;
+    flex: 1 1 0;
+    overflow-y: auto;
+  }
+
+  /* ---- Positions panel: swap main-layout ↔ bottom-panel ---- */
+  .bottom-panel {
+    flex: 0 0 0;
+    overflow: hidden;
+    border-top: none;
+  }
+
+  body.mobile-view--positions .main-layout {
+    flex: 0 0 0;
+    overflow: hidden;
+  }
+
+  body.mobile-view--positions .bottom-panel {
+    flex: 1 1 0;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---- Sidebar overlay on mobile ---- */
+  .sidebar--open {
+    display: flex !important;
+  }
+
+  /* ---- Orderbook: fill remaining height ---- */
+  .right-panel {
+    gap: 0;
+  }
+
+  .orderbook-section {
+    gap: 0;
+  }
+
+  .orderbook-wrapper {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .recent-trades-wrapper {
+    flex: 0 0 150px;
+  }
+
+  /* ---- Mobile nav: visible ---- */
+  .mobile-nav {
+    display: flex;
+  }
+
+  /* ---- Modals: full width on small screens ---- */
+  .modal {
+    width: calc(100% - 24px);
+    max-width: 400px;
+  }
+
+  /* ---- Bottom panel tabs: scrollable ---- */
+  .bottom-panel__tabs {
+    overflow-x: auto;
+    padding: 0 8px;
+  }
+
+  .bottom-panel__tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+/* ======================================
+   PORTFOLIO & HISTORY PAGES — TABLET
+====================================== */
+@media (max-width: 900px) {
+  .portfolio-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .portfolio-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ======================================
+   PORTFOLIO & HISTORY PAGES — MOBILE
+====================================== */
+@media (max-width: 600px) {
+  /* Header compact for page layouts */
+  .header {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .header__logo {
+    font-size: 15px;
+  }
+
+  .header__logo-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .header__nav {
+    gap: 0;
+  }
+
+  .header__nav-item {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .header__balance-label {
+    display: none;
+  }
+
+  .header__balance-value {
+    font-size: 13px;
+  }
+
+  /* Summary cards: single column */
+  .portfolio-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card__value--large {
+    font-size: 22px;
+  }
+
+  .summary-card__value {
+    font-size: 17px;
+  }
+
+  /* Page content: tighter padding */
+  .page-content {
+    padding: 16px 12px;
+    gap: 14px;
+  }
+
+  /* History tabs: horizontal scroll */
+  .history-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .history-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .history-tab {
+    font-size: 12px;
+    padding: 8px 12px;
+    flex-shrink: 0;
+  }
+}
