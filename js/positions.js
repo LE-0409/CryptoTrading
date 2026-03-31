@@ -421,31 +421,42 @@ const _tpslModal = document.getElementById('tpslModal');
 let _tpslPosId = null;
 let _tpslUnit  = { tp: 'USDT', sl: 'USDT' };
 
-const _usdtToRoi = (usdt, isTp, entry) => {
-  const pct = isTp ? ((usdt - entry) / entry) * 100 : ((entry - usdt) / entry) * 100;
+// ROI 공식: 롱=(현재가-진입가)/진입가, 숏=(진입가-현재가)/진입가
+// TP는 양수(수익), SL은 음수(손실) — isTp 구분 불필요, side만으로 결정
+const _usdtToRoi = (usdt, side, entry) => {
+  const pct = side === 'long'
+    ? ((usdt - entry) / entry) * 100
+    : ((entry - usdt) / entry) * 100;
   return pct.toFixed(2);
 };
-const _roiToUsdt = (roi, isTp, entry) =>
-  (isTp ? entry * (1 + roi / 100) : entry * (1 - roi / 100)).toFixed(2);
+const _roiToUsdt = (roi, side, entry) => {
+  return (side === 'long'
+    ? entry * (1 + roi / 100)
+    : entry * (1 - roi / 100)).toFixed(2);
+};
 
-const _updateTpslPreview = (type, entry) => {
+const _updateTpslPreview = (type, entry, side) => {
   const isTp    = type === 'tp';
   const input   = document.getElementById(isTp ? 'tpslModalTp' : 'tpslModalSl');
   const preview = document.getElementById(isTp ? 'tpslModalTpPreview' : 'tpslModalSlPreview');
   if (!preview) return;
   const val = parseFloat(input.value);
-  if (!val || isNaN(val)) { preview.textContent = '—'; return; }
+  if (isNaN(val)) { preview.textContent = '—'; return; }
   const unit = isTp ? _tpslUnit.tp : _tpslUnit.sl;
   if (unit === 'USDT') {
-    const roi = parseFloat(_usdtToRoi(val, isTp, entry));
-    preview.textContent = isNaN(roi) ? '—' : (isTp ? '+' : '-') + Math.abs(roi).toFixed(2) + '%';
+    // 가격 입력 → ROI% 프리뷰
+    const roi = parseFloat(_usdtToRoi(val, side, entry));
+    if (isNaN(roi)) { preview.textContent = '—'; return; }
+    const sign = roi >= 0 ? '+' : '';
+    preview.textContent = sign + roi.toFixed(2) + '%';
   } else {
-    const usdt = parseFloat(_roiToUsdt(val, isTp, entry));
+    // ROI% 입력 → 가격 프리뷰 (SL은 음수 roi)
+    const usdt = parseFloat(_roiToUsdt(val, side, entry));
     preview.textContent = isNaN(usdt) ? '—' : usdt.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' USDT';
   }
 };
 
-const _switchTpslUnit = (type, entry) => {
+const _switchTpslUnit = (type, entry, side) => {
   const isTp    = type === 'tp';
   const input   = document.getElementById(isTp ? 'tpslModalTp'            : 'tpslModalSl');
   const btn     = document.getElementById(isTp ? 'tpslModalTpUnit'        : 'tpslModalSlUnit');
@@ -454,21 +465,27 @@ const _switchTpslUnit = (type, entry) => {
   const current = isTp ? _tpslUnit.tp : _tpslUnit.sl;
   const newUnit = current === 'USDT' ? 'ROI%' : 'USDT';
   const val = parseFloat(input.value);
-  if (val && !isNaN(val)) {
-    input.value = current === 'USDT' ? _usdtToRoi(val, isTp, entry) : _roiToUsdt(val, isTp, entry);
+  if (!isNaN(val) && val !== 0) {
+    // USDT→ROI%: 결과는 부호 포함 (TP=양수, SL=음수)
+    // ROI%→USDT: roi가 음수여도 올바른 가격 반환
+    input.value = current === 'USDT' ? _usdtToRoi(val, side, entry) : _roiToUsdt(val, side, entry);
   }
   if (isTp) _tpslUnit.tp = newUnit; else _tpslUnit.sl = newUnit;
   btn.textContent = newUnit;
   newUnit === 'ROI%' ? btn.classList.add('tpsl-block__unit-btn--roi') : btn.classList.remove('tpsl-block__unit-btn--roi');
-  // 슬라이더 표시/숨김
+  // 슬라이더 표시/숨김 + 슬라이더 값 동기화
   if (newUnit === 'ROI%') {
     wrap?.classList.add('tpsl-modal__slider-wrap--visible');
     const roiVal = parseFloat(input.value);
-    if (slider && roiVal && !isNaN(roiVal)) slider.value = Math.min(Math.max(roiVal, 0.1), 100);
+    if (slider && !isNaN(roiVal) && roiVal !== 0) {
+      slider.value = isTp
+        ? Math.min(Math.max(roiVal, 0.1), 100)
+        : Math.max(Math.min(roiVal, -0.1), -100);
+    }
   } else {
     wrap?.classList.remove('tpsl-modal__slider-wrap--visible');
   }
-  _updateTpslPreview(type, entry);
+  _updateTpslPreview(type, entry, side);
 };
 
 const openTpslModal = (pos) => {
@@ -489,15 +506,15 @@ const openTpslModal = (pos) => {
     const slider = document.getElementById(t === 'tp' ? 'tpslModalTpSlider'     : 'tpslModalSlSlider');
     if (btn)    { btn.textContent = 'USDT'; btn.classList.remove('tpsl-block__unit-btn--roi'); }
     if (wrap)   wrap.classList.remove('tpsl-modal__slider-wrap--visible');
-    if (slider) slider.value = 10;
+    if (slider) slider.value = t === 'tp' ? 10 : -10;
   });
 
-  _updateTpslPreview('tp', pos.entryPrice);
-  _updateTpslPreview('sl', pos.entryPrice);
+  _updateTpslPreview('tp', pos.entryPrice, pos.side);
+  _updateTpslPreview('sl', pos.entryPrice, pos.side);
 
   const hint = pos.side === 'long'
-    ? `롱: TP는 진입가(${_fmt(pos.entryPrice)}) 초과, SL은 미만`
-    : `숏: TP는 진입가(${_fmt(pos.entryPrice)}) 미만, SL은 초과`;
+    ? `롱: TP 가격 > 진입가(${_fmt(pos.entryPrice)}), SL 가격 < 진입가 | ROI%: SL은 음수(-5% 등)`
+    : `숏: TP 가격 < 진입가(${_fmt(pos.entryPrice)}), SL 가격 > 진입가 | ROI%: SL은 음수(-5% 등)`;
   document.getElementById('tpslModalHint').textContent = hint;
 
   _tpslModal.classList.add('modal-overlay--open');
@@ -521,12 +538,15 @@ const saveTpsl = () => {
 
   const tpRaw = parseFloat(document.getElementById('tpslModalTp').value);
   const slRaw = parseFloat(document.getElementById('tpslModalSl').value);
+  // TP: 양수여야 유효 / SL: ROI%는 음수, USDT는 양수
   let tp = isNaN(tpRaw) || tpRaw <= 0 ? null : tpRaw;
-  let sl = isNaN(slRaw) || slRaw <= 0 ? null : slRaw;
+  let sl = isNaN(slRaw) ? null
+         : _tpslUnit.sl === 'ROI%' ? (slRaw >= 0 ? null : slRaw)   // ROI%는 반드시 음수
+         : (slRaw <= 0 ? null : slRaw);                              // USDT는 양수
 
-  // ROI% → USDT 변환
-  if (tp !== null && _tpslUnit.tp === 'ROI%') tp = parseFloat(_roiToUsdt(tp, true,  entry));
-  if (sl !== null && _tpslUnit.sl === 'ROI%') sl = parseFloat(_roiToUsdt(sl, false, entry));
+  // ROI% → USDT 변환 (roi가 음수면 그대로 사용)
+  if (tp !== null && _tpslUnit.tp === 'ROI%') tp = parseFloat(_roiToUsdt(tp, pos.side, entry));
+  if (sl !== null && _tpslUnit.sl === 'ROI%') sl = parseFloat(_roiToUsdt(sl, pos.side, entry));
 
   // 방향 검증
   if (tp !== null) {
@@ -564,21 +584,21 @@ _tpslModal?.addEventListener('click', e => {
   if (inputEl)  inputEl.value  = val;
   if (sliderEl) sliderEl.value = val;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview(type, pos.entryPrice);
+  if (pos) _updateTpslPreview(type, pos.entryPrice, pos.side);
 });
 
 document.getElementById('tpslModalTpUnit')?.addEventListener('click', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _switchTpslUnit('tp', pos.entryPrice);
+  if (pos) _switchTpslUnit('tp', pos.entryPrice, pos.side);
 });
 document.getElementById('tpslModalSlUnit')?.addEventListener('click', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _switchTpslUnit('sl', pos.entryPrice);
+  if (pos) _switchTpslUnit('sl', pos.entryPrice, pos.side);
 });
 
 document.getElementById('tpslModalTp')?.addEventListener('input', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('tp', pos.entryPrice);
+  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side);
   if (_tpslUnit.tp === 'ROI%') {
     const v = parseFloat(document.getElementById('tpslModalTp').value);
     const s = document.getElementById('tpslModalTpSlider');
@@ -587,11 +607,11 @@ document.getElementById('tpslModalTp')?.addEventListener('input', () => {
 });
 document.getElementById('tpslModalSl')?.addEventListener('input', () => {
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('sl', pos.entryPrice);
+  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side);
   if (_tpslUnit.sl === 'ROI%') {
     const v = parseFloat(document.getElementById('tpslModalSl').value);
     const s = document.getElementById('tpslModalSlSlider');
-    if (s && v && !isNaN(v)) s.value = Math.min(Math.max(v, 0.1), 100);
+    if (s && !isNaN(v) && v !== 0) s.value = Math.max(Math.min(v, -0.1), -100);
   }
 });
 
@@ -600,14 +620,14 @@ document.getElementById('tpslModalTpSlider')?.addEventListener('input', () => {
   const i = document.getElementById('tpslModalTp');
   if (i) i.value = s.value;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('tp', pos.entryPrice);
+  if (pos) _updateTpslPreview('tp', pos.entryPrice, pos.side);
 });
 document.getElementById('tpslModalSlSlider')?.addEventListener('input', () => {
   const s = document.getElementById('tpslModalSlSlider');
   const i = document.getElementById('tpslModalSl');
   if (i) i.value = s.value;
   const pos = window._st?.positions?.find(p => p.id === _tpslPosId);
-  if (pos) _updateTpslPreview('sl', pos.entryPrice);
+  if (pos) _updateTpslPreview('sl', pos.entryPrice, pos.side);
 });
 
 // ===== 버튼 이벤트 (이벤트 위임) =====
