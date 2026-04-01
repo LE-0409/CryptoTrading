@@ -133,3 +133,17 @@
 .chart__ohlcv-chg--up  { font-size: 11px; color: #0ecb81; }
 .chart__ohlcv-chg--dn  { font-size: 11px; color: #f6465d; }
 .chart__ohlcv-vol      { font-size: 11px; color: #d1d4dc; }
+
+@media (max-width: 768px) {
+  .chart__ohlcv-row {
+    gap: 6px;
+    padding: 2px 5px;
+  }
+
+  .chart__ohlcv-lbl             { font-size: 9px; }
+  .chart__ohlcv-val--up,
+  .chart__ohlcv-val--dn,
+  .chart__ohlcv-chg--up,
+  .chart__ohlcv-chg--dn,
+  .chart__ohlcv-vol             { font-size: 10px; }
+}
