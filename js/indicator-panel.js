@@ -53,6 +53,13 @@ const IndicatorPanel = (() => {
   const GROUP_LABELS = { trend: '트렌드', oscillator: '오실레이터', volume: '거래량' };
   const LS_KEY = 'ct_indicators';
 
+  const _fmtV = v => {
+    if (v >= 1e9) return (v / 1e9).toFixed(3) + 'B';
+    if (v >= 1e6) return (v / 1e6).toFixed(3) + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(3) + 'K';
+    return v.toFixed(2);
+  };
+
   // ===== 상태 =====
   let _settings = _loadSettings();
   let _candles = [];
@@ -497,6 +504,7 @@ const IndicatorPanel = (() => {
     _subPanels.rsi = panel;
 
     const data = Indicators.calcRSI(candles, s.period);
+    panel._data = { rsi: data };
     const rsiSeries = panel.chart.addLineSeries({
       color: s.color, lineWidth: 1.5, priceLineVisible: false, title: '',
     });
@@ -514,6 +522,7 @@ const IndicatorPanel = (() => {
     _subPanels.macd = panel;
 
     const { macd, signal, histogram } = Indicators.calcMACD(candles, s.fast, s.slow, s.signal);
+    panel._data = { macd, signal, hist: histogram };
 
     const histSeries = panel.chart.addHistogramSeries({
       priceLineVisible: false, lastValueVisible: false, title: '',
@@ -541,6 +550,7 @@ const IndicatorPanel = (() => {
     _subPanels.stoch = panel;
 
     const { k, d } = Indicators.calcStochastic(candles, s.kPeriod, s.dPeriod);
+    panel._data = { k, d };
 
     const kSeries = panel.chart.addLineSeries({
       color: s.kColor, lineWidth: 1.5, priceLineVisible: false, title: '%K',
@@ -564,6 +574,7 @@ const IndicatorPanel = (() => {
     _subPanels.atr = panel;
 
     const data = Indicators.calcATR(candles, s.period);
+    panel._data = { atr: data };
     const series = panel.chart.addLineSeries({
       color: s.color, lineWidth: 1.5, priceLineVisible: false, title: '',
     });
@@ -578,6 +589,7 @@ const IndicatorPanel = (() => {
     _subPanels.cci = panel;
 
     const data = Indicators.calcCCI(candles, s.period);
+    panel._data = { cci: data };
     const series = panel.chart.addLineSeries({
       color: s.color, lineWidth: 1.5, priceLineVisible: false, title: '',
     });
@@ -602,8 +614,11 @@ const IndicatorPanel = (() => {
     if (!panel) return;
     _subPanels.volume = panel;
 
+    panel._data = {};
+
     if (sVol.enabled) {
       const data = Indicators.calcVolume(_candles, sVol.upColor, sVol.downColor);
+      panel._data.vol = data;
       const volSeries = panel.chart.addHistogramSeries({
         priceLineVisible: false, lastValueVisible: false, title: '',
         priceScaleId: 'vol',
@@ -614,6 +629,7 @@ const IndicatorPanel = (() => {
 
     if (sVMA.enabled) {
       const data = Indicators.calcVolumeMA(_candles, sVMA.period);
+      panel._data.vma = data;
       const vmaSeries = panel.chart.addLineSeries({
         color: sVMA.color, lineWidth: 1.5,
         priceLineVisible: false, lastValueVisible: false, title: '',
@@ -660,12 +676,15 @@ const IndicatorPanel = (() => {
 
     // RSI
     if (_subPanels.rsi?.series.rsi) {
-      try { _subPanels.rsi.series.rsi.setData(Indicators.calcRSI(c, _settings.rsi.period)); } catch {}
+      const d = Indicators.calcRSI(c, _settings.rsi.period);
+      _subPanels.rsi._data = { rsi: d };
+      try { _subPanels.rsi.series.rsi.setData(d); } catch {}
     }
 
     // MACD
     if (_subPanels.macd) {
       const { macd, signal, histogram } = Indicators.calcMACD(c, _settings.macd.fast, _settings.macd.slow, _settings.macd.signal);
+      _subPanels.macd._data = { macd, signal, hist: histogram };
       try {
         _subPanels.macd.series.hist.setData(histogram);
         _subPanels.macd.series.macd.setData(macd);
@@ -676,6 +695,7 @@ const IndicatorPanel = (() => {
     // 스토캐스틱
     if (_subPanels.stoch) {
       const { k, d } = Indicators.calcStochastic(c, _settings.stoch.kPeriod, _settings.stoch.dPeriod);
+      _subPanels.stoch._data = { k, d };
       try {
         _subPanels.stoch.series.k.setData(k);
         _subPanels.stoch.series.d.setData(d);
@@ -684,24 +704,117 @@ const IndicatorPanel = (() => {
 
     // ATR
     if (_subPanels.atr?.series.atr) {
-      try { _subPanels.atr.series.atr.setData(Indicators.calcATR(c, _settings.atr.period)); } catch {}
+      const d = Indicators.calcATR(c, _settings.atr.period);
+      _subPanels.atr._data = { atr: d };
+      try { _subPanels.atr.series.atr.setData(d); } catch {}
     }
 
     // CCI
     if (_subPanels.cci?.series.cci) {
-      try { _subPanels.cci.series.cci.setData(Indicators.calcCCI(c, _settings.cci.period)); } catch {}
+      const d = Indicators.calcCCI(c, _settings.cci.period);
+      _subPanels.cci._data = { cci: d };
+      try { _subPanels.cci.series.cci.setData(d); } catch {}
     }
 
     // Volume
     if (_subPanels.volume) {
+      if (!_subPanels.volume._data) _subPanels.volume._data = {};
       if (_subPanels.volume.series.vol) {
-        try { _subPanels.volume.series.vol.setData(Indicators.calcVolume(c, _settings.volume.upColor, _settings.volume.downColor)); } catch {}
+        const d = Indicators.calcVolume(c, _settings.volume.upColor, _settings.volume.downColor);
+        _subPanels.volume._data.vol = d;
+        try { _subPanels.volume.series.vol.setData(d); } catch {}
       }
       if (_subPanels.volume.series.vma) {
-        try { _subPanels.volume.series.vma.setData(Indicators.calcVolumeMA(c, _settings.volumeMA.period)); } catch {}
+        const d = Indicators.calcVolumeMA(c, _settings.volumeMA.period);
+        _subPanels.volume._data.vma = d;
+        try { _subPanels.volume.series.vma.setData(d); } catch {}
       }
     }
   }
+
+  // ===== 서브패널 타이틀 호버 업데이트 =====
+  function _updateSubPanelTitles(time) {
+    function findVal(data, t) {
+      if (!data || !data.length) return null;
+      if (t === null) return data[data.length - 1];
+      return data.find(d => d.time === t) || null;
+    }
+
+    if (_subPanels.rsi) {
+      const el = document.getElementById('subPanelTitle-rsi');
+      if (el) {
+        const v = findVal(_subPanels.rsi._data?.rsi, time);
+        el.textContent = v ? `RSI(${_settings.rsi.period})  ${v.value.toFixed(2)}` : `RSI(${_settings.rsi.period})`;
+      }
+    }
+
+    if (_subPanels.macd) {
+      const el = document.getElementById('subPanelTitle-macd');
+      if (el) {
+        const { fast, slow, signal } = _settings.macd;
+        const base = `MACD(${fast},${slow},${signal})`;
+        const m  = findVal(_subPanels.macd._data?.macd,   time);
+        const sg = findVal(_subPanels.macd._data?.signal, time);
+        const h  = findVal(_subPanels.macd._data?.hist,   time);
+        el.textContent = (m && sg && h)
+          ? `${base}  MACD: ${m.value.toFixed(2)}  Sig: ${sg.value.toFixed(2)}  Hist: ${h.value.toFixed(2)}`
+          : base;
+      }
+    }
+
+    if (_subPanels.stoch) {
+      const el = document.getElementById('subPanelTitle-stoch');
+      if (el) {
+        const { kPeriod, dPeriod } = _settings.stoch;
+        const base = `Stoch(${kPeriod},${dPeriod})`;
+        const k = findVal(_subPanels.stoch._data?.k, time);
+        const d = findVal(_subPanels.stoch._data?.d, time);
+        el.textContent = (k && d)
+          ? `${base}  %K: ${k.value.toFixed(2)}  %D: ${d.value.toFixed(2)}`
+          : base;
+      }
+    }
+
+    if (_subPanels.atr) {
+      const el = document.getElementById('subPanelTitle-atr');
+      if (el) {
+        const v = findVal(_subPanels.atr._data?.atr, time);
+        el.textContent = v ? `ATR(${_settings.atr.period})  ${v.value.toFixed(2)}` : `ATR(${_settings.atr.period})`;
+      }
+    }
+
+    if (_subPanels.cci) {
+      const el = document.getElementById('subPanelTitle-cci');
+      if (el) {
+        const v = findVal(_subPanels.cci._data?.cci, time);
+        const sign = v && v.value >= 0 ? '+' : '';
+        el.textContent = v ? `CCI(${_settings.cci.period})  ${sign}${v.value.toFixed(2)}` : `CCI(${_settings.cci.period})`;
+      }
+    }
+
+    if (_subPanels.volume) {
+      const el = document.getElementById('subPanelTitle-volume');
+      if (el) {
+        const parts = [];
+        const vol = findVal(_subPanels.volume._data?.vol, time);
+        const vma = findVal(_subPanels.volume._data?.vma, time);
+        if (_settings.volume.enabled   && vol) parts.push(`Vol  ${_fmtV(vol.value)}`);
+        if (_settings.volumeMA.enabled && vma) parts.push(`MA(${_settings.volumeMA.period}): ${_fmtV(vma.value)}`);
+        if (parts.length) {
+          el.textContent = parts.join('  ');
+        } else {
+          el.textContent = [
+            _settings.volume.enabled   ? 'Vol' : null,
+            _settings.volumeMA.enabled ? `MA(${_settings.volumeMA.period})` : null,
+          ].filter(Boolean).join(' · ');
+        }
+      }
+    }
+  }
+
+  document.addEventListener('chart:crosshair', ({ detail: { time } }) => {
+    _updateSubPanelTitles(time);
+  });
 
   // ===== 이벤트 리스너 =====
   document.addEventListener('chart:candles-loaded', ({ detail: { candles } }) => {

@@ -57,6 +57,50 @@ document.addEventListener('DOMContentLoaded', () => {
     visible:    false,
   });
 
+  // ===== OHLCV 오버레이 =====
+  const _ohlcvOverlay = document.createElement('div');
+  _ohlcvOverlay.className = 'chart__ohlcv-overlay';
+  container.appendChild(_ohlcvOverlay);
+
+  const _fmtP = v => v.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const _fmtV = v => {
+    if (v >= 1e9) return (v / 1e9).toFixed(3) + 'B';
+    if (v >= 1e6) return (v / 1e6).toFixed(3) + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(3) + 'K';
+    return v.toFixed(2);
+  };
+
+  let _crosshairActive = false;
+
+  const _updateOhlcv = (candle) => {
+    if (!candle) { _ohlcvOverlay.innerHTML = ''; return; }
+    const bull = candle.close >= candle.open;
+    const vc   = bull ? 'up' : 'dn';
+    const chg  = candle.close - candle.open;
+    const pct  = (chg / candle.open) * 100;
+    const sign = chg >= 0 ? '+' : '';
+    _ohlcvOverlay.innerHTML = `<div class="chart__ohlcv-row">
+      <span class="chart__ohlcv-item"><span class="chart__ohlcv-lbl">O</span><span class="chart__ohlcv-val--${vc}">${_fmtP(candle.open)}</span></span>
+      <span class="chart__ohlcv-item"><span class="chart__ohlcv-lbl">H</span><span class="chart__ohlcv-val--${vc}">${_fmtP(candle.high)}</span></span>
+      <span class="chart__ohlcv-item"><span class="chart__ohlcv-lbl">L</span><span class="chart__ohlcv-val--${vc}">${_fmtP(candle.low)}</span></span>
+      <span class="chart__ohlcv-item"><span class="chart__ohlcv-lbl">C</span><span class="chart__ohlcv-val--${vc}">${_fmtP(candle.close)}</span></span>
+      <span class="chart__ohlcv-chg--${vc}">${sign}${_fmtP(chg)} (${sign}${pct.toFixed(2)}%)</span>
+      <span class="chart__ohlcv-item"><span class="chart__ohlcv-lbl">Vol</span><span class="chart__ohlcv-vol">${_fmtV(candle.volume)}</span></span>
+    </div>`;
+  };
+
+  chart.subscribeCrosshairMove(param => {
+    const cd = param.seriesData?.get(candleSeries);
+    _crosshairActive = !!cd;
+    const candle = cd
+      ? (_currentCandles.find(c => c.time === cd.time) || cd)
+      : (_currentCandles[_currentCandles.length - 1] || null);
+    _updateOhlcv(candle);
+    document.dispatchEvent(new CustomEvent('chart:crosshair', {
+      detail: { time: cd ? cd.time : null },
+    }));
+  });
+
   // ===== 트레이드 마커 =====
   const LS_MARKERS = 'ct_trade_markers';
   let _allMarkers = JSON.parse(localStorage.getItem(LS_MARKERS) || '[]');
@@ -134,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (candles.length) _candleMinTime = candles[0].time;
       applyTradeMarkers();
       document.dispatchEvent(new CustomEvent('chart:candles-loaded', { detail: { candles } }));
+      if (candles.length) _updateOhlcv(candles[candles.length - 1]);
 
       // 심볼 전환 시 y축 자동 스케일 리셋 (이전 심볼의 가격대에 고정되는 현상 방지)
       chart.priceScale('right').applyOptions({ autoScale: true });
@@ -301,6 +346,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     candleSeries.update(candle);
     lineSeries.update({ time: candle.time, value: candle.close });
+    // _currentCandles 동기화 (오버레이 실시간 갱신용)
+    if (_currentCandles.length) {
+      const last = _currentCandles[_currentCandles.length - 1];
+      if (last.time === candle.time) _currentCandles[_currentCandles.length - 1] = candle;
+      else _currentCandles.push(candle);
+    }
+    if (!_crosshairActive) _updateOhlcv(candle);
   });
 
 });

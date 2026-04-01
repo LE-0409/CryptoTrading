@@ -95,3 +95,41 @@
   font-size: 40px;
   opacity: 0.3;
 }
+
+/* ===== OHLCV 호버 오버레이 ===== */
+.chart__ohlcv-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chart__ohlcv-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: rgba(30, 32, 38, 0.75);
+}
+
+.chart__ohlcv-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.chart__ohlcv-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: #848e9c;
+}
+
+.chart__ohlcv-val--up  { font-size: 11px; color: #0ecb81; }
+.chart__ohlcv-val--dn  { font-size: 11px; color: #f6465d; }
+.chart__ohlcv-chg--up  { font-size: 11px; color: #0ecb81; }
+.chart__ohlcv-chg--dn  { font-size: 11px; color: #f6465d; }
+.chart__ohlcv-vol      { font-size: 11px; color: #d1d4dc; }
