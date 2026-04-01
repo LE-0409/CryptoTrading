@@ -56,6 +56,59 @@ document.addEventListener('DOMContentLoaded', () => {
     visible:    false,
   });
 
+  // ===== 트레이드 마커 =====
+  const LS_MARKERS = 'ct_trade_markers';
+  let _allMarkers = JSON.parse(localStorage.getItem(LS_MARKERS) || '[]');
+  let _candleMinTime = 0;
+
+  const snapToCandleTime = (ts) => {
+    const secs = {
+      '1m': 60, '3m': 180, '5m': 300, '15m': 900, '30m': 1800,
+      '1h': 3600, '2h': 7200, '4h': 14400, '6h': 21600, '12h': 43200,
+      '1d': 86400, '1w': 604800,
+    }[currentInterval] || 3600;
+    return Math.floor(ts / secs) * secs;
+  };
+
+  const applyTradeMarkers = () => {
+    const seen = new Set();
+    const markers = _allMarkers
+      .filter(m => m.symbol === currentSymbol)
+      .map(({ symbol: _s, ...rest }) => ({ ...rest, time: snapToCandleTime(rest.time) }))
+      .filter(m => m.time >= _candleMinTime)
+      .sort((a, b) => a.time - b.time)
+      .filter(m => { if (seen.has(m.time)) return false; seen.add(m.time); return true; });
+    try { candleSeries.setMarkers(markers); } catch (e) { console.warn('[chart] setMarkers 오류:', e); }
+  };
+
+  document.addEventListener('trade:marker', ({ detail: d }) => {
+    const time = snapToCandleTime(d.time);
+    let position, color, shape, text;
+
+    if (d.type === 'open') {
+      if (d.side === 'buy') {
+        position = 'belowBar'; shape = 'arrowUp'; color = '#0ecb81'; text = '롱';
+      } else {
+        position = 'aboveBar'; shape = 'arrowDown'; color = '#f6465d'; text = '숏';
+      }
+    } else {
+      // close
+      const isLong = d.posSide === 'long';
+      position = isLong ? 'aboveBar' : 'belowBar';
+      shape    = isLong ? 'arrowDown' : 'arrowUp';
+      if (d.reason === 'tp')          { color = '#0ecb81'; text = 'TP'; }
+      else if (d.reason === 'sl')     { color = '#f0b90b'; text = 'SL'; }
+      else if (d.reason === 'liquidation') { color = '#f6465d'; text = 'Liq'; }
+      else                            { color = '#848e9c'; text = '청산'; }
+    }
+
+    _allMarkers.push({ symbol: d.symbol, time, position, color, shape, text });
+    if (_allMarkers.length > 2000) _allMarkers = _allMarkers.slice(-2000);
+    localStorage.setItem(LS_MARKERS, JSON.stringify(_allMarkers));
+
+    if (d.symbol === currentSymbol) applyTradeMarkers();
+  });
+
   // ===== Binance klines 조회 =====
   const fetchKlines = async (symbol, interval) => {
     try {
@@ -75,6 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       candleSeries.setData(candles);
       lineSeries.setData(candles.map(c => ({ time: c.time, value: c.close })));
+      if (candles.length) _candleMinTime = candles[0].time;
+      applyTradeMarkers();
 
       // 심볼 전환 시 y축 자동 스케일 리셋 (이전 심볼의 가격대에 고정되는 현상 방지)
       chart.priceScale('right').applyOptions({ autoScale: true });

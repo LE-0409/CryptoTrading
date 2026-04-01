@@ -121,6 +121,9 @@ const executeLimitOrder = (order, fillPrice) => {
   h.addTradeRecord(order.side, order.price, order.qty, order.total, limitFee);
   h.saveSnapshot?.(order.price, order.symbol);
   h.savePositions(); h.saveState(); h.updateAvailable();
+  document.dispatchEvent(new CustomEvent('trade:marker', {
+    detail: { symbol: order.symbol, time: Math.floor(Date.now() / 1000), side: order.side, type: 'open' }
+  }));
   renderAll();
 };
 
@@ -166,6 +169,9 @@ const closePosition = (pos, reason = 'manual', closeQty) => {
   });
   h.saveSnapshot?.(cp, pos.symbol);
   h.savePositions(); h.saveState(); h.updateAvailable();
+  document.dispatchEvent(new CustomEvent('trade:marker', {
+    detail: { symbol: pos.symbol, time: Math.floor(Date.now() / 1000), side: closeSide, posSide: pos.side, type: 'close', reason }
+  }));
 
   // ── 토스트 알림 ──
   if (typeof Toast !== 'undefined') {

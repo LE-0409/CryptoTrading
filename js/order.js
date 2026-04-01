@@ -200,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSnapshot(price, symbol);
     saveState(); savePositions();
     updateAvailable();
+    document.dispatchEvent(new CustomEvent('trade:marker', {
+      detail: { symbol, time: Math.floor(Date.now() / 1000), side, type: 'open' }
+    }));
     document.dispatchEvent(new CustomEvent('positions:update'));
   };
 
