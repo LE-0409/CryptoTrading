@@ -67,11 +67,15 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 #tradingChart {
+  flex: 1;
+  min-height: 160px;
   width: 100%;
-  height: 100%;
+  overflow: hidden;
 }
 
 /* Placeholder shown before chart library loads */

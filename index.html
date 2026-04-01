@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/modal.css" />
   <link rel="stylesheet" href="css/toast.css" />
   <link rel="stylesheet" href="css/mobile.css" />
+  <link rel="stylesheet" href="css/indicators.css" />
 </head>
 <body class="mode-futures mobile-view--main">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -143,6 +144,8 @@
             <div class="chart__toolbar-divider"></div>
             <button class="chart__type-btn">캔들</button>
             <button class="chart__type-btn">라인</button>
+            <div class="chart__toolbar-divider"></div>
+            <button class="chart__ind-btn" id="indBtn">지표</button>
           </div>
           <div class="chart__canvas">
             <div id="tradingChart"></div>
@@ -630,6 +633,35 @@
     </div>
   </div>
 
+  <!-- ===== 지표 선택 패널 ===== -->
+  <div class="ind-panel-overlay" id="indPanelOverlay">
+    <div class="ind-panel">
+      <div class="ind-panel__header">
+        <span class="ind-panel__header-title">보조 지표</span>
+        <button class="ind-panel__close-btn" id="indPanelClose">✕</button>
+      </div>
+      <div class="ind-panel__search">
+        <input class="ind-panel__search-input" type="text" placeholder="검색..." id="indPanelSearch" />
+      </div>
+      <div class="ind-panel__list" id="indPanelList"></div>
+    </div>
+  </div>
+
+  <!-- ===== 지표 설정 모달 ===== -->
+  <div class="modal-overlay" id="indSettingsModal">
+    <div class="modal ind-settings-modal">
+      <div class="modal__header">
+        <span class="modal__title" id="indSettingsTitle">지표 설정</span>
+        <button class="modal__close" id="indSettingsClose">✕</button>
+      </div>
+      <div class="modal__body" id="indSettingsBody"></div>
+      <div class="modal__footer">
+        <button class="modal__btn modal__btn--cancel" id="indSettingsCancel">취소</button>
+        <button class="modal__btn modal__btn--confirm" id="indSettingsConfirm">적용</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 초기화 확인 모달 ===== -->
   <div class="modal-overlay" id="resetModal">
     <div class="modal">
@@ -659,7 +691,9 @@
   <script src="js/main.js"></script>
   <script src="js/order.js"></script>
   <script src="js/positions.js"></script>
+  <script src="js/indicators.js"></script>
   <script src="js/chart.js"></script>
+  <script src="js/indicator-panel.js"></script>
   <script src="js/mobile.js"></script>
 </body>
 </html>

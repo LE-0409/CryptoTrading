@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentSymbol   = 'BTCUSDT';
   let currentInterval = '1h';
   let chartType       = 'candlestick'; // 'candlestick' | 'line'
+  let _currentCandles = [];
 
   // ===== 차트 생성 =====
   const chart = LightweightCharts.createChart(container, {
@@ -119,17 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!Array.isArray(data)) throw new Error('데이터 형식 오류');
 
       const candles = data.map(k => ({
-        time:  k[0] / 1000,           // ms → s
-        open:  parseFloat(k[1]),
-        high:  parseFloat(k[2]),
-        low:   parseFloat(k[3]),
-        close: parseFloat(k[4]),
+        time:   k[0] / 1000,           // ms → s
+        open:   parseFloat(k[1]),
+        high:   parseFloat(k[2]),
+        low:    parseFloat(k[3]),
+        close:  parseFloat(k[4]),
+        volume: parseFloat(k[5]),
       }));
 
+      _currentCandles = candles;
       candleSeries.setData(candles);
       lineSeries.setData(candles.map(c => ({ time: c.time, value: c.close })));
       if (candles.length) _candleMinTime = candles[0].time;
       applyTradeMarkers();
+      document.dispatchEvent(new CustomEvent('chart:candles-loaded', { detail: { candles } }));
 
       // 심볼 전환 시 y축 자동 스케일 리셋 (이전 심볼의 가격대에 고정되는 현상 방지)
       chart.priceScale('right').applyOptions({ autoScale: true });
@@ -142,6 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.querySelector('span:last-child').textContent = '차트 로딩 실패 — 새로고침';
       }
     }
+  };
+
+  // ===== ChartCore 전역 노출 (indicator-panel.js에서 사용) =====
+  window.ChartCore = {
+    chart,
+    getCandles: () => _currentCandles,
   };
 
   // ===== 초기 로딩 =====
@@ -282,11 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('binance:kline', ({ detail: d }) => {
     const k      = d.k;
     const candle = {
-      time:  k.t / 1000,
-      open:  parseFloat(k.o),
-      high:  parseFloat(k.h),
-      low:   parseFloat(k.l),
-      close: parseFloat(k.c),
+      time:   k.t / 1000,
+      open:   parseFloat(k.o),
+      high:   parseFloat(k.h),
+      low:    parseFloat(k.l),
+      close:  parseFloat(k.c),
+      volume: parseFloat(k.v),
     };
     candleSeries.update(candle);
     lineSeries.update({ time: candle.time, value: candle.close });
