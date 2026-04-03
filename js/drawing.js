@@ -26,6 +26,10 @@
   let dragStart      = null;   // {x, y} pixels at drag start
   let dragOrigPoints = null;   // deep-copy of points before drag
 
+  let rulerStart   = null;     // {price, time} — ruler tool anchor
+  let rulerCurrent = null;     // {price, time} — ruler tool live end
+  let rulerPhase   = 0;        // 0=idle, 1=placing end, 2=confirmed
+
   let currentSymbol = 'BTCUSDT';
   let fibModalId    = null;
   let rafId         = null;
@@ -38,6 +42,7 @@
     cursor: 0, trendline: 2, ray: 2,
     hline: 1,  vline: 1,    rect: 2,
     fib_ret: 2, fib_channel: 3,
+    ruler: 0,
   };
 
   const DEFAULT_STYLE = { color: '#f0b90b', lineWidth: 2, lineStyle: 'solid' };
@@ -224,10 +229,13 @@
   }
 
   function setTool(tool) {
-    activeTool = tool;
-    isDrawing  = false;
-    drawPoints = [];
-    snapInfo   = null;
+    activeTool   = tool;
+    isDrawing    = false;
+    drawPoints   = [];
+    snapInfo     = null;
+    rulerStart   = null;
+    rulerCurrent = null;
+    rulerPhase   = 0;
 
     document.querySelectorAll('[data-tool]').forEach(btn =>
       btn.classList.toggle('drawing-tool-btn--active', btn.dataset.tool === tool));
@@ -276,13 +284,22 @@
       return;
     }
 
+    // Ruler mode — update live end point while placing
+    if (activeTool === 'ruler' && rulerPhase === 1) {
+      const pt = pixelToPt(x, y);
+      if (pt) rulerCurrent = pt;
+      scheduleRender();
+      return;
+    }
+
     // Drawing mode — update snap preview
     applyMagnet(x, y);
     scheduleRender();
   }
 
   function onMouseDown(e) {
-    if (e.button !== 0 || activeTool !== 'cursor') return;
+    if (e.button !== 0 || activeTool === 'ruler') return;
+    if (activeTool !== 'cursor') return;
     const { x, y } = relPos(e);
     const id = hitTest(x, y);
     selectedId = id;
@@ -305,6 +322,24 @@
 
   function onMouseClick(e) {
     if (activeTool === 'cursor') return;
+
+    if (activeTool === 'ruler') {
+      const { x, y } = relPos(e);
+      const pt = pixelToPt(x, y);
+      if (!pt) return;
+      if (rulerPhase === 0 || rulerPhase === 2) {
+        // 첫 클릭 or 완료 후 재시작: 시작점 설정
+        rulerStart   = pt;
+        rulerCurrent = pt;
+        rulerPhase   = 1;
+      } else {
+        // 두 번째 클릭: 끝점 확정, 화면 유지
+        rulerCurrent = pt;
+        rulerPhase   = 2;
+      }
+      scheduleRender();
+      return;
+    }
     const { x, y } = relPos(e);
     const snapped   = applyMagnet(x, y);
     const pt        = pixelToPt(snapped.x, snapped.y);
@@ -556,6 +591,8 @@
       renderPreview();
     }
 
+    renderRuler();
+
     // Magnet snap indicator
     if (snapInfo && isMagnetOn && activeTool !== 'cursor') {
       ctx.save();
@@ -597,6 +634,106 @@
       const px = ptToPixel(pt.price, pt.time);
       if (px) drawAnchorDot(px.x, px.y);
     }
+  }
+
+  function renderRuler() {
+    if (!rulerStart || !rulerCurrent) return;
+
+    const x1 = timeToX(rulerStart.time);
+    const y1 = candleSeries.priceToCoordinate(rulerStart.price);
+    const x2 = timeToX(rulerCurrent.time);
+    const y2 = candleSeries.priceToCoordinate(rulerCurrent.price);
+    if (x1 === null || y1 === null || x2 === null || y2 === null) return;
+
+    const isUp      = rulerCurrent.price >= rulerStart.price;
+    const color     = isUp ? '#0ecb81' : '#f6465d';
+    const priceDiff = rulerCurrent.price - rulerStart.price;
+    const pctChange = (priceDiff / rulerStart.price) * 100;
+    const sign      = priceDiff >= 0 ? '+' : '';
+
+    // Bar count
+    const candles = window.ChartCore.getCandles();
+    const tMin    = Math.min(rulerStart.time, rulerCurrent.time);
+    const tMax    = Math.max(rulerStart.time, rulerCurrent.time);
+    const barCount = candles.filter(c => c.time >= tMin && c.time <= tMax).length;
+
+    const w = cW(), h = cH();
+
+    ctx.save();
+
+    // Semi-transparent fill
+    const rx = Math.min(x1, x2), ry = Math.min(y1, y2);
+    const rw = Math.abs(x2 - x1), rh = Math.abs(y2 - y1);
+    ctx.fillStyle   = color;
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(rx, ry, rw, rh);
+    ctx.globalAlpha = 1;
+
+    // Horizontal lines at start/end price
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1;
+    ctx.setLineDash([5, 3]);
+    strokeLine(0, y1, w, y1);
+    strokeLine(0, y2, w, y2);
+
+    // Vertical lines at start/end time
+    ctx.strokeStyle = color + '66';
+    strokeLine(x1, 0, x1, h);
+    strokeLine(x2, 0, x2, h);
+    ctx.setLineDash([]);
+
+    // Anchor dots
+    drawAnchorDot(x1, y1);
+    drawAnchorDot(x2, y2);
+
+    // Label box
+    const label1 = `${sign}${priceDiff.toFixed(2)}`;
+    const label2 = `${sign}${pctChange.toFixed(2)}%`;
+    const label3 = `${barCount}봉`;
+
+    ctx.font = 'bold 12px monospace';
+    const maxTw  = Math.max(
+      ctx.measureText(label1).width,
+      ctx.measureText(label2).width,
+      ctx.measureText(label3).width
+    );
+    const boxW = maxTw + 20;
+    const boxH = 58;
+
+    // Position: center of rectangle, clamped within canvas
+    let lx = (x1 + x2) / 2;
+    let ly = (y1 + y2) / 2;
+    const bx = Math.min(Math.max(lx - boxW / 2, 4), w - boxW - 4);
+    const by = Math.min(Math.max(ly - boxH / 2, 4), h - boxH - 4);
+
+    // Box background
+    ctx.fillStyle = 'rgba(15, 17, 22, 0.88)';
+    ctx.beginPath();
+    ctx.rect(bx, by, boxW, boxH);
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+
+    // Left accent bar
+    ctx.fillStyle = color;
+    ctx.fillRect(bx, by, 3, boxH);
+
+    // Text
+    ctx.textAlign  = 'center';
+    ctx.textBaseline = 'middle';
+    const cx = bx + boxW / 2 + 1;
+
+    ctx.font      = 'bold 12px monospace';
+    ctx.fillStyle = color;
+    ctx.fillText(label1, cx, by + 14);
+    ctx.fillText(label2, cx, by + 32);
+
+    ctx.font      = '11px monospace';
+    ctx.fillStyle = '#848e9c';
+    ctx.fillText(label3, cx, by + 48);
+
+    ctx.restore();
   }
 
   function applyCtxStyle(style, selected) {
