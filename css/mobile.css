@@ -170,14 +170,9 @@
     font-size: 11px;
   }
 
-  /* Navigation links hidden on trading page — replaced by mobile bottom nav */
-  body.mode-futures .header__nav {
+  /* Trading page on mobile: hide balance to prevent header overflow */
+  body.mode-futures .header__balances {
     display: none;
-  }
-
-  /* nav가 사라지면 flex: 1 공간도 없어지므로, account를 명시적으로 우측 정렬 */
-  body.mode-futures .header__account {
-    margin-left: auto;
   }
 
   /* Portfolio / History: nav stays visible but compact */
