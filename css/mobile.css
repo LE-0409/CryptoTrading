@@ -93,7 +93,8 @@
   white-space: nowrap;
 }
 
-.mobile-nav__item.--active {
+.mobile-nav__item.--active,
+.mobile-nav__item--active {
   color: var(--color-brand);
   border-top-color: var(--color-brand);
 }
@@ -171,14 +172,13 @@
     font-size: 11px;
   }
 
-  /* Nav: compact */
-  .header__nav {
-    gap: 0;
+  /* Trading page: header nav hidden — replaced by bottom tab bar */
+  body.mode-futures .header__nav {
+    display: none;
   }
 
-  .header__nav-item {
-    padding: 5px 6px;
-    font-size: 12px;
+  body.mode-futures .header__account {
+    margin-left: auto;
   }
 
   /* Portfolio / History: hide balance to prevent header overflow */
@@ -333,8 +333,13 @@
     flex: 0 0 auto;
   }
 
-  /* 하단 네비: 메인 뷰에서 숨김 */
+  /* 하단 탭바: 메인 뷰에서 표시 */
   body.mobile-view--main .mobile-nav {
+    display: flex;
+  }
+
+  /* 차트 뒤로가기 버튼: 메인 뷰에서 숨김 */
+  body.mobile-view--main .mobile-nav__item--chart {
     display: none;
   }
 
@@ -385,7 +390,12 @@
     border-top: 1px solid var(--border);
   }
 
-  body.mobile-view--chart .mobile-nav__item {
+  /* 차트 뷰: page 링크 숨기고 뒤로가기만 표시 */
+  body.mobile-view--chart .mobile-nav__item:not(.mobile-nav__item--chart) {
+    display: none;
+  }
+
+  body.mobile-view--chart .mobile-nav__item--chart {
     display: flex;
     align-items: center;
     border-top: none;
