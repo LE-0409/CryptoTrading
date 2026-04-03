@@ -365,7 +365,7 @@
     drawings.push({
       id, type, points,
       style:     { ...DEFAULT_STYLE },
-      fibLevels: isFib ? DEFAULT_FIB_LEVELS() : null,
+      fibLevels: isFib ? loadDefaultFibLevels(type) : null,
     });
     isDrawing  = false;
     drawPoints = [];
@@ -393,6 +393,18 @@
       const raw = localStorage.getItem(`ct_drawings_${symbol}`);
       drawings  = raw ? JSON.parse(raw) : [];
     } catch (_) { drawings = []; }
+  }
+
+  function saveDefaultFibLevels(type, levels) {
+    try { localStorage.setItem(`ct_fib_defaults_${type}`, JSON.stringify(levels)); }
+    catch (_) {}
+  }
+
+  function loadDefaultFibLevels(type) {
+    try {
+      const raw = localStorage.getItem(`ct_fib_defaults_${type}`);
+      return raw ? JSON.parse(raw) : DEFAULT_FIB_LEVELS();
+    } catch (_) { return DEFAULT_FIB_LEVELS(); }
   }
 
   // ── Hit testing ───────────────────────────────────────────────────────────
@@ -830,6 +842,7 @@
       if (!isNaN(v)) levels.push({ value: v, color: c, visible: vis });
     });
     d.fibLevels = levels.sort((a, b) => a.value - b.value);
+    saveDefaultFibLevels(d.type, d.fibLevels);
     saveDrawings(currentSymbol);
     scheduleRender();
     closeFibModal();
