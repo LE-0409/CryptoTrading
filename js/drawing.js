@@ -233,9 +233,12 @@
     isDrawing    = false;
     drawPoints   = [];
     snapInfo     = null;
-    rulerStart   = null;
-    rulerCurrent = null;
-    rulerPhase   = 0;
+    // 커서로 전환할 때는 자 표시 유지, 다른 도구 선택 시에만 초기화
+    if (tool !== 'cursor') {
+      rulerStart   = null;
+      rulerCurrent = null;
+      rulerPhase   = 0;
+    }
 
     document.querySelectorAll('[data-tool]').forEach(btn =>
       btn.classList.toggle('drawing-tool-btn--active', btn.dataset.tool === tool));
@@ -338,6 +341,7 @@
         // 두 번째 클릭: 끝점 확정, 화면 유지
         rulerCurrent = pt;
         rulerPhase   = 2;
+        setTool('cursor');
       }
       scheduleRender();
       return;
@@ -380,7 +384,10 @@
 
   function onKeyDown(e) {
     if (e.key === 'Escape') {
-      if (isDrawing) {
+      if (activeTool === 'ruler') {
+        rulerStart = null; rulerCurrent = null; rulerPhase = 0;
+        setTool('cursor');
+      } else if (isDrawing) {
         isDrawing = false; drawPoints = []; scheduleRender();
       } else if (activeTool !== 'cursor') {
         setTool('cursor');
@@ -408,7 +415,7 @@
     drawPoints = [];
     snapInfo   = null;
     saveDrawings(currentSymbol);
-    scheduleRender();
+    setTool('cursor');
   }
 
   function deleteDrawing(id) {
