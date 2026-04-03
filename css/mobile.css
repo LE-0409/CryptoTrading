@@ -172,13 +172,33 @@
     font-size: 11px;
   }
 
-  /* Trading page: header nav hidden — replaced by bottom tab bar */
-  body.mode-futures .header__nav {
+  /* Trading / Portfolio / History: header nav hidden — replaced by bottom tab bar */
+  body.mode-futures .header__nav,
+  body.page-body .header__nav {
     display: none;
   }
 
-  body.mode-futures .header__account {
+  body.mode-futures .header__account,
+  body.page-body .header__account {
     margin-left: auto;
+  }
+
+  /* Portfolio / History: bottom tab bar 고정 표시 */
+  body.page-body .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    z-index: 300;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+  }
+
+  /* 탭바 높이만큼 페이지 콘텐츠 하단 여백 확보 */
+  body.page-body .page-content {
+    padding-bottom: calc(52px + 16px);
   }
 
   /* Portfolio / History: hide balance to prevent header overflow */
