@@ -160,8 +160,9 @@
     gap: 8px;
   }
 
+  /* Logo: icon only, hide text */
   .header__logo {
-    font-size: 15px;
+    font-size: 0;
   }
 
   .header__logo-icon {
@@ -170,18 +171,13 @@
     font-size: 11px;
   }
 
-  /* Trading page on mobile: hide balance to prevent header overflow */
-  body.mode-futures .header__balances {
-    display: none;
-  }
-
-  /* Portfolio / History: nav stays visible but compact */
+  /* Nav: compact */
   .header__nav {
     gap: 0;
   }
 
   .header__nav-item {
-    padding: 5px 8px;
+    padding: 5px 6px;
     font-size: 12px;
   }
 
