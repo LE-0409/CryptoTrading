@@ -196,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== ChartCore 전역 노출 (indicator-panel.js에서 사용) =====
   window.ChartCore = {
     chart,
+    candleSeries,
     getCandles: () => _currentCandles,
   };
 

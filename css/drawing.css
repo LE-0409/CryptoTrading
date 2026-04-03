@@ -1,0 +1,222 @@
+/* ===== Drawing Tools ===== */
+
+/* Give #tradingChart a stacking context so the canvas overlay
+   positions relative to it (not to .chart__canvas). */
+#tradingChart {
+  position: relative;
+}
+
+/* ── Drawing Toolbar ─────────────────────────────────────────────────────── */
+.drawing-toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 34px;
+  z-index: 20;
+  background: rgba(22, 24, 30, 0.94);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  gap: 2px;
+  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.drawing-toolbar::-webkit-scrollbar { display: none; }
+
+.drawing-tool-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.15s, background-color 0.15s;
+}
+.drawing-tool-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  pointer-events: none;
+}
+.drawing-tool-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+.drawing-tool-btn--active {
+  color: var(--color-brand) !important;
+  background: rgba(240, 185, 11, 0.12) !important;
+}
+/* Magnet ON state */
+.drawing-tool-btn--on {
+  color: var(--color-brand) !important;
+}
+
+.drawing-toolbar__sep {
+  width: 20px;
+  height: 1px;
+  background: var(--border);
+  margin: 3px 0;
+  flex-shrink: 0;
+}
+
+/* ── Context Menu ────────────────────────────────────────────────────────── */
+.drawing-context-menu {
+  position: fixed;
+  z-index: 9999;
+  background: #2b2f36;
+  border: 1px solid #3d4350;
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 120px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  display: none;
+  user-select: none;
+}
+.drawing-ctx-item {
+  display: block;
+  width: 100%;
+  padding: 7px 14px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.drawing-ctx-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.drawing-ctx-item--danger {
+  color: #f6465d;
+}
+
+/* ── Fibonacci Settings Modal ───────────────────────────────────────────── */
+.fib-modal {
+  width: 420px;
+  max-width: 95vw;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+}
+.fib-modal .modal__body {
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 4px;
+}
+
+.fib-modal__legend {
+  display: grid;
+  grid-template-columns: 28px 1fr 52px 28px;
+  gap: 6px;
+  padding: 0 0 8px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  align-items: center;
+  text-align: center;
+}
+.fib-modal__legend span:nth-child(2) { text-align: left; }
+
+.fib-levels-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fib-level-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 52px 28px;
+  gap: 6px;
+  align-items: center;
+}
+
+.fib-lv-vis {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-brand);
+  justify-self: center;
+}
+
+.fib-lv-val {
+  padding: 4px 6px;
+  background: #2b2f36;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-primary);
+  font-size: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fib-lv-val:focus {
+  outline: none;
+  border-color: var(--color-brand);
+}
+
+.fib-lv-color {
+  width: 44px;
+  height: 26px;
+  padding: 1px 2px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: #2b2f36;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.fib-lv-del {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.1s, background 0.1s;
+  padding: 0;
+}
+.fib-lv-del:hover {
+  color: #f6465d;
+  background: rgba(246, 70, 93, 0.1);
+}
+
+.fib-modal__add-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 7px;
+  border: 1px dashed var(--border);
+  border-radius: 3px;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.fib-modal__add-btn:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+/* ── Mobile: hide toolbar on very small screens ─────────────────────────── */
+@media (max-width: 480px) {
+  .drawing-toolbar {
+    display: none;
+  }
+}
