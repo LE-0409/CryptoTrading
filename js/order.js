@@ -254,8 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!amount || !price) {
       buyEstEl.textContent = sellEstEl.textContent = '≈ — USDT'; return;
     }
-    const received = amount * (1 - FEE_RATE);
-    const fmt = received.toLocaleString('ko-KR', { minimumFractionDigits: 5, maximumFractionDigits: 5 });
+    const margin = amount / state.leverage;
+    const fmt = margin.toLocaleString('ko-KR', { minimumFractionDigits: 5, maximumFractionDigits: 5 });
     buyEstEl.textContent = sellEstEl.textContent = '≈ ' + fmt + ' USDT';
   };
 
