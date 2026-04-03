@@ -286,7 +286,8 @@
 
     // Ruler mode — update live end point while placing
     if (activeTool === 'ruler' && rulerPhase === 1) {
-      const pt = pixelToPt(x, y);
+      const snapped = applyMagnet(x, y);
+      const pt      = pixelToPt(snapped.x, snapped.y);
       if (pt) rulerCurrent = pt;
       scheduleRender();
       return;
@@ -325,7 +326,8 @@
 
     if (activeTool === 'ruler') {
       const { x, y } = relPos(e);
-      const pt = pixelToPt(x, y);
+      const snapped  = applyMagnet(x, y);
+      const pt       = pixelToPt(snapped.x, snapped.y);
       if (!pt) return;
       if (rulerPhase === 0 || rulerPhase === 2) {
         // 첫 클릭 or 완료 후 재시작: 시작점 설정
