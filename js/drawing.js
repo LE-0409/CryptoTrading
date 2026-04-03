@@ -10,7 +10,7 @@
   let canvas, ctx;
 
   let activeTool = 'cursor';
-  let isMagnetOn = false;
+  let isMagnetOn = localStorage.getItem('ct_magnet') === 'true';
 
   let drawings = [];        // completed drawings
   let selectedId = null;
@@ -207,9 +207,12 @@
 
     const magnetBtn = document.getElementById('magnetBtn');
     if (magnetBtn) {
+      magnetBtn.classList.toggle('drawing-tool-btn--on', isMagnetOn);
+      magnetBtn.title = isMagnetOn ? '자석 ON' : '자석 OFF';
       magnetBtn.addEventListener('click', e => {
         e.stopPropagation();
         isMagnetOn = !isMagnetOn;
+        localStorage.setItem('ct_magnet', isMagnetOn);
         magnetBtn.classList.toggle('drawing-tool-btn--on', isMagnetOn);
         magnetBtn.title = isMagnetOn ? '자석 ON' : '자석 OFF';
       });
@@ -233,12 +236,9 @@
     isDrawing    = false;
     drawPoints   = [];
     snapInfo     = null;
-    // 커서로 전환할 때는 자 표시 유지, 다른 도구 선택 시에만 초기화
-    if (tool !== 'cursor') {
-      rulerStart   = null;
-      rulerCurrent = null;
-      rulerPhase   = 0;
-    }
+    rulerStart   = null;
+    rulerCurrent = null;
+    rulerPhase   = 0;
 
     document.querySelectorAll('[data-tool]').forEach(btn =>
       btn.classList.toggle('drawing-tool-btn--active', btn.dataset.tool === tool));
@@ -304,6 +304,11 @@
   function onMouseDown(e) {
     if (e.button !== 0 || activeTool === 'ruler') return;
     if (activeTool !== 'cursor') return;
+    // 커서 모드 클릭 시 자 즉시 제거
+    if (rulerPhase === 2) {
+      rulerStart = null; rulerCurrent = null; rulerPhase = 0;
+      scheduleRender();
+    }
     const { x, y } = relPos(e);
     const id = hitTest(x, y);
     selectedId = id;
@@ -338,10 +343,15 @@
         rulerCurrent = pt;
         rulerPhase   = 1;
       } else {
-        // 두 번째 클릭: 끝점 확정, 화면 유지
+        // 두 번째 클릭: 끝점 확정 후 커서로 전환 (ruler 상태 유지)
         rulerCurrent = pt;
         rulerPhase   = 2;
-        setTool('cursor');
+        activeTool   = 'cursor';
+        isDrawing    = false; drawPoints = []; snapInfo = null;
+        document.querySelectorAll('[data-tool]').forEach(btn =>
+          btn.classList.toggle('drawing-tool-btn--active', btn.dataset.tool === 'cursor'));
+        canvas.style.pointerEvents = 'none';
+        container.style.cursor     = '';
       }
       scheduleRender();
       return;
@@ -384,10 +394,7 @@
 
   function onKeyDown(e) {
     if (e.key === 'Escape') {
-      if (activeTool === 'ruler') {
-        rulerStart = null; rulerCurrent = null; rulerPhase = 0;
-        setTool('cursor');
-      } else if (isDrawing) {
+      if (isDrawing) {
         isDrawing = false; drawPoints = []; scheduleRender();
       } else if (activeTool !== 'cursor') {
         setTool('cursor');
