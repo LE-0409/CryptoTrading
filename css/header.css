@@ -78,9 +78,9 @@
 
 .header__balance {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
 
 .header__balance--futures {
