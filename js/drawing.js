@@ -588,7 +588,7 @@
       id: '__preview__', type: activeTool,
       points:    allPts,
       style:     { ...DEFAULT_STYLE, color: DEFAULT_STYLE.color + '99' },
-      fibLevels: isFib ? DEFAULT_FIB_LEVELS() : null,
+      fibLevels: isFib ? loadDefaultFibLevels(activeTool) : null,
     };
     drawShape(preview, false, false);
 
