@@ -201,15 +201,6 @@
     padding-bottom: calc(52px + 16px);
   }
 
-  /* Portfolio / History: hide balance to prevent header overflow */
-  .page-body .header__balances {
-    display: none;
-  }
-
-  .header__balance-label {
-    display: none;
-  }
-
   .header__balance-value {
     font-size: 13px;
   }
@@ -482,10 +473,6 @@
   .header__nav-item {
     padding: 5px 8px;
     font-size: 12px;
-  }
-
-  .header__balance-label {
-    display: none;
   }
 
   .header__balance-value {
