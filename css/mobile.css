@@ -498,6 +498,11 @@
     gap: 14px;
   }
 
+  /* 600px 이하에서도 하단 탭바(52px) 가림 방지 */
+  body.page-body .page-content {
+    padding-bottom: calc(52px + 16px);
+  }
+
   /* History tabs: horizontal scroll */
   .history-tabs {
     overflow-x: auto;
