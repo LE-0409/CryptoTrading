@@ -30,7 +30,8 @@
   let rulerCurrent = null;     // {price, time} — ruler tool live end
   let rulerPhase   = 0;        // 0=idle, 1=placing end, 2=confirmed
 
-  let currentSymbol = 'BTCUSDT';
+  let drawingsHidden = false;
+  let currentSymbol  = 'BTCUSDT';
   let fibModalId    = null;
   let rafId         = null;
 
@@ -215,6 +216,22 @@
         localStorage.setItem('ct_magnet', isMagnetOn);
         magnetBtn.classList.toggle('drawing-tool-btn--on', isMagnetOn);
         magnetBtn.title = isMagnetOn ? '자석 ON' : '자석 OFF';
+      });
+    }
+
+    const toggleBtn = document.getElementById('toggleDrawingsBtn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        drawingsHidden = !drawingsHidden;
+        toggleBtn.classList.toggle('drawing-tool-btn--on', drawingsHidden);
+        toggleBtn.title = drawingsHidden ? '그리기 표시' : '그리기 숨기기';
+        toggleBtn.querySelector('svg').innerHTML = drawingsHidden
+          ? `<ellipse cx="8" cy="8" rx="6" ry="4" stroke="currentColor" stroke-width="1.3"/>
+             <line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" stroke-width="1.3"/>`
+          : `<ellipse cx="8" cy="8" rx="6" ry="4" stroke="currentColor" stroke-width="1.3"/>
+             <circle cx="8" cy="8" r="2" fill="currentColor"/>`;
+        scheduleRender();
       });
     }
 
@@ -599,12 +616,13 @@
     if (!ctx) return;
     ctx.clearRect(0, 0, cW(), cH());
 
-    for (const d of drawings) {
-      drawShape(d, d.id === selectedId, d.id === hoveredId);
-    }
-
-    if (isDrawing && activeTool !== 'cursor' && drawPoints.length > 0) {
-      renderPreview();
+    if (!drawingsHidden) {
+      for (const d of drawings) {
+        drawShape(d, d.id === selectedId, d.id === hoveredId);
+      }
+      if (isDrawing && activeTool !== 'cursor' && drawPoints.length > 0) {
+        renderPreview();
+      }
     }
 
     renderRuler();
