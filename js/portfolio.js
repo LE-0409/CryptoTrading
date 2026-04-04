@@ -15,9 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const futuresUsdt = saved?.futuresUsdt ?? 100;
 
-  // ===== 헤더 잔고 (총 평가금액 계산 후 업데이트) =====
-  const balEls = document.querySelectorAll('.header__balance-value');
-
   // ===== Binance 현재가 조회 =====
   const SYMBOLS = ['BTCUSDT', 'ETHUSDT'];
   const prices  = {};
@@ -40,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }, 0);
   // futuresUsdt = 포지션 증거금이 이미 차감된 잔여 잔고이므로 lockedMargin을 더해야 실제 총 자산
   const futuresTotal = futuresUsdt + lockedMargin + futuresPnl;
-  if (balEls[0]) balEls[0].textContent = parseFloat(futuresTotal).toFixed(2);
 
   // ===== 총 실현 PnL (청산 체결 기록에서만 집계) =====
   // 수수료는 체결/청산 시 잔고에서 실제로 차감됨 — realizedPnl은 수수료 제외 순수 PnL

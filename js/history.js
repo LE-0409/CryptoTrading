@@ -3,16 +3,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ===== 헤더 잔고 (총 평가금액 = 가용잔고 + 포지션 증거금) =====
-  const saved     = JSON.parse(localStorage.getItem('ct_state')     || 'null');
-  const positions = JSON.parse(localStorage.getItem('ct_positions') || '[]');
-  const balEls    = document.querySelectorAll('.header__balance-value');
-  const futuresUsdt  = saved?.futuresUsdt ?? 100;
-  const lockedMargin = positions
-    .filter(p => p.mode === 'futures')
-    .reduce((s, p) => s + (p.margin ?? 0), 0);
-  if (balEls[0]) balEls[0].textContent = (futuresUsdt + lockedMargin).toFixed(2);
-
   // ===== 데이터 로드 =====
   const trades  = JSON.parse(localStorage.getItem('ct_history') || '[]');
   const pending = JSON.parse(localStorage.getItem('ct_pending')  || '[]');
